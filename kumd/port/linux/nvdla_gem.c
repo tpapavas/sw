@@ -47,6 +47,10 @@
 #include "common.h"
 
 //// KUMD ////
+#ifndef KUMD
+#define KUMD
+#endif
+
 #include <kumd/umd/core/include/nvdla_inf.h>
 #include <kumd/port/linux/include/nvdla_linux.h>
 
