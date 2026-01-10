@@ -45,7 +45,7 @@ struct NvDlaTaskRec {
     NvU32 num_addresses;
     NvDlaMemDesc address_list[NVDLA_MAX_BUFFERS_PER_TASK];
     //// [KUMD] ////
-    dla_network_desc *u_network_desc;
+    // dla_network_desc *u_network_desc;
 };
 typedef struct NvDlaTaskRec NvDlaTask;
 
