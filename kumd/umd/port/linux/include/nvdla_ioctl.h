@@ -38,6 +38,8 @@
 #include <linux/ioctl.h>
 #include <linux/types.h>
 
+#include "priv/Dla_fw_layout.h"
+
 #if !defined(__KERNEL__)
 #define __user
 #endif
@@ -54,6 +56,7 @@ struct nvdla_mem_handle {
     __u32 handle;
     __u32 reserved;
     __u64 offset;
+    __u64 v_addr;
 };
 
 /**
@@ -70,6 +73,11 @@ struct nvdla_ioctl_submit_task {
 #define NVDLA_NO_TIMEOUT    (0xffffffff)
     __u32 timeout;
     __u64 address_list;
+    struct dla_network_desc *network;
+    struct dla_common_op_desc *deps;
+    union dla_operation_container *ops;
+    union dla_surface_container *surfs;
+    struct dla_lut_param *luts;
 };
 
 /**

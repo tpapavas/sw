@@ -35,6 +35,8 @@
 #include "dla_engine_internal.h"
 #include "engine_debug.h"
 
+#include "nvdla_linux.h"
+
 static const uint8_t map_precision[] = {
 	FIELD_ENUM(CDMA_D_MISC_CFG_0, IN_PRECISION, INT8),
 	FIELD_ENUM(CDMA_D_MISC_CFG_0, IN_PRECISION, INT16),
@@ -264,6 +266,9 @@ processor_conv_program(struct dla_processor_group *group)
 	struct dla_conv_op_desc *conv_op;
 	struct dla_conv_surface_desc *conv_surface;
 
+	struct nvdla_task *task;
+	task = (struct nvdla_task *) engine->task->task_data;
+
 	dla_trace("Enter: %s", __func__);
 
 	weight_compress_support = engine->config_data->weight_compress_support;
@@ -305,6 +310,11 @@ processor_conv_program(struct dla_processor_group *group)
 					DESTINATION_DMA);
 		CHECK_ALIGN(weight_address, atom_size);
 		CHECK_ALIGN(conv_surface->weight_data.size, 128);
+
+		dla_trace("[KUMD] conv: weight_address: 0x%08x\n", weight_address);
+		dla_trace("[KUMD] conv: weight_offset: %u\n", conv_surface->weight_data.offset);
+		dla_trace("[KUMD] conv: weight_address: 0x%08x\n",
+			task->address_list[conv_surface->weight_data.address].v_addr);
 	}
 
 	if (conv_surface->dst_data.address != -1) {

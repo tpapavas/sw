@@ -32,6 +32,7 @@
 #include <dla_interface.h>
 
 #include "dla_engine_internal.h"
+#include "nvdla_ioctl.h"
 
 #define DLA_OP_CACHE_SIZE (DLA_NUM_GROUPS * ((DLA_OP_NUM + 2) * 2))
 
@@ -71,6 +72,11 @@ dla_get_op_desc(struct dla_task *task, int16_t index,
 	uint64_t dep_graph_addr;
 	struct dla_common_op_desc *desc = NULL;
 	struct dla_engine *engine = dla_get_engine();
+
+	struct dla_engine *u__engine = dla_get_u__engine();
+	struct nvdla_ioctl_submit_task *u__task = (struct nvdla_ioctl_submit_task *) u__engine->task->task_data;
+	struct dla_common_op_desc *u__descs = (struct dla_common_op_desc *) u__task->deps;
+	struct dla_common_op_desc *u__desc = &u__descs[index];
 
 	if (index == -1) {
 		dla_debug("no desc get due to index==-1\n");
@@ -113,7 +119,7 @@ dla_get_op_desc(struct dla_task *task, int16_t index,
 				goto exit;
 			}
 
-			if (op_type != desc->op_type) {
+			if (op_type != u__desc->op_type) {
 				/*
 				 * op_type of entry read from DRAM should not
 				 * mismatch with given op_type. If they
@@ -122,17 +128,17 @@ dla_get_op_desc(struct dla_task *task, int16_t index,
 				 */
 				dla_error("Fetched [op_type=%u] from DRAM doesn't "
 					"match with op_type[%u]\n",
-					desc->op_type,
+					u__desc->op_type,
 					op_type);
-				desc->op_type = op_type;
-				desc->index = -1;
-				desc->roi_index = -1;
-				desc = NULL;
+				u__desc->op_type = op_type;
+				u__desc->index = -1;
+				u__desc->roi_index = -1;
+				u__desc = NULL;
 				goto exit;
 			}
 
-			desc->index = index;
-			desc->roi_index = roi_index;
+			u__desc->index = index;
+			u__desc->roi_index = roi_index;
 
 			/**
 			 * Refcount must be 0 if we are reading it first time
@@ -146,7 +152,7 @@ dla_get_op_desc(struct dla_task *task, int16_t index,
 	}
 
 exit:
-	return desc;
+	return u__desc;
 }
 
 static void

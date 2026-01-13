@@ -90,5 +90,6 @@ struct dla_engine {
 };
 
 struct dla_engine *dla_get_engine(void);
+struct dla_engine *dla_get_u__engine(void);
 
 #endif

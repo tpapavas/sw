@@ -32,11 +32,18 @@
 #include "dlaerror.h"
 #include "dlatypes.h"
 
+#ifndef KUMD
+#include "priv/Dla_fw_layout.h"
+#else
+#include "dla_interface.h"
+#endif
+
 #define NVDLA_MAX_BUFFERS_PER_TASK (6144)
 
 struct NvDlaMemDescRec{
     void *handle;
     NvU32 offset;
+    void *vAddr;
 };
 typedef struct NvDlaMemDescRec NvDlaMemDesc;
 
@@ -64,7 +71,11 @@ void NvDlaDestroy(void *session_handle);
 NvDlaError NvDlaOpen(void *session_handle, NvU32 instance, void **device_handle);
 void NvDlaClose(void *device_handle);
 
-NvDlaError NvDlaSubmit(void *session_handle, void *device_handle, NvDlaTask *tasks, NvU32 num_tasks);
+NvDlaError NvDlaSubmit(void *session_handle, void *device_handle, NvDlaTask *tasks, NvU32 num_tasks,
+                        struct dla_network_desc *network, struct dla_common_op_desc *deps,
+                        union dla_operation_container *ops, union dla_surface_container *surfs,
+                        struct dla_lut_param *luts
+);
 
 NvDlaError NvDlaAllocMem(void *session_handle, void *device_handle,
                          void **mem_handle, void **pData, NvU32 size,

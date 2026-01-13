@@ -53,6 +53,9 @@ INCLUDES += \
     -I$(ROOT)/external/include \
     -I$(LOCAL_DIR)/include \
     -I$(LOCAL_DIR)
+#     -I$(ROOT)/../port/linux/include \
+#     -I$(ROOT)/../firmware/include \
+#     -I$(ROOT)/../include
 
 MODULE_CPPFLAGS += -DNVDLA_UTILS_ERROR_TAG="\"DLA_RUNTIME\""
 MODULE_CFLAGS += -DNVDLA_UTILS_ERROR_TAG="\"DLA_RUNTIME\""

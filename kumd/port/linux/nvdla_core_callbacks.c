@@ -175,6 +175,7 @@ static int32_t dla_read_dma_address(void *driver_context, void *task_data,
 	struct nvdla_device *nvdla_dev =
 			(struct nvdla_device *)driver_context;
 	struct nvdla_task *task = (struct nvdla_task *)task_data;
+	// struct nvdla_ioctl_submit_task *task = (struct nvdla_ioctl_submit_task *)task_data;
 
 	if (index == -1 || index > task->num_addresses)
 		return -EINVAL;
@@ -318,7 +319,7 @@ int32_t nvdla_task_submit(struct nvdla_device *nvdla_dev, struct nvdla_task *tas
 
 	nvdla_dev->task = task;
 
-	err = dla_execute_task(nvdla_dev->engine_context, (void *)task, nvdla_dev->config_data);
+	err = dla_execute_task(nvdla_dev->engine_context, (void *)task, nvdla_dev->config_data, (void *)u__task);
 	if (err) {
 		pr_err("Task execution failed\n");
 		return err;

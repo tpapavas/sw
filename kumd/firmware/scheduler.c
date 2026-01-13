@@ -37,6 +37,8 @@
 #include "dla_engine_internal.h"
 #include "engine_debug.h"
 
+#include "nvdla_ioctl.h"
+
 #define MAX_NUM_ADDRESSES	256
 
 static uint64_t roi_array_length __aligned(8);
@@ -58,6 +60,11 @@ dla_read_lut(struct dla_engine *engine, int16_t index, void *dst)
 	int32_t ret = 0;
 	uint64_t src_addr;
 
+	struct dla_engine *u__engine = dla_get_u__engine();
+	struct nvdla_ioctl_submit_task *u__task = (struct nvdla_ioctl_submit_task *) u__engine->task->task_data;
+	struct dla_lut_param *u__luts = (struct dla_lut_param *) u__task->luts;
+	struct dla_lut_param *u__lut = &u__luts[index];
+
 	if (index == -1) {
 		ret = ERR(INVALID_INPUT);
 		goto exit;
@@ -70,6 +77,8 @@ dla_read_lut(struct dla_engine *engine, int16_t index, void *dst)
 			src_addr, (void *)dst,
 			sizeof(struct dla_lut_param),
 			(sizeof(struct dla_lut_param) * (uint64_t)index));
+	
+	dst = (void *) u__lut;
 
 exit:
 	RETURN(ret);
@@ -126,9 +135,20 @@ dla_read_config(struct dla_task *task, struct dla_processor *processor,
 	dla_debug("Enter: %s\n", __func__);
 
 	engine = dla_get_engine();
+	
+	struct dla_engine *u__engine = dla_get_u__engine();
+	struct nvdla_ioctl_submit_task *u__task = (struct nvdla_ioctl_submit_task *) u__engine->task->task_data;
+    union dla_operation_container *u__ops = (union dla_operation_container *) u__task->ops;
+	union dla_operation_container *u__operation_desc;
+	union dla_surface_container *u__surfs = (union dla_surface_container *) u__task->surfs;
+	union dla_surface_container *u__surface_desc;
 
 	roi_index = group->roi_index;
 	index = group->op_desc->index;
+
+	u__operation_desc = &u__ops[index];
+	u__surface_desc = &u__surfs[index];
+	// dla_info("[KUMD] u__operation_desc")
 
 	base = (sizeof(union dla_operation_container) *
 			(uint64_t)engine->network->num_operations *
@@ -146,6 +166,8 @@ dla_read_config(struct dla_task *task, struct dla_processor *processor,
 				base);
 	if (ret)
 		goto exit;
+	
+	group->operation_desc = u__operation_desc;
 
 	LOG_EVENT(roi_index, group->id, processor->op_type,
 					LOG_READ_OP_CONFIG_END);
@@ -166,6 +188,8 @@ dla_read_config(struct dla_task *task, struct dla_processor *processor,
 				sizeof(union dla_surface_container), base);
 	if (ret)
 		goto exit;
+	
+	group->surface_desc = u__surface_desc;
 
 	LOG_EVENT(roi_index, group->id, processor->op_type,
 					LOG_READ_SURF_CONFIG_END);
@@ -731,7 +755,8 @@ exit:
  * @return: 0 for success
  */
 static int
-dla_read_network_config(struct dla_engine *engine)
+dla_read_network_config(struct dla_engine *engine,
+				struct nvdla_ioctl_submit_task *u__task)
 {
 	int32_t ret;
 	uint64_t network_addr;
@@ -775,7 +800,16 @@ dla_read_network_config(struct dla_engine *engine)
 		goto exit;
 	}
 
-	dla_debug_network_desc(&network);
+	//// [KUMD] Compare network info ////
+	// if (u__task->network != (&network)) {
+	// 	dla_error("u__network is different, kernel: 0x%08x\n", &network);
+	// 	ret = ERR(INVALID_INPUT);
+	// 	goto exit;
+	// }
+	dla_info("[KUMD]: u__task->network: 0x%08x\n", u__task->network);
+
+	// dla_debug_network_desc(&network);
+	dla_debug_network_desc(u__task->network);
 
 	if (network.num_operations == 0)
 		goto exit;
@@ -791,6 +825,8 @@ dla_read_network_config(struct dla_engine *engine)
 		dla_error("Failed to read operation desc list address");
 		goto exit;
 	}
+
+	dla_info("[KUMD] task->operation_desc_addr: 0x%08x\n", task->operation_desc_addr);
 
 	/**
 	 * Read surface descriptor list address from address list
@@ -1068,20 +1104,23 @@ dla_process_events(void *engine_context, uint32_t *task_complete)
  * 3. Start processing events received
  */
 int
-dla_execute_task(void *engine_context, void *task_data, void *config_data)
+dla_execute_task(void *engine_context, void *task_data, void *config_data,
+			void *u_task)
 {
 	int32_t ret;
 	struct dla_engine *engine = (struct dla_engine *)engine_context;
 
 	struct dla_engine *u__engine = dla_get_engine();
 
+	struct nvdla_ioctl_submit_task *u__task = (struct nvdla_ioctl_submit_task *) u_task;
+
 	// [KUMD] //
 	// compare engines
-	if (u__engine != engine) {
-		dla_error("u__engine is different\n");
-		ret = ERR(INVALID_INPUT);
-		goto complete;
-	}
+	// if (u__engine != engine) {
+	// 	dla_error("u__engine is different\n");
+	// 	ret = ERR(INVALID_INPUT);
+	// 	goto complete;
+	// }
 
 	if (u__engine == NULL) {
 		dla_error("engine is NULL\n");
@@ -1102,40 +1141,44 @@ dla_execute_task(void *engine_context, void *task_data, void *config_data)
 		goto complete;
 	}
 
-	// engine->task->task_data = task_data;
-	// engine->config_data = config_data;
-	// engine->network = &network;
-	// engine->num_proc_hwl = 0;
-	// engine->stat_enable = 0;
+	engine->task->task_data = task_data;
+	engine->config_data = config_data;
+	engine->network = &network;
+	engine->num_proc_hwl = 0;
+	engine->stat_enable = 0;
 
 	//// [KUMD] ////
-	u__engine->task->task_data = task_data;
+	u__engine = dla_get_u__engine();
+	// u__engine->task->task_data = task_data;
+	u__engine->task->task_data = u__task;
 	u__engine->config_data = config_data;
-	u__engine->network = &network;
+	// // u__engine->network = &network;
+	u__engine->network = u__task->network;
 	u__engine->num_proc_hwl = 0;
 	u__engine->stat_enable = 0;
 
 	LOG_EVENT(0, 0, 0, LOG_TASK_START);
 
-	ret = dla_read_network_config(u__engine);
+	// ret = dla_read_network_config(u__engine, u__task);
+	ret = dla_read_network_config(engine, u__task);
 	if (ret)
 		goto complete;
 
-	dla_debug_address_info(u__engine->task);
+	dla_debug_address_info(engine->task);
 
 	/**
 	 * If no operations in a task means nothing to do, NULL task
 	 */
-	if (u__engine->network->num_operations == 0)
+	if (engine->network->num_operations == 0)
 		goto complete;
 
 #if STAT_ENABLE
 	if (network.stat_list_index != -1)
-		u__engine->stat_enable = 1;
+		engine->stat_enable = 1;
 #endif /* STAT_ENABLE */
 
-	ret = dla_initiate_processors(u__engine);
-	u__engine->status = ret;
+	ret = dla_initiate_processors(engine);
+	engine->status = ret;
 
 complete:
 	LOG_EVENT(0, 0, 0, LOG_TASK_END);

@@ -42,6 +42,8 @@
 
 #include "priv/EMUInterface.h"
 
+#include "Dla_fw_layout.h"
+
 namespace nvdla
 {
 class ITensor;
@@ -113,12 +115,12 @@ protected:
 
     virtual ~Runtime();
 
-    inline bool debugMemoryLayout() const  { return false; }
-    inline bool debugTasks() const { return false; }
-    inline bool debugVersions() const { return false; }
-    inline bool debugLoadables() const { return false; }
-    inline bool debugBinding() const { return false; }
-    inline bool debugStrideRewrite() const { return false; }
+    inline bool debugMemoryLayout() const  { return true; }
+    inline bool debugTasks() const { return true; }
+    inline bool debugVersions() const { return true; }
+    inline bool debugLoadables() const { return true; }
+    inline bool debugBinding() const { return true; }
+    inline bool debugStrideRewrite() const { return true; }
 
     NvDlaError submitInternal(void);
 
@@ -280,6 +282,36 @@ protected:
     bool versionsCompatible(const ILoadable::Version &, const ILoadable::Version &);
 
     size_t m_numDLATasks;
+
+    struct TaskBlobs {
+        NvU8* addr0         = nullptr;
+        size_t addr0_size   = 0;
+
+        NvU8* dep_graph     = nullptr;
+        size_t dep_size     = 0;
+
+        NvU8* op_list       = nullptr;
+        size_t op_size      = 0;
+
+        NvU8* surf_list     = nullptr;
+        size_t surf_size    = 0;
+
+        NvU8* lut_list      = nullptr;
+        size_t lut_size     = 0;
+    };
+
+    struct TensorBlob {
+        NvU8* data   = nullptr;
+        size_t size  = 0;
+    };
+
+    std::map<std::string, TaskBlobs> m_taskBlobs;     // task-0-addr0, dep_graph, ...
+    std::map<std::string, TensorBlob> m_tensorBlobs;  // tb-0, tb-1, ... (weights, bias)
+    void dumpAllTaskBlobs();
+    void dumpOneTask(const std::string& name, TaskBlobs& tb);
+    static const char* opTypeToStr(uint8_t op_type);
+
+    void dumpAllTensorBlobs(std::size_t maxBytesPerBlob = 64);
 
     NvDlaError loadMemory(Loadable *, Memory *);
     void unloadMemory(Memory *);

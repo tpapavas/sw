@@ -175,7 +175,10 @@ NvDlaFreeMem(void *session_handle, void *device_handle, void *mem_handle, void *
 }
 
 NvDlaError
-NvDlaSubmit(void *session_handle, void *device_handle, NvDlaTask *pTasks, NvU32 num_tasks)
+NvDlaSubmit(void *session_handle, void *device_handle, NvDlaTask *pTasks, NvU32 num_tasks,
+        struct dla_network_desc *network, struct dla_common_op_desc *deps,
+        union dla_operation_container *ops, union dla_surface_container *surfs,
+        struct dla_lut_param *luts)
 {
     NvDlaDeviceHandle dla_device = (NvDlaDeviceHandle)device_handle;
     struct nvdla_mem_handle address_list[num_tasks][NVDLA_MAX_BUFFERS_PER_TASK];
@@ -198,7 +201,14 @@ NvDlaSubmit(void *session_handle, void *device_handle, NvDlaTask *pTasks, NvU32 
 
             address_list[i][j].handle = (uint32_t)mem_handle->fd;
             address_list[i][j].offset = pTasks[i].address_list[j].offset;
+            address_list[i][j].v_addr = pTasks[i].address_list[j].vAddr;
         }
+
+        tasks[i].network = network;
+        tasks[i].deps = deps;
+        tasks[i].ops = ops;
+        tasks[i].surfs = surfs;
+        tasks[i].luts = luts;
     }
 
     if (ioctl(dla_device->fd, DRM_IOCTL_NVDLA_SUBMIT, &args) < 0) {

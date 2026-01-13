@@ -119,7 +119,8 @@ void dla_clear_task(void *engine_context);
  * @return			0 on success and negative on error
  *
  */
-int32_t dla_execute_task(void *engine_context, void *task_data, void *config_data);
+int32_t dla_execute_task(void *engine_context, void *task_data, void *config_data,
+						void *u_task);
 
 /**
  * @brief			Register read
