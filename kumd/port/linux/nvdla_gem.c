@@ -32,10 +32,23 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <drm/drm.h>
-#include <drm/drm_gem_cma_helper.h>
+// #include <drm/drm.h>
+// #include <drm/drm_gem_cma_helper.h>
 
 // #include <nvdla_linux.h>
+//// KUMD ////
+#ifndef KUMD
+#define KUMD
+#endif
+
+#include <stdio.h>
+#include <stdlib.h>
+
+#include <error.h>
+#include <errno.h>
+
+#include "dlatypes.h"
+
 #include <nvdla_ioctl.h>
 
 #include <opendla.h>
@@ -46,38 +59,38 @@
 #include "dla_engine_internal.h"
 #include "common.h"
 
-//// KUMD ////
-#ifndef KUMD
-#define KUMD
-#endif
+#include "nvdla_interface.h"
+#include "nvdla_inf.h"
+#include "nvdla_linux.h"
 
-#include <kumd/umd/core/include/nvdla_inf.h>
-#include <kumd/port/linux/include/nvdla_linux.h>
-
-#define to_nvdla_obj(x) container_of(x, struct nvdla_gem_object, object)
+// #define to_nvdla_obj(x) container_of(x, struct nvdla_gem_object, object)
 
 struct nvdla_gem_object {
-	struct drm_gem_object object;
+	// struct drm_gem_object object;
 
 	void *kvaddr;
-	dma_addr_t dma_addr;
+	// dma_addr_t dma_addr;
 	unsigned long dma_attrs;
 };
 
 static int32_t nvdla_fill_task_desc(struct nvdla_ioctl_submit_task *local_task,
 				struct nvdla_task *task)
 {
+	printf("[KUMD] nvdla_fill_task_desc()\n");
 	struct nvdla_mem_handle *handles;
 
 	/* update task desc fields */
+	/*
 	task->num_addresses = local_task->num_addresses;
 
 	handles = kzalloc(local_task->num_addresses *
 				sizeof(struct nvdla_mem_handle), GFP_KERNEL);
+	*/
 	if (handles == NULL)
 		return -EFAULT;
 
 	/* get user addresses list */
+	/*
 	if (copy_from_user(handles,
 		(void __user *)local_task->address_list,
 		(task->num_addresses *
@@ -88,19 +101,33 @@ static int32_t nvdla_fill_task_desc(struct nvdla_ioctl_submit_task *local_task,
 	}
 
 	task->address_list = handles;
+	*/
 
 	return 0;
 }
 
-static int32_t nvdla_submit(struct drm_device *drm, void *arg,
-					struct drm_file *file)
+int32_t u__nvdla_submit(/* struct drm_device *drm, */void *arg /*, struct drm_file *file */)
 {
 	int32_t err = 0;
 	struct nvdla_task *task;
 	struct nvdla_ioctl_submit_task local_task;
 	struct nvdla_ioctl_submit_task __user *user_task;
 	struct nvdla_ioctl_submit_task __user *u__task;
-	struct nvdla_device *nvdla_dev = dev_get_drvdata(drm->dev);
+	// struct nvdla_device *nvdla_dev = dev_get_drvdata(drm->dev);
+
+	//// [KUMD] Set nvdla_device manually
+	struct nvdla_device *nvdla_dev = (struct nvdla_device *) malloc(sizeof(struct nvdla_device));
+	struct nvdla_config *config_data = (struct nvdla_config *) malloc(sizeof(struct nvdla_config));
+	config_data->atom_size = 32;
+	config_data->bdma_enable = false;
+	config_data->rubik_enable = false;
+	config_data->weight_compress_support = false;
+
+	nvdla_dev->base = 0x40000000;
+	nvdla_dev->config_data = config_data;
+
+	dla_register_driver(&nvdla_dev->engine_context, (void *)nvdla_dev);
+
 	struct nvdla_submit_args *args =
 			(struct nvdla_submit_args *)arg;
 
@@ -112,33 +139,44 @@ static int32_t nvdla_submit(struct drm_device *drm, void *arg,
 	u__task = user_task;
 
 	/* IOCTL copy descriptors */
-	if (copy_from_user(&local_task, (void __user *)user_task,
-			(sizeof(*user_task))))
-		return -EFAULT;
+	// if (copy_from_user(&local_task, (void __user *)user_task,
+	// 		(sizeof(*user_task))))
+	// 	return -EFAULT;
 
-	task = kzalloc(sizeof(*task), GFP_KERNEL);
+	// task = kzalloc(sizeof(*task), GFP_KERNEL);
+	task = (struct nvdla_task *)malloc(sizeof(struct nvdla_task));
 	if (task == NULL)
 		return -EFAULT;
 
 	nvdla_dev->task = task;
-	kref_init(&task->ref);
+	// kref_init(&task->ref);
+	//// [KUMD] Copy all ioctl user info to nvdla_task
 	task->nvdla_dev = nvdla_dev;
-	task->file = file;
+	task->address_list = (struct nvdla_mem_handle *) u__task->address_list;
+	task->num_addresses = u__task->num_addresses;
+	task->network = u__task->network;
+	task->deps = u__task->deps;
+	task->ops = u__task->ops;
+	task->surfs = u__task->surfs;
+	task->luts = u__task->luts;
+	// task->file = file;
 
 	/* update task desc fields */
 	err = nvdla_fill_task_desc(&local_task, task);
-	if (err)
-		goto free_task_desc;
+	// if (err)
+	// 	goto free_task_desc;
 
-	err = nvdla_task_submit(nvdla_dev, task, u__task);
+	fprintf(stderr, "[u__nvdla_submit]\tnvdla_task task->address_list address: 0x%08x\n", task->address_list);
+	err = u__nvdla_task_submit(nvdla_dev, task, u__task);
 
-	kfree(task->address_list);
+	// kfree(task->address_list);
 
 free_task_desc:
-	kfree(task);
+	// kfree(task);
 	return err;
 }
 
+/*
 static int32_t nvdla_gem_alloc(struct nvdla_gem_object *nobj)
 {
 	struct drm_gem_object *dobj = &nobj->object;
@@ -328,9 +366,11 @@ static void *nvdla_drm_gem_prime_vmap(struct drm_gem_object *obj)
 
 static void nvdla_drm_gem_prime_vunmap(struct drm_gem_object *obj, void *vaddr)
 {
-	/* Nothing to do */
+	// Nothing to do
 }
+*/
 
+/*
 int32_t nvdla_gem_dma_addr(struct drm_device *dev, struct drm_file *file,
 			uint32_t fd, dma_addr_t *addr)
 {
@@ -454,10 +494,10 @@ int32_t nvdla_drm_probe(struct nvdla_device *nvdla_dev)
 	if (err < 0)
 		goto unref;
 
-	/**
+
 	 * TODO Register separate driver for memory and use DT node to
 	 * read memory range
-	 */
+
 	dma = dma_declare_coherent_memory(drm->dev, 0xC0000000, 0xC0000000,
 			0x40000000, DMA_MEMORY_MAP | DMA_MEMORY_EXCLUSIVE);
 	if (!(dma & DMA_MEMORY_MAP)) {
@@ -478,3 +518,4 @@ void nvdla_drm_remove(struct nvdla_device *nvdla_dev)
 	dma_release_declared_memory(&nvdla_dev->pdev->dev);
 	drm_dev_unref(nvdla_dev->drm);
 }
+*/

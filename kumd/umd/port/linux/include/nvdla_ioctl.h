@@ -38,7 +38,12 @@
 #include <linux/ioctl.h>
 #include <linux/types.h>
 
+
+#ifndef KUMD
 #include "priv/Dla_fw_layout.h"
+#else
+#include "dla_interface.h"
+#endif
 
 #if !defined(__KERNEL__)
 #define __user

@@ -26,6 +26,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <stdio.h>
+
 #include <opendla.h>
 #include <dla_debug.h>
 #include <dla_err.h>
@@ -304,17 +306,17 @@ processor_conv_program(struct dla_processor_group *group)
 	if (conv_surface->weight_data.address != -1) {
 		dla_get_dma_cube_address(engine->driver_context,
 					engine->task->task_data,
-					conv_surface->weight_data.address,
-					conv_surface->weight_data.offset,
+					conv_surface->weight_data.address,  // index in address_list
+					conv_surface->weight_data.offset,  // offset in phys_addr
 					(void *)&weight_address,
 					DESTINATION_DMA);
 		CHECK_ALIGN(weight_address, atom_size);
 		CHECK_ALIGN(conv_surface->weight_data.size, 128);
 
-		dla_trace("[KUMD] conv: weight_address: 0x%08x\n", weight_address);
-		dla_trace("[KUMD] conv: weight_offset: %u\n", conv_surface->weight_data.offset);
-		dla_trace("[KUMD] conv: weight_address: 0x%08x\n",
-			task->address_list[conv_surface->weight_data.address].v_addr);
+		weight_address = task->address_list[conv_surface->weight_data.address].v_addr
+			+ conv_surface->weight_data.offset;
+
+		dla_trace("[KUMD] conv: weight_address: 0x%08x", weight_address);
 	}
 
 	if (conv_surface->dst_data.address != -1) {
@@ -324,6 +326,9 @@ processor_conv_program(struct dla_processor_group *group)
 					conv_surface->dst_data.offset,
 					(void *)&output_address,
 					DESTINATION_DMA);
+		output_address = task->address_list[conv_surface->dst_data.address].v_addr
+			+ conv_surface->dst_data.offset;
+		dla_trace("[KUMD] conv: output_address: 0x%08x", output_address);
 		CHECK_ALIGN(output_address, atom_size);
 		CHECK_ALIGN(conv_surface->dst_data.size, atom_size);
 		CHECK_ALIGN(conv_surface->dst_data.line_stride, atom_size);
@@ -334,9 +339,11 @@ processor_conv_program(struct dla_processor_group *group)
 					group->op_desc->index,
 					group->roi_index,
 					map_img_fmt[conv_op->data_format][1]);
-	if (ret)
-		goto exit;
+	// [gem5-plus-se] still using kmd functions; may return non-zero value.
+	// if (ret)
+	// 	goto exit;
 
+	dla_trace("[KUMD] conv: input_address: 0x%08x", input_address);
 	CHECK_ALIGN(input_address, atom_size);
 
 	ASSERT_GOTO((conv_op->out_cvt.scale  == 1),

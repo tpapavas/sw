@@ -29,7 +29,10 @@
 #ifndef __NVDLA_INTERFACE_H_
 #define __NVDLA_INTERFACE_H_
 
+#include <stdio.h>
+
 #include <linux/types.h>
+#include "dlatypes.h"
 
 /**
  * @brief			Register driver to firmware
@@ -254,7 +257,8 @@ int64_t dla_get_time_us(void);
  * @param str			Format string and variable arguments
  *
  */
-void dla_debug(const char *str, ...);
+// void dla_debug(const char *str, ...);
+#define dla_debug(format, ...) fprintf(stderr, format "\n", ##__VA_ARGS__)
 
 /**
  * @brief			Print information message
@@ -266,7 +270,8 @@ void dla_debug(const char *str, ...);
  * @param str			Format string and variable arguments
  *
  */
-void dla_info(const char *str, ...);
+// void dla_info(const char *str, ...);
+#define dla_info(format, ...) fprintf(stderr, format "\n", ##__VA_ARGS__)
 
 /**
  * @brief			Print warning message
@@ -278,7 +283,8 @@ void dla_info(const char *str, ...);
  * @param str			Format string and variable arguments
  *
  */
-void dla_warn(const char *str, ...);
+// void dla_warn(const char *str, ...);
+#define dla_warn(format, ...) fprintf(stderr, format "\n", ##__VA_ARGS__)
 
 /**
  * @brief			Print error message
@@ -290,7 +296,8 @@ void dla_warn(const char *str, ...);
  * @param str			Format string and variable arguments
  *
  */
-void dla_error(const char *str, ...);
+// void dla_error(const char *str, ...);
+#define dla_error(format, ...) fprintf(stderr, format "\n", ##__VA_ARGS__)
 
 /**
  * @brief			Fill memory region

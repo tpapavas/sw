@@ -34,6 +34,8 @@
 #include "dla_engine_internal.h"
 #include "common.h"
 
+#include "nvdla_linux.h"
+
 static const uint32_t map_rdma_ptr_addr[] = {
 	0xFFFFFFFF,
 	0xFFFFFFFF,
@@ -158,6 +160,11 @@ dla_read_input_address(struct dla_data_cube *data,
 						data->offset,
 						(void *)address,
 						DESTINATION_DMA);
+		
+		struct nvdla_task *task;
+		task = (struct nvdla_task *) en->task->task_data;
+		*address = task->address_list[data->address].v_addr
+			+ data->offset;
 		goto exit;
 	}
 

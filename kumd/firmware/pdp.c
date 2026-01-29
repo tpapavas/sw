@@ -26,6 +26,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <stdio.h>
+
 #include <opendla.h>
 #include <dla_debug.h>
 #include <dla_err.h>
@@ -34,6 +36,7 @@
 #include "common.h"
 #include "dla_engine_internal.h"
 #include "engine_debug.h"
+#include "nvdla_linux.h"
 
 #define MAX_SPLIT_NUM	64
 #define ARRAY_SIZE(a)	(sizeof(a) / sizeof((a[0])))
@@ -272,6 +275,9 @@ processor_pdp_program(struct dla_processor_group *group)
 	struct dla_pdp_op_desc *pdp_op;
 	struct dla_pdp_surface_desc *pdp_surface;
 
+	struct nvdla_task *task;
+	task = (struct nvdla_task *) engine->task->task_data;
+
 	dla_trace("Enter: %s", __func__);
 
 	pdp_op = &group->operation_desc->pdp_op;
@@ -286,6 +292,7 @@ processor_pdp_program(struct dla_processor_group *group)
 					group->op_desc->index,
 					group->roi_index,
 					1);
+	dla_debug("[KUMD] pdp: input_address: 0x%08x", input_address);
 	if (ret)
 		goto exit;
 
@@ -296,6 +303,9 @@ processor_pdp_program(struct dla_processor_group *group)
 					pdp_surface->dst_data.offset,
 					(void *)&output_address,
 					DESTINATION_DMA);
+		output_address = task->address_list[pdp_surface->dst_data.address].v_addr
+			+ pdp_surface->dst_data.offset;
+		dla_debug("[KUMD] pdp: output_address: 0x%08x", output_address);
 
 	if (pdp_surface->src_data.type != DLA_MEM_HW) {
 		/* PDP RDMA */

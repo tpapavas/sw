@@ -71,10 +71,12 @@
 #define M5OP_WAIT_ACCEL         0x56 // Reserved for user
 #define M5OP_START_ACCEL_ID     0x57 // Reserved for user
 #define M5OP_WAIT_ACCEL_ID      0x58 // Reserved for user
-#define M5OP_RESERVED5          0x59 // Reserved for user
+#define M5OP_NVDLA_READ_REG     0x59 // Reserved for user
 
 #define M5OP_WORK_BEGIN         0x5a
 #define M5OP_WORK_END           0x5b
+
+#define M5OP_NVDLA_WRITE_REG    0x5c // Added by user. Maybe not be correct
 
 #define M5OP_DIST_TOGGLE_SYNC   0x62
 
@@ -111,7 +113,9 @@
     M5OP(m5_start_accel, M5OP_START_ACCEL)                      \
     M5OP(m5_wait_accel, M5OP_WAIT_ACCEL)                        \
     M5OP(m5_start_accel_id, M5OP_START_ACCEL_ID)                \
-    M5OP(m5_wait_accel_id, M5OP_WAIT_ACCEL_ID)
+    M5OP(m5_wait_accel_id, M5OP_WAIT_ACCEL_ID)                  \
+    M5OP(m5_nvdla_read_reg, M5OP_NVDLA_READ_REG)                \
+    M5OP(m5_nvdla_write_reg, M5OP_NVDLA_WRITE_REG)
 #define M5OP_MERGE_TOKENS_I(a, b) a##b
 #define M5OP_MERGE_TOKENS(a, b) M5OP_MERGE_TOKENS_I(a, b)
 

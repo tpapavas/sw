@@ -26,18 +26,24 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+//// KUMD ////
+#ifndef KUMD
+#define KUMD
+#endif
+
+#include <stdio.h>
+
 #include <opendla.h>
 #include <dla_debug.h>
-// #include <dla_engine.h>
-#include <kumd/firmware/include/dla_engine.h>
+#include "dla_engine.h"
 #include <dla_err.h>
-// #include <dla_interface.h>
-#include <kumd/firmware/include/dla_interface.h>
+#include "dla_interface.h"
 
 #include "dla_engine_internal.h"
 #include "engine_debug.h"
 
 #include "nvdla_ioctl.h"
+#include "nvdla_linux.h"
 
 #define MAX_NUM_ADDRESSES	256
 
@@ -61,7 +67,7 @@ dla_read_lut(struct dla_engine *engine, int16_t index, void *dst)
 	uint64_t src_addr;
 
 	struct dla_engine *u__engine = dla_get_u__engine();
-	struct nvdla_ioctl_submit_task *u__task = (struct nvdla_ioctl_submit_task *) u__engine->task->task_data;
+	struct nvdla_task *u__task = (struct nvdla_task *) u__engine->task->task_data;
 	struct dla_lut_param *u__luts = (struct dla_lut_param *) u__task->luts;
 	struct dla_lut_param *u__lut = &u__luts[index];
 
@@ -78,7 +84,12 @@ dla_read_lut(struct dla_engine *engine, int16_t index, void *dst)
 			sizeof(struct dla_lut_param),
 			(sizeof(struct dla_lut_param) * (uint64_t)index));
 	
-	dst = (void *) u__lut;
+	// dst = (void *) u__lut;
+	uint8_t *src = u__lut;
+	uint8_t *my_dst = dst;
+	for (int i_byte = 0; i_byte < sizeof(struct dla_lut_param); i_byte++) {
+		my_dst[i_byte] = src[i_byte];
+	}
 
 exit:
 	RETURN(ret);
@@ -122,6 +133,40 @@ dla_op_programmed(struct dla_processor *processor,
 	RETURN(ret);
 }
 
+void dumpCube(const char* tag, struct dla_data_cube c) {
+            fprintf(stderr, "    [%s]\n", tag);
+            fprintf(stderr, "      type        = %d\n", c.type);
+            fprintf(stderr, "      addr_index  = %d\n", c.address);
+            fprintf(stderr, "      offset      = %d\n", c.offset);
+            fprintf(stderr, "      size        = %d\n", c.size);
+            fprintf(stderr, "      WxHxC       = %d x %d x %d\n", c.width, c.height, c.channel);
+            fprintf(stderr, "      line_stride = %d\n", c.line_stride);
+            fprintf(stderr, "      surf_stride = %d\n", c.surf_stride);
+            fprintf(stderr, "      plane_stride= %d\n", c.plane_stride);
+        };
+
+void dumpSdpOp(const char* tag, const struct dla_sdp_op o) {
+	fprintf(stderr, "    [%s]\n", tag);
+	fprintf(stderr, "      enable      = %d\n", (int)o.enable);
+	fprintf(stderr, "      type        = %d\n", (int)o.type);
+	fprintf(stderr, " mode=%d\n", (int)o.mode);
+	fprintf(stderr, " act=%d\n", (int)o.act);
+	fprintf(stderr, "      alu_type    = %d\n", (int)o.alu_type);
+	fprintf(stderr, "      shift_value = %d\n", (int)o.shift_value);
+	fprintf(stderr, " truncate=%d\n", (int)o.truncate);
+	fprintf(stderr, "      precision   = %d\n", (int)o.precision);
+	fprintf(stderr, "      alu_operand = %d\n", o.alu_operand);
+	fprintf(stderr, " mul_operand=%d\n", o.mul_operand);
+	fprintf(stderr, "      alu_cvt: scale=%d\n", o.cvt.alu_cvt.scale);
+	fprintf(stderr, " trunc=%d\n", (int)o.cvt.alu_cvt.truncate);
+	fprintf(stderr, " enable=%d\n", (int)o.cvt.alu_cvt.enable);
+	fprintf(stderr, " offset=%d\n", o.cvt.alu_cvt.offset);
+	fprintf(stderr, "      mul_cvt: scale=%d\n", o.cvt.mul_cvt.scale);
+	fprintf(stderr, " trunc=%d\n", (int)o.cvt.mul_cvt.truncate);
+	fprintf(stderr, " enable=%d\n", (int)o.cvt.mul_cvt.enable);
+	fprintf(stderr, " offset=%d\n", o.cvt.mul_cvt.offset);
+}
+
 static int32_t
 dla_read_config(struct dla_task *task, struct dla_processor *processor,
 					struct dla_processor_group *group)
@@ -137,7 +182,7 @@ dla_read_config(struct dla_task *task, struct dla_processor *processor,
 	engine = dla_get_engine();
 	
 	struct dla_engine *u__engine = dla_get_u__engine();
-	struct nvdla_ioctl_submit_task *u__task = (struct nvdla_ioctl_submit_task *) u__engine->task->task_data;
+	struct nvdla_task *u__task = (struct nvdla_task *) u__engine->task->task_data;
     union dla_operation_container *u__ops = (union dla_operation_container *) u__task->ops;
 	union dla_operation_container *u__operation_desc;
 	union dla_surface_container *u__surfs = (union dla_surface_container *) u__task->surfs;
@@ -148,7 +193,9 @@ dla_read_config(struct dla_task *task, struct dla_processor *processor,
 
 	u__operation_desc = &u__ops[index];
 	u__surface_desc = &u__surfs[index];
-	// dla_info("[KUMD] u__operation_desc")
+	//// TODO: Check operation_desc or surface container info against Nikos output
+	dla_trace("[KUMD] dla_read_config: common_operation_desc index: %d\n", index);
+	dla_trace("[KUMD] surface_container address: 0x%08x\n", u__surface_desc);
 
 	base = (sizeof(union dla_operation_container) *
 			(uint64_t)engine->network->num_operations *
@@ -167,7 +214,122 @@ dla_read_config(struct dla_task *task, struct dla_processor *processor,
 	if (ret)
 		goto exit;
 	
-	group->operation_desc = u__operation_desc;
+	// group->operation_desc = u__operation_desc;
+	uint8_t *src = u__operation_desc;
+	uint8_t* dst = group->operation_desc;
+	for (int i_byte = 0; i_byte < sizeof(union dla_operation_container); i_byte++) {
+		dst[i_byte] = src[i_byte];
+	}
+
+	switch (group->op_desc->op_type) {
+        case DLA_OP_BDMA: {
+			break;
+		}
+        case DLA_OP_CONV: {
+            struct dla_conv_op_desc conv = group->operation_desc->conv_op;
+            struct dla_conv_surface_desc cs  = u__surface_desc->conv_surface;
+
+			// fprintf(stderr, "    [CONV op_desc]\n");
+			// fprintf(stderr, "      mode           = %d\n", (int)conv.conv_mode);
+			// fprintf(stderr, "      data_reuse     = %d", (int)conv.data_reuse);
+			// fprintf(stderr, " weight_reuse=%d\n", (int)conv.weight_reuse);
+			// fprintf(stderr, "      skip_data_rls  = %d\n", (int)conv.skip_data_rls);
+			// fprintf(stderr, " skip_weight_rls=%d\n", (int)conv.skip_weight_rls);
+			// fprintf(stderr, "      entry_per_slice= %d\n", conv.entry_per_slice);
+			// fprintf(stderr, "      data_format    = %d", (int)conv.data_format);
+			// fprintf(stderr, " pixel_mapping=%d\n", (int)conv.pixel_mapping);
+			// fprintf(stderr, "      fetch_grain    = %d\n", conv.fetch_grain);
+			// fprintf(stderr, "      batch          = %d\n", (int)conv.batch);
+			// fprintf(stderr, " weight_format=%d\n", (int)conv.weight_format);
+			// fprintf(stderr, "      data_bank      = %d", (int)conv.data_bank);
+			// fprintf(stderr, " weight_bank=%d\n", (int)conv.weight_bank);
+			// fprintf(stderr, "      batch_stride   = %d\n", conv.batch_stride);
+			// fprintf(stderr, "      post_extension = %d\n", (int)conv.post_extension);
+			// fprintf(stderr, " release=%d\n", conv.release);
+			// fprintf(stderr, "      input CSC WxHxC= %dx%dx%d\n",
+			// conv.input_width_csc, conv.input_height_csc, conv.input_channel_csc);
+			// fprintf(stderr, "      kernel WxHxC   = %dx%dx%d\n",
+			// conv.kernel_width_csc, conv.kernel_height_csc, conv.kernel_channel_csc);
+			// fprintf(stderr, "      input CMAC WxH = %dx%d\n",
+			// conv.input_width_cmac, conv.input_height_cmac);
+			// fprintf(stderr, "      bytes_per_kernel = %d\n", conv.bytes_per_kernel);
+			// fprintf(stderr, "      conv_stride     = (%d, %d)\n",
+			// (int)conv.conv_stride_x, (int)conv.conv_stride_y);
+			// fprintf(stderr, "      pad (l,t,r,b)   = (%d,%d,%d,%d)\n",
+			// (int)conv.pad_x_left, (int)conv.pad_y_top,
+			// (int)conv.pad_x_right, (int)conv.pad_y_bottom);
+			// fprintf(stderr, "      dilation (x,y)  = (%d, %d)\n",
+			// (int)conv.dilation_x, (int)conv.dilation_y);
+			// fprintf(stderr, "      in_precision    = %d", (int)conv.in_precision);
+			// fprintf(stderr, " out_precision=%d\n", (int)conv.out_precision);
+			// fprintf(stderr, "      pad_val         = %d\n", conv.pad_val);
+			// fprintf(stderr, "      in_cvt:  scale=%d\n", conv.in_cvt.scale);
+			// fprintf(stderr, " trunc=%d\n", (int)conv.in_cvt.truncate);
+			// fprintf(stderr, " enable=%d\n", (int)conv.in_cvt.enable);
+			// fprintf(stderr, " offset=%d\n", conv.in_cvt.offset);
+			// fprintf(stderr, "      out_cvt: scale=%d\n", conv.out_cvt.scale);
+			// fprintf(stderr, " trunc=%d\n", (int)conv.out_cvt.truncate);
+			// fprintf(stderr, " enable=%d\n", (int)conv.out_cvt.enable);
+			// fprintf(stderr, " offset=%d\n", conv.out_cvt.offset);
+
+            // dumpCube("SRC",    cs.src_data);
+            // dumpCube("DST",    cs.dst_data);
+            // dumpCube("WEIGHT", cs.weight_data);
+			break;
+		}
+        case DLA_OP_SDP: {
+			struct dla_sdp_op_desc sdp = group->operation_desc->sdp_op;
+            struct dla_sdp_surface_desc ss = u__surface_desc->sdp_surface;
+			// const dla_sdp_op_desc&     sdp = oc.sdp_op;
+            // const dla_sdp_surface_desc& ss = sc.sdp_surface;
+
+            // fprintf(stderr, "    [SDP op_desc]\n");
+            // fprintf(stderr, "      src_precision = %d\n", (int)sdp.src_precision);
+            // fprintf(stderr, " dst_precision=%d\n", (int)sdp.dst_precision);
+            // fprintf(stderr, "      lut_index     = %d\n", sdp.lut_index);
+            // fprintf(stderr, "      conv_mode     = %d\n", (int)sdp.conv_mode);
+            // fprintf(stderr, "      batch_num     = %d\n", (int)sdp.batch_num);
+            // fprintf(stderr, " batch_stride=%d\n", sdp.batch_stride);
+
+            // dumpSdpOp("X1_OP", sdp.x1_op);
+            // dumpSdpOp("X2_OP", sdp.x2_op);
+            // dumpSdpOp("Y_OP",  sdp.y_op);
+
+            // dumpCube("SRC", ss.src_data);
+            // dumpCube("X1",  ss.x1_data);
+            // dumpCube("X2",  ss.x2_data);
+            // dumpCube("Y",   ss.y_data);
+            // dumpCube("DST", ss.dst_data);
+			break;
+		}
+        case DLA_OP_PDP: {
+			struct dla_pdp_op_desc pdp = group->operation_desc->pdp_op;
+            struct dla_pdp_surface_desc ps = u__surface_desc->pdp_surface;
+
+            // fprintf(stderr, "    [PDP op_desc]\n");
+            // fprintf(stderr, "      pool_mode    = %d", (int)pdp.pool_mode);
+            // fprintf(stderr, " pool_width=%d", (int)pdp.pool_width);
+            // fprintf(stderr, " pool_height=%d\n", (int)pdp.pool_height);
+            // fprintf(stderr, "      split_num    = %d\n",  (int)pdp.split_num);
+            // fprintf(stderr, "      stride_x/y   = (%d, %d)\n",
+			// 	(int)pdp.stride_x, (int)pdp.stride_y);
+            // fprintf(stderr, "      pad (l,r,t,b)= (%d , %d, %d, %d)\n",
+			// 	(int)pdp.pad_left, (int)pdp.pad_right,
+			// 	(int)pdp.pad_top, (int)pdp.pad_bottom);
+            // fprintf(stderr, "      precision    = %d\n", (int)pdp.precision);
+
+            // dumpCube("SRC", ps.src_data);
+            // dumpCube("DST", ps.dst_data);
+			break;
+		}
+        case DLA_OP_CDP: {
+			break;
+		}
+        case DLA_OP_RUBIK: {
+			break;
+		}
+
+	}
 
 	LOG_EVENT(roi_index, group->id, processor->op_type,
 					LOG_READ_OP_CONFIG_END);
@@ -188,8 +350,13 @@ dla_read_config(struct dla_task *task, struct dla_processor *processor,
 				sizeof(union dla_surface_container), base);
 	if (ret)
 		goto exit;
-	
-	group->surface_desc = u__surface_desc;
+
+	// group->surface_desc = u__surface_desc;
+	src = u__surface_desc;
+	dst = group->surface_desc;
+	for (int i_byte = 0; i_byte < sizeof(union dla_surface_container); i_byte++) {
+		dst[i_byte] = src[i_byte];
+	}
 
 	LOG_EVENT(roi_index, group->id, processor->op_type,
 					LOG_READ_SURF_CONFIG_END);
@@ -637,7 +804,8 @@ dla_op_completion(struct dla_processor *processor,
 
 	op_desc = group->op_desc;
 
-#if STAT_ENABLE
+// [gem5-plus-se] WARNING: just disabling it; I don't really know what it does
+#ifndef STAT_ENABLE
 	if (engine->stat_enable == (uint32_t)1) {
 		processor->get_stat_data(processor, group);
 
@@ -811,7 +979,7 @@ dla_read_network_config(struct dla_engine *engine,
 	// dla_debug_network_desc(&network);
 	dla_debug_network_desc(u__task->network);
 
-	if (network.num_operations == 0)
+	if (u__task->network->num_operations == 0)
 		goto exit;
 
 	/**
@@ -835,10 +1003,10 @@ dla_read_network_config(struct dla_engine *engine,
 				network.surface_desc_index,
 				(void *)&task->surface_desc_addr,
 				DESTINATION_PROCESSOR);
-	if (ret) {
-		dla_error("Failed to read surface desc list address");
-		goto exit;
-	}
+	// if (ret) {
+	// 	dla_error("Failed to read surface desc list address");
+	// 	goto exit;
+	// }
 
 	/**
 	 * Read dependency graph address from address list
@@ -847,10 +1015,10 @@ dla_read_network_config(struct dla_engine *engine,
 				network.dependency_graph_index,
 				(void *)&task->dependency_graph_addr,
 				DESTINATION_PROCESSOR);
-	if (ret) {
-		dla_error("Failed to ready dependency graph address");
-		goto exit;
-	}
+	// if (ret) {
+	// 	dla_error("Failed to ready dependency graph address");
+	// 	goto exit;
+	// }
 
 	/**
 	 * Read LUT data list address from address list
@@ -861,10 +1029,10 @@ dla_read_network_config(struct dla_engine *engine,
 					network.lut_data_index,
 					(void *)&task->lut_data_addr,
 					DESTINATION_PROCESSOR);
-		if (ret) {
-			dla_error("Failed to read LUT list address");
-			goto exit;
-		}
+		// if (ret) {
+		// 	dla_error("Failed to read LUT list address");
+		// 	goto exit;
+		// }
 	}
 
 	/**
@@ -920,7 +1088,7 @@ dla_read_network_config(struct dla_engine *engine,
 		}
 	}
 
-#if STAT_ENABLE
+#ifndef STAT_ENABLE
 	if (network.stat_list_index != -1) {
 		ret = dla_get_dma_address(engine->driver_context,
 						task->task_data,
@@ -1143,19 +1311,19 @@ dla_execute_task(void *engine_context, void *task_data, void *config_data,
 
 	engine->task->task_data = task_data;
 	engine->config_data = config_data;
-	engine->network = &network;
+	engine->network = u__task->network; // &network;
 	engine->num_proc_hwl = 0;
 	engine->stat_enable = 0;
 
 	//// [KUMD] ////
-	u__engine = dla_get_u__engine();
+	// u__engine = dla_get_u__engine();
 	// u__engine->task->task_data = task_data;
-	u__engine->task->task_data = u__task;
-	u__engine->config_data = config_data;
-	// // u__engine->network = &network;
-	u__engine->network = u__task->network;
-	u__engine->num_proc_hwl = 0;
-	u__engine->stat_enable = 0;
+	// u__engine->task->task_data = u__task;
+	// u__engine->config_data = config_data;
+	// // // u__engine->network = &network;
+	// u__engine->network = u__task->network;
+	// u__engine->num_proc_hwl = 0;
+	// u__engine->stat_enable = 0;
 
 	LOG_EVENT(0, 0, 0, LOG_TASK_START);
 
@@ -1172,7 +1340,7 @@ dla_execute_task(void *engine_context, void *task_data, void *config_data,
 	if (engine->network->num_operations == 0)
 		goto complete;
 
-#if STAT_ENABLE
+#ifndef STAT_ENABLE
 	if (network.stat_list_index != -1)
 		engine->stat_enable = 1;
 #endif /* STAT_ENABLE */
@@ -1220,5 +1388,5 @@ dla_clear_task(void *engine_context)
 	engine->status = 0;
 	engine->stat_enable = 0;
 
-	dla_info("reset engine done\n");
+	dla_debug("reset engine done\n");
 }

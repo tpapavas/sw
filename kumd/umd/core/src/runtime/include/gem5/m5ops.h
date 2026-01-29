@@ -33,7 +33,7 @@
 extern "C" {
 #endif
 
-#include <stdint.h>
+// #include <stdint.h>
 
 #include <gem5/asm/generic/m5ops.h>
 
@@ -42,7 +42,7 @@ void m5_quiesce(void);
 void m5_quiesce_ns(uint64_t ns);
 void m5_quiesce_cycle(uint64_t cycles);
 uint64_t m5_quiesce_time(void);
-uint64_t m5_rpns();
+uint64_t m5_rpns(void);
 void m5_wake_cpu(uint64_t cpuid);
 
 void m5_exit(uint64_t ns_delay);
@@ -62,7 +62,7 @@ void m5_debug_break(void);
 void m5_switch_cpu(void);
 void m5_dist_toggle_sync(void);
 void m5_add_symbol(uint64_t addr, const char *symbol);
-void m5_load_symbol();
+void m5_load_symbol(void);
 void m5_panic(void);
 void m5_work_begin(uint64_t workid, uint64_t threadid);
 void m5_work_end(uint64_t workid, uint64_t threadid);
@@ -70,13 +70,15 @@ void m5_start_accel(uint64_t addr, uint64_t elements, uint64_t region_mem);
 void m5_start_accel_id(uint64_t addr, uint64_t elements, uint64_t region_mem, int accel_id);
 uint64_t m5_wait_accel(uint64_t addr, uint64_t elements);
 uint64_t m5_wait_accel_id(int accel_id);
+uint32_t m5_nvdla_read_reg(uint64_t addr);
+uint32_t m5_nvdla_write_reg(uint32_t data, uint64_t addr);
 /*
  * Send a very generic poke to the workload so it can do something. It's up to
  * the workload to know what information to look for to interpret an event,
  * such as what PC it came from, what register values are, or the context of
  * the workload itself (is this SE mode? which OS is running?).
  */
-void m5_workload();
+void m5_workload(void);
 
 /*
  * Create _addr and _semi versions all declarations, e.g. m5_exit_addr and

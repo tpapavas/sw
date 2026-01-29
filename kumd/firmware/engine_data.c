@@ -523,7 +523,7 @@ struct dla_engine *dla_get_engine(void)
 
 struct dla_engine *dla_get_u__engine(void)
 {
-	return &u__engine;
+	return &engine;
 }
 
 int32_t dla_register_driver(void **engine_context, void *driver_context)

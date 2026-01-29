@@ -26,6 +26,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <stdio.h>
+
 #include <opendla.h>
 #include <dla_debug.h>
 #include <dla_interface.h>
@@ -33,6 +35,7 @@
 #include "common.h"
 #include "dla_engine_internal.h"
 #include "engine_debug.h"
+#include "nvdla_linux.h"
 
 static const uint8_t map_ena[] = {
 	FIELD_ENUM(SDP_RDMA_D_BRDMA_CFG_0, BRDMA_DISABLE, YES),
@@ -275,6 +278,9 @@ processor_sdp_program(struct dla_processor_group *group)
 	struct dla_sdp_op_desc *sdp_op;
 	struct dla_sdp_surface_desc *sdp_surface;
 
+	struct nvdla_task *task;
+	task = (struct nvdla_task *) engine->task->task_data;
+
 	dla_trace("Enter: %s", __func__);
 	atom_size = engine->config_data->atom_size;
 
@@ -299,6 +305,7 @@ processor_sdp_program(struct dla_processor_group *group)
 					    1);
 		if (ret)
 			goto exit;
+		dla_trace("[KUMD] sdp: src_addr: 0x%08x", src_addr);
 		CHECK_ALIGN(src_addr, atom_size);
 	}
 
@@ -309,6 +316,9 @@ processor_sdp_program(struct dla_processor_group *group)
 					sdp_surface->dst_data.offset,
 					(void *)&dst_addr,
 					DESTINATION_DMA);
+		dst_addr = task->address_list[sdp_surface->dst_data.address].v_addr
+			+ sdp_surface->dst_data.offset;
+		dla_trace("[KUMD] sdp: dst_addr: 0x%08x", dst_addr);
 		CHECK_ALIGN(dst_addr, atom_size);
 	}
 
@@ -330,6 +340,9 @@ processor_sdp_program(struct dla_processor_group *group)
 					sdp_surface->x1_data.offset,
 					(void *)&x1_addr,
 					DESTINATION_DMA);
+		x1_addr = task->address_list[sdp_surface->x1_data.address].v_addr
+			+ sdp_surface->x1_data.offset;
+		dla_debug("[KUMD] sdp: x1_addr: 0x%08x", x1_addr);
 		CHECK_ALIGN(x1_addr, atom_size);
 	}
 	if (x2_rdma_ena) {
@@ -339,6 +352,9 @@ processor_sdp_program(struct dla_processor_group *group)
 					sdp_surface->x2_data.offset,
 					(void *)&x2_addr,
 					DESTINATION_DMA);
+		x2_addr = task->address_list[sdp_surface->x2_data.address].v_addr
+			+ sdp_surface->x2_data.offset;
+		dla_debug("[KUMD] sdp: x2_addr: 0x%08x", x2_addr);
 		CHECK_ALIGN(x2_addr, atom_size);
 	}
 	if (y_rdma_ena) {
@@ -348,6 +364,8 @@ processor_sdp_program(struct dla_processor_group *group)
 					sdp_surface->y_data.offset,
 					(void *)&y_addr,
 					DESTINATION_DMA);
+		y_addr = task->address_list[sdp_surface->y_data.address].v_addr
+			+ sdp_surface->y_data.offset;
 		CHECK_ALIGN(y_addr, atom_size);
 	}
 

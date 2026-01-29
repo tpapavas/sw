@@ -35,13 +35,13 @@
 #ifndef __LINUX_NVDLA_LINUX_H_
 #define __LINUX_NVDLA_LINUX_H_
 
-#include <linux/completion.h>
-#include <linux/device.h>
-#include <linux/kref.h>
-#include <linux/platform_device.h>
-#include <linux/spinlock.h>
+// #include <linux/completion.h>
+// #include <linux/device.h>
+// #include <linux/kref.h>
+// #include <linux/platform_device.h>
+// #include <linux/spinlock.h>
 
-#include <kumd/port/linux/include/nvdla_ioctl.h>
+#include "nvdla_ioctl.h"
 
 /**
  * @brief			Task information submitted from user space
@@ -53,11 +53,16 @@
  * file				DRM file instance
  */
 struct nvdla_task {
-	struct kref ref;
+	// struct kref ref;
 	uint32_t num_addresses;
 	struct nvdla_device *nvdla_dev;
 	struct nvdla_mem_handle *address_list;
-	struct drm_file *file;
+	// struct drm_file *file;
+	struct dla_network_desc *network;
+	struct dla_common_op_desc *deps;
+	union dla_operation_container *ops;
+	union dla_surface_container *surfs;
+	struct dla_lut_param *luts;
 };
 
 /**
@@ -92,17 +97,19 @@ struct nvdla_config
  */
 struct nvdla_device {
 	int32_t irq;
-	struct kref ref;
-	void __iomem *base;
-	spinlock_t nvdla_lock;
-	struct drm_device *drm;
+	// struct kref ref;
+	void /*__iomem*/ *base;
+	// spinlock_t nvdla_lock;
+	// struct drm_device *drm;
 	struct nvdla_task *task;
 	struct nvdla_config *config_data;
-	struct platform_device *pdev;
-	struct completion event_notifier;
+	// struct platform_device *pdev;
+	// struct completion event_notifier;
 
 	void *engine_context;
 };
+
+int32_t u__nvdla_submit(void *arg);
 
 /**
  * @brief			Submit task
@@ -114,7 +121,7 @@ struct nvdla_device {
  * @return			0 on success and negative on error
  *
  */
-int32_t nvdla_task_submit(struct nvdla_device *nvdla_dev, struct nvdla_task *task,
+int32_t u__nvdla_task_submit(struct nvdla_device *nvdla_dev, struct nvdla_task *task,
 					struct nvdla_ioctl_submit_task *u__task);
 
 /**
@@ -129,8 +136,8 @@ int32_t nvdla_task_submit(struct nvdla_device *nvdla_dev, struct nvdla_task *tas
  * @return			0 on success and negative on error
  *
  */
-int32_t nvdla_gem_dma_addr(struct drm_device *dev, struct drm_file *file,
-					uint32_t fd, dma_addr_t *addr);
+int32_t nvdla_gem_dma_addr(/* struct drm_device *dev, struct drm_file *file, */
+					uint32_t fd /*, dma_addr_t *addr */);
 
 /**
  * @brief			DRM probe

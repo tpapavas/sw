@@ -29,10 +29,11 @@
 #ifndef INCLUDED_DLATYPES_H
 #define INCLUDED_DLATYPES_H
 
-#ifndef KUMD
+// #ifndef KUMD
     #include <stdint.h>
     #include <stdbool.h>
-#endif
+    #include <stddef.h>
+// #endif
 
 #define NV_TRUE 1
 #define NV_FALSE 0

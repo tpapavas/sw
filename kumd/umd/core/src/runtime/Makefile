@@ -38,7 +38,9 @@ include $(ROOT)/make/macros.mk
 
 BUILDOUT ?= $(ROOT)/out/core/src/runtime
 BUILDDIR := $(BUILDOUT)/$(MODULE)
-LIB := $(BUILDDIR)/$(MODULE).so
+LIB := $(BUILDDIR)/$(MODULE).a
+
+MODULE_EXTRA_OBJS := $(ROOT)/core/src/runtime/include/gem5/m5ops_plus.o
 
 INCLUDES :=
 MODULE_OPTFLAGS ?= -Os
@@ -53,4 +55,5 @@ include rules.mk
 # the logic to compile and link stuff is in here
 $(LIB): $(ALLMODULE_OBJS)
 	@echo building $(MODULE)  $@
-	$(TOOLCHAIN_PREFIX)g++ -shared $(ALLMODULE_OBJS) -o $@
+# 	$(TOOLCHAIN_PREFIX)g++ -shared $(ALLMODULE_OBJS) -o $@
+	$(TOOLCHAIN_PREFIX)ar rcs $@ $(ALLMODULE_OBJS)

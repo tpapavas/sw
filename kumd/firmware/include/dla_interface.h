@@ -31,6 +31,16 @@
 
 #include <nvdla_interface.h>
 
+#include "dlatypes.h"
+
+#ifndef __packed
+#define __packed __attribute__((packed))
+#endif
+
+#ifndef __aligned
+#define __aligned(x) __attribute__((aligned(x)))
+#endif
+
 /**
  * @ingroup Processors
  * @name DLA Processors

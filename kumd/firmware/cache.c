@@ -26,6 +26,13 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+//// KUMD ////
+#ifndef KUMD
+#define KUMD
+#endif
+
+#include <stdio.h>
+
 #include <opendla.h>
 #include <dla_debug.h>
 #include <dla_engine.h>
@@ -33,6 +40,7 @@
 
 #include "dla_engine_internal.h"
 #include "nvdla_ioctl.h"
+#include "nvdla_linux.h"
 
 #define DLA_OP_CACHE_SIZE (DLA_NUM_GROUPS * ((DLA_OP_NUM + 2) * 2))
 
@@ -74,7 +82,7 @@ dla_get_op_desc(struct dla_task *task, int16_t index,
 	struct dla_engine *engine = dla_get_engine();
 
 	struct dla_engine *u__engine = dla_get_u__engine();
-	struct nvdla_ioctl_submit_task *u__task = (struct nvdla_ioctl_submit_task *) u__engine->task->task_data;
+	struct nvdla_task *u__task = (struct nvdla_task *) u__engine->task->task_data;
 	struct dla_common_op_desc *u__descs = (struct dla_common_op_desc *) u__task->deps;
 	struct dla_common_op_desc *u__desc = &u__descs[index];
 
@@ -119,6 +127,13 @@ dla_get_op_desc(struct dla_task *task, int16_t index,
 				goto exit;
 			}
 
+			// [gem5-plus-SE] put u__desc data to desc_cache pointer
+			uint8_t *src = u__desc;
+			uint8_t* dst = desc;
+			for (int i_byte = 0; i_byte < sizeof(struct dla_common_op_desc); i_byte++) {
+				dst[i_byte] = src[i_byte];
+			}
+
 			if (op_type != u__desc->op_type) {
 				/*
 				 * op_type of entry read from DRAM should not
@@ -137,8 +152,12 @@ dla_get_op_desc(struct dla_task *task, int16_t index,
 				goto exit;
 			}
 
+			// [gem5-plus-SE] WARNING: not quite sure for this
 			u__desc->index = index;
 			u__desc->roi_index = roi_index;
+
+			desc->index = index;
+			desc->roi_index = roi_index;
 
 			/**
 			 * Refcount must be 0 if we are reading it first time
@@ -152,7 +171,7 @@ dla_get_op_desc(struct dla_task *task, int16_t index,
 	}
 
 exit:
-	return u__desc;
+	return desc;
 }
 
 static void

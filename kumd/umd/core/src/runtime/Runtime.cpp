@@ -55,6 +55,36 @@ using std::endl;
 using std::map;
 using std::list;
 
+#define STATIC_MEM_BASE_ADDR 0x20000000
+#define STATIC_MEM_TOTL_SIZE 0x20000000
+#define ALIGN_SIZE 0x40
+
+// Initialize static memory
+static char *static_ptr = (char *) STATIC_MEM_BASE_ADDR;;
+
+void *staticAlloc(size_t bytes)
+{
+    if (static_ptr + bytes < (char *) STATIC_MEM_BASE_ADDR + STATIC_MEM_TOTL_SIZE)
+    {
+        char *aux_ptr = static_ptr;
+
+        size_t offset = bytes / ALIGN_SIZE * ALIGN_SIZE;
+        if (bytes > offset)
+            offset += ALIGN_SIZE;
+
+        static_ptr += offset;
+
+        return aux_ptr;
+    }
+
+    return NULL;
+}
+
+void staticFree(void *ptr)
+{
+    return;
+}
+
 namespace nvdla
 {
 
@@ -401,10 +431,12 @@ bool Runtime::load(NvU8 *buf, int instance)
             unsigned char *p = (unsigned char*)pointer_on_buffer;
 
             if(m_memory[idx_mem].flags() & ILoadable::MemoryListEntry::flags_set()){
+                /*
                 for (int idx = 0; idx <  m_memory[idx_mem].size(); idx++) {
                     //p[idx] = 0xAA;
                     printf("    p[%d] = 0x%02x\n", idx, p[idx]);
                 }
+                */
             }
 
         }
@@ -631,6 +663,7 @@ bool Runtime::fillTaskAddressList(Task *task, NvDlaTask *dla_task)
                   << " mem=" << mem
                   << " hMem=" << hMem
                   << " offset=0x" << std::hex << offset << std::dec
+                  << " vAddr=" << mem->getVirtAddr()
                   << "\n";
 
         dla_task->address_list[ali].handle = hMem;
@@ -848,10 +881,10 @@ NvDlaError Runtime::submitInternal()
                     std::cout << "[KUMD]: task_blob_name: " << task_blob_name << "\n";
                     Runtime::TaskBlobs *task_blob = &m_taskBlobs[task_blob_name];
                     auto net = reinterpret_cast<dla_network_desc*>(task_blob->addr0);
-                    dla_common_op_desc *deps = reinterpret_cast<dla_common_op_desc*>(task_blob->dep_graph);
-                    dla_operation_container *ops = reinterpret_cast<dla_operation_container*>(task_blob->op_list);
-                    dla_surface_container *surfs = reinterpret_cast<dla_surface_container*>(task_blob->surf_list);
-                    dla_lut_param *luts = reinterpret_cast<dla_lut_param*>(task_blob->lut_list);
+                    struct dla_common_op_desc *deps = reinterpret_cast<struct dla_common_op_desc*>(task_blob->dep_graph);
+                    union dla_operation_container *ops = reinterpret_cast<union dla_operation_container*>(task_blob->op_list);
+                    union dla_surface_container *surfs = reinterpret_cast<union dla_surface_container*>(task_blob->surf_list);
+                    struct dla_lut_param *luts = reinterpret_cast<struct dla_lut_param*>(task_blob->lut_list);
 
                     dev = getDLADeviceContext(m_loaded_instance);
                     std::cout << "[Runtime::submitInternal] Done getDLADeviceContext(m_loaded_instance="
@@ -964,6 +997,7 @@ NvDlaError Runtime::allocateSystemMemory(void **phMem, NvU64 size, void **pData)
 
     /* Allocate memory for network */
     PROPAGATE_ERROR_FAIL( NvDlaAllocMem(NULL, hDla, phMem, pData, size, NvDlaHeap_System) );
+    *pData = staticAlloc(size);
 
     std::cout << "[Runtime::allocateSystemMemory]  NvDlaAllocMem SUCCESS\n";
     std::cout << "[Runtime::allocateSystemMemory]  *phMem(after)=" << (phMem ? *phMem : nullptr)
@@ -1002,7 +1036,7 @@ void Runtime::freeSystemMemory(void *phMem, NvU64 size)
     void *pData = m_hmem_memory_map[phMem];
 
     /* Free memory */
-    NvDlaFreeMem(NULL, hDla, phMem, pData, size);
+    // NvDlaFreeMem(NULL, hDla, phMem, pData, size);
     m_hmem_memory_map.erase(phMem);
 }
 
@@ -1430,6 +1464,7 @@ void Runtime::dumpAllTensorBlobs(std::size_t maxBytesPerBlob )
         std::size_t toDump = std::min<std::size_t>(tb.size, maxBytesPerBlob);
         std::cout << "  first " << toDump << " bytes (hex):\n    ";
 
+        /*
         for (std::size_t i = 0; i < toDump; ++i) {
             std::cout << std::hex << std::setw(2) << std::setfill('0')
                       << (unsigned int)tb.data[i] << " ";
@@ -1439,6 +1474,7 @@ void Runtime::dumpAllTensorBlobs(std::size_t maxBytesPerBlob )
             }
         }
         std::cout << std::dec << "\n";
+        */
     }
 
     std::cout << "\n================ END TENSOR BLOBS DUMP ====================\n";
@@ -1489,6 +1525,7 @@ NvDlaError Runtime::loadMemory(Loadable *l, Memory *memory)
             /* Allocate memory for network */
             std::cout << "[Runtime::loadMemory] hMem == 0 (/* Allocate memory for network */) -> NvDlaAllocMem\n";
             PROPAGATE_ERROR_FAIL( NvDlaAllocMem(m_dla_handle, hDla, &hMem, (void **)(&mapped_mem), size, NvDlaHeap_System) );
+            mapped_mem = staticAlloc(size);
 
             std::cout << "[Runtime::loadMemory] NvDlaAllocMem OK, hMem=" << hMem
                       << " mapped_mem=" << mapped_mem << "\n";
@@ -1545,10 +1582,12 @@ NvDlaError Runtime::loadMemory(Loadable *l, Memory *memory)
                 }
 
                 if (ok && data && content_blob.size > 0) {
+                    /*
                     for (int i =0; i < (int)content_blob.size; i++) {
                         std::cout << "[Runtime::loadMemory]     data[" << i << "] = 0x"
                                   << std::hex << (unsigned int)(data[i]) << std::dec << "\n";
                     }
+                    */
                 }
 
                 if ( memory->size() >= (NvU64)(offsets[ci] + content_blob.size) )

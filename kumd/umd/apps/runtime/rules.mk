@@ -45,13 +45,14 @@ INCLUDES += \
     -I$(ROOT)/external/libjpeg-turbo \
     -I$(LOCAL_DIR)/include \
     -I$(LOCAL_DIR) \
+    -I$(ROOT)/core/src/runtime/include \
     -include /home/tpapavasileiou/tools/GEM5-NVDLA/sw-gem5/umd/fix_half_isnan.hh
 
 MODULE_CPPFLAGS := -DNVDLA_UTILS_ERROR_TAG="\"DLA_TEST\""
 MODULE_CFLAGS := -DNVDLA_UTILS_ERROR_TAG="\"DLA_TEST\""
 
 SHARED_LIBS := \
-    $(ROOT)/out/core/src/runtime/libnvdla_runtime/libnvdla_runtime.so
+    $(ROOT)/out/core/src/runtime/libnvdla_runtime/libnvdla_runtime.a
 
 MODULE_SRCS := $(NVDLA_SRC_FILES)
 

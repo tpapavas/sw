@@ -29,6 +29,8 @@
 #ifndef __FIRMWARE_DLA_DEBUG_H_
 #define __FIRMWARE_DLA_DEBUG_H_
 
+#include <stdio.h>
+
 #define STRINGIFY(s) #s
 #define DEFER_STRINGIFY(s) STRINGIFY(s)
 #define FILELINE DEFER_STRINGIFY(__LINE__)
@@ -67,7 +69,7 @@
 #define DEBUG_NETWORK_DATA		0
 
 #define pr_dump_stack(format, ...)
-#define dla_trace(format, ...) dla_debug(format, __VA_ARGS__)
+#define dla_trace(format, ...) fprintf(stderr, format "\n", ##__VA_ARGS__) // dla_debug(format, __VA_ARGS__)
 
 #define assert(condition)
 

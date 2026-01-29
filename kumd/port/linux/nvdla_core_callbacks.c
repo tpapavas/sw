@@ -32,8 +32,16 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#include <error.h>
+#include <errno.h>
+
 #include <stdarg.h>
 
+/*
 #include <linux/dma-buf.h>
 #include <linux/dma-mapping.h>
 #include <linux/fs.h>
@@ -51,13 +59,16 @@
 #include <linux/spinlock.h>
 #include <linux/time.h>
 #include <linux/uaccess.h>
+*/
 
 // #include <nvdla_interface.h>
 // #include <nvdla_linux.h>
 #include <nvdla_ioctl.h>
 
-#include <kumd/include/nvdla_interface.h>
-#include <kumd/port/linux/include/nvdla_linux.h>
+#include "nvdla_interface.h"
+#include "nvdla_linux.h"
+
+#include "gem5/m5ops.h"
 
 static struct nvdla_config nvdla_config_os_initial = {
 	.atom_size = 32,
@@ -80,7 +91,7 @@ static struct nvdla_config nvdla_config_large = {
 	.weight_compress_support = false,
 };
 
-
+/*
 void dla_debug(const char *str, ...)
 {
 	va_list args;
@@ -112,6 +123,7 @@ void dla_error(const char *str, ...)
 	vprintk(str, args);
 	va_end(args);
 }
+*/
 
 void *dla_memset(void *src, int ch, uint64_t len)
 {
@@ -125,7 +137,8 @@ void *dla_memcpy(void *dest, const void *src, uint64_t len)
 
 int64_t dla_get_time_us(void)
 {
-	return ktime_get_ns() / NSEC_PER_USEC;
+	// return ktime_get_ns() / NSEC_PER_USEC;
+	return 0;
 }
 
 void dla_reg_write(void *driver_context, uint32_t addr, uint32_t reg)
@@ -133,10 +146,15 @@ void dla_reg_write(void *driver_context, uint32_t addr, uint32_t reg)
 	struct nvdla_device *nvdla_dev =
 			(struct nvdla_device *)driver_context;
 
+	m5_nvdla_write_reg(reg, addr);
+	return;
+
+	/*
 	if (!nvdla_dev)
 		return;
 
 	writel(reg, nvdla_dev->base + addr);
+	*/
 }
 
 uint32_t dla_reg_read(void *driver_context, uint32_t addr)
@@ -144,12 +162,17 @@ uint32_t dla_reg_read(void *driver_context, uint32_t addr)
 	struct nvdla_device *nvdla_dev =
 			(struct nvdla_device *)driver_context;
 
+	return m5_nvdla_read_reg(addr);
+
+	/*
 	if (!nvdla_dev)
 		return 0;
 
 	return readl(nvdla_dev->base + addr);
+	*/
 }
 
+/*
 static irqreturn_t nvdla_engine_isr(int32_t irq, void *data)
 {
 	unsigned long flags;
@@ -165,11 +188,13 @@ static irqreturn_t nvdla_engine_isr(int32_t irq, void *data)
 
 	return IRQ_HANDLED;
 }
+*/
 
 static int32_t dla_read_dma_address(void *driver_context, void *task_data,
 						int16_t index, void *dst)
 {
 	int32_t ret = 0;
+	/*
 	struct nvdla_mem_handle *handles;
 	dma_addr_t *phys_addr = (dma_addr_t *)(dst);
 	struct nvdla_device *nvdla_dev =
@@ -184,9 +209,10 @@ static int32_t dla_read_dma_address(void *driver_context, void *task_data,
 	ret = nvdla_gem_dma_addr(nvdla_dev->drm, task->file,
 					handles[index].handle,
 					phys_addr);
+	*/
 
 	/* Add offset to IOVA address */
-	*phys_addr = *phys_addr + handles[index].offset;
+	// *phys_addr = *phys_addr + handles[index].offset;
 
 	return ret;
 }
@@ -234,6 +260,7 @@ int32_t dla_data_write(void *driver_context, void *task_data,
 	struct nvdla_task *task = (struct nvdla_task *)task_data;
 
 	handles = task->address_list;
+	/*
 	buf = dma_buf_get(handles[dst].handle);
 	if (IS_ERR(buf)) {
 		pr_err("%s: Failed get dma_buf for handle=%d\n", __func__,
@@ -242,9 +269,11 @@ int32_t dla_data_write(void *driver_context, void *task_data,
 	}
 
 	ret = dma_buf_begin_cpu_access(buf, DMA_BIDIRECTIONAL);
+	*/
 	if (ret)
 		goto put_dma_buf;
 
+	/*
 	ptr = dma_buf_vmap(buf);
 	if (!ptr) {
 		pr_err("%s: Failed to vmap dma_buf for handle=%d\n", __func__,
@@ -257,12 +286,13 @@ int32_t dla_data_write(void *driver_context, void *task_data,
 	memcpy((void *)((uint8_t *)ptr + offset), src, size);
 
 	dma_buf_vunmap(buf, ptr);
+	*/
 
 end_cpu_access:
-	dma_buf_end_cpu_access(buf, DMA_BIDIRECTIONAL);
+	// dma_buf_end_cpu_access(buf, DMA_BIDIRECTIONAL);
 
 put_dma_buf:
-	dma_buf_put(buf);
+	// dma_buf_put(buf);
 
 	return ret;
 }
@@ -279,6 +309,7 @@ int32_t dla_data_read(void *driver_context, void *task_data,
 
 	handles = task->address_list;
 
+	/*
 	buf = dma_buf_get(handles[src].handle);
 	if (IS_ERR(buf)) {
 		pr_err("%s: Failed get dma_buf for handle=%d\n", __func__,
@@ -287,9 +318,11 @@ int32_t dla_data_read(void *driver_context, void *task_data,
 	}
 
 	ret = dma_buf_begin_cpu_access(buf, DMA_BIDIRECTIONAL);
+	*/
 	if (ret)
 		goto put_dma_buf;
 
+	/*
 	ptr = dma_buf_vmap(buf);
 	if (!ptr) {
 		pr_err("%s: Failed to vmap dma_buf for handle=%d\n", __func__,
@@ -301,54 +334,67 @@ int32_t dla_data_read(void *driver_context, void *task_data,
 	memcpy(dst, (void *)(((uint8_t *)ptr) + offset), size);
 
 	dma_buf_vunmap(buf, ptr);
+	*/
 
 end_cpu_access:
-	dma_buf_end_cpu_access(buf, DMA_BIDIRECTIONAL);
+	// dma_buf_end_cpu_access(buf, DMA_BIDIRECTIONAL);
 
 put_dma_buf:
-	dma_buf_put(buf);
+	// dma_buf_put(buf);
 
 	return ret;
 }
 
-int32_t nvdla_task_submit(struct nvdla_device *nvdla_dev, struct nvdla_task *task,
+int32_t u__nvdla_task_submit(struct nvdla_device *nvdla_dev, struct nvdla_task *task,
 	struct nvdla_ioctl_submit_task *u__task)
 {
+	// struct nvdla_device *nvdla_dev;
 	int32_t err = 0;
 	uint32_t task_complete = 0;
 
 	nvdla_dev->task = task;
 
 	err = dla_execute_task(nvdla_dev->engine_context, (void *)task, nvdla_dev->config_data, (void *)u__task);
+	/*
 	if (err) {
 		pr_err("Task execution failed\n");
 		return err;
 	}
 
 	pr_debug("Wait for task complete\n");
+	*/
 
 	while (1) {
 		unsigned long flags;
 
-		wait_for_completion(&nvdla_dev->event_notifier);
+		fprintf(stderr, "WAIT FOR COMPLETION\n");
 
-		spin_lock_irqsave(&nvdla_dev->nvdla_lock, flags);
+		// wait_for_completion(&nvdla_dev->event_notifier);
+
+		// spin_lock_irqsave(&nvdla_dev->nvdla_lock, flags);
 
 		err = dla_process_events(nvdla_dev->engine_context, &task_complete);
 
-		spin_unlock_irqrestore(&nvdla_dev->nvdla_lock, flags);
+		if (m5_nvdla_read_reg(0x20000) == 1) {
+			fprintf(stderr, "OP COMPLETED ...\n");
+			dla_isr_handler(nvdla_dev->engine_context);
+		}
 
-		if (err || task_complete)
+		// spin_unlock_irqrestore(&nvdla_dev->nvdla_lock, flags);
+
+		if (/*err ||*/ task_complete)
 			break;
 	}
 
-	pr_debug("Task complete\n");
+	// pr_debug("Task complete\n");
+	printf("LEAVING u__nvdla_task_submit ...\n");
 	dla_clear_task(nvdla_dev->engine_context);
 
 	return err;
 }
 
 /* driver probe and init */
+/*
 static const struct of_device_id nvdla_of_match[] = {
 	{
 		.compatible = "nvidia,nvdla_os_initial",
@@ -445,3 +491,4 @@ module_platform_driver(nvdla_driver);
 MODULE_LICENSE("Dual BSD/GPL");
 MODULE_AUTHOR("NVIDIA");
 MODULE_DESCRIPTION("Nvidia Deep Learning Accelerator driver");
+*/
