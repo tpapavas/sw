@@ -161,14 +161,25 @@ NvU32 NvDlaGetTimeMS(void)
     return (NvU32)time;
 }
 
-void NvDlaDebugPrintf(const char *format, ... )
+void v__NvDlaDebugPrintf(const char *format, ... )
 {
+#ifdef GEM5_PLUS_VERBOSE
     va_list ap;
 
     va_start( ap, format );
     vprintf(format, ap);
     va_end( ap );
+#endif
 }
+
+// void NvDlaDebugPrintf(const char *format, ... )
+// {
+//     va_list ap;
+
+//     va_start( ap, format );
+//     vprintf(format, ap);
+//     va_end( ap );
+// }
 
 NvDlaError
 NvDlaThreadCreate( NvDlaThreadFunction function, void *args,

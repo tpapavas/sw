@@ -443,8 +443,8 @@ NvDlaError run(const TestAppArgs* appArgs, TestInfo* i)
     PROPAGATE_ERROR_FAIL(loadLoadable(appArgs, i));
 
     /* Start emulator */
-    // if (!i->runtime->initEMU())
-    //     ORIGINATE_ERROR(NvDlaError_DeviceNotFound, "runtime->initEMU() failed");
+    if (!i->runtime->initEMU())
+        ORIGINATE_ERROR(NvDlaError_DeviceNotFound, "runtime->initEMU() failed");
 
     /* Run test */
     PROPAGATE_ERROR_FAIL(runTest(appArgs, i));

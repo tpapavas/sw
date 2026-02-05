@@ -382,8 +382,11 @@ int32_t u__nvdla_task_submit(struct nvdla_device *nvdla_dev, struct nvdla_task *
 
 		// spin_unlock_irqrestore(&nvdla_dev->nvdla_lock, flags);
 
-		if (/*err ||*/ task_complete)
+		if (/*err ||*/ task_complete) {
+			// emulate network completion signaling to dla (for spm flush)
+			m5_nvdla_read_reg(0x20004);
 			break;
+		}
 	}
 
 	// pr_debug("Task complete\n");

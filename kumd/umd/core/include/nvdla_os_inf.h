@@ -29,8 +29,13 @@
 #ifndef _NVDLA_OS_INF_H_
 #define _NVDLA_OS_INF_H_
 
+// #ifndef GEM5_PLUS_VERBOSE
+// #define GEM5_PLUS_VERBOSE
+// #endif
+
 #include <stddef.h>
 #include <dirent.h>
+#include <stdio.h>
 
 #include "dlaerror.h"
 #include "dlatypes.h"
@@ -103,7 +108,9 @@ extern "C" {
 void *NvDlaAlloc(size_t size);
 void NvDlaFree(void *ptr);
 
-void NvDlaDebugPrintf( const char *format, ... );
+// void NvDlaDebugPrintf( const char *format, ... );
+#define NvDlaDebugPrintf(format, ...) fprintf(stderr, format "\n", ##__VA_ARGS__)
+void v__NvDlaDebugPrintf( const char *format, ... );
 
 NvU32 NvDlaGetTimeMS(void);
 void NvDlaSleepMS(NvU32 msec);

@@ -56,8 +56,8 @@ public: // externally facing
     bool run();
 
 public: // internally facing
-    inline bool debugPrint() { return false; }
-    inline bool debugOps() { return false; }
+    inline bool debugPrint() { return true; }
+    inline bool debugOps() { return true; }
 
 protected:
     static void threadFunction(void* arg);
