@@ -44,6 +44,9 @@ struct dla_processor_group {
 	uint8_t programming;
 	uint64_t start_time;
 
+	uint8_t consumers_processor_id[DLA_OP_NUM];
+	uint8_t processor_id;
+
 	struct dla_common_op_desc *op_desc;
 	struct dla_common_op_desc *consumers[DLA_OP_NUM];
 	struct dla_common_op_desc *fused_parent;
@@ -59,6 +62,8 @@ struct dla_processor {
 	uint8_t group_status;
 	uint8_t rdma_status;
 	uint8_t last_group;
+
+	uint8_t dev_id;
 
 	struct dla_common_op_desc *tail_op;
 	struct dla_processor_group groups[DLA_NUM_GROUPS];
@@ -80,13 +85,21 @@ struct dla_engine {
 	struct dla_task *task;
 	struct dla_config *config_data;
 	struct dla_network_desc *network;
-	struct dla_processor processors[DLA_OP_NUM];
+	struct dla_processor processors[DLA_DEV_NUM][DLA_OP_NUM];
 
 	uint16_t num_proc_hwl;
 	int32_t status;
 	uint32_t stat_enable;
 
+	uint8_t num_dlas;
+	uint8_t num_batches;
+	uint8_t num_stages;
+	int8_t job_map[MAX_BATCH_NUM][MAX_STAGE_NUM];
+	uint8_t stage_limits[MAX_STAGE_NUM-1];
+
 	void *driver_context;
+
+	bool (*can_schedule_op_on_dev)(struct dla_common_op_desc *op_desc, uint8_t batch_id, uint8_t stage_id, uint8_t dev_id);
 };
 
 struct dla_engine *dla_get_engine(void);

@@ -161,9 +161,12 @@ dla_read_input_address(struct dla_data_cube *data,
 						(void *)address,
 						DESTINATION_DMA);
 		
+		// [gem5-plus code]
+		//// UPDATE: memory entry offset was not taken into account (FIXED)
 		struct nvdla_task *task;
 		task = (struct nvdla_task *) en->task->task_data;
 		*address = task->address_list[data->address].v_addr
+			+ task->address_list[data->address].offset
 			+ data->offset;
 		goto exit;
 	}
@@ -275,4 +278,53 @@ utils_get_free_group(struct dla_processor *processor,
 
 exit:
 	RETURN(ret);
+}
+
+bool
+can_schedule_op_on_dev_anyware(struct dla_common_op_desc *op_desc, uint8_t batch_id, uint8_t stage_id, uint8_t dev_id)
+{
+	return true;
+}
+
+/**
+ * Every batch run on a specific dla device.
+ * batch0 runs on dla0, batch1 on dla1 etc.
+ *
+ * dla0 || b0-s0 | b0-s1 | b0-s2 | b0-s3
+ * dla1 || b1-s0 | b1-s1 | b1-s2 | b1-s3
+ * dla2 || b2-s0 | b2-s1 | b2-s2 | b2-s3
+ * dla3 || b3-s0 | b3-s1 | b3-s2 | b3-s3
+ */
+bool
+can_schedule_op_on_dev_all_batch_ops_on_corr_dev(struct dla_common_op_desc *op_desc, uint8_t batch_id, uint8_t stage_id, uint8_t dev_id)
+{
+	struct dla_engine* engine;
+	int8_t num_dlas;
+
+	engine = dla_get_engine();
+	num_dlas = engine->num_dlas;
+
+	return (batch_id % num_dlas) == dev_id;
+}
+
+/**
+ * Same stage for all batches run on the same dla device.
+ * E.g. stage0 for batch0, batch1 etc runs on dla0,
+ * stage1 for batch0, batch1 etc runs on dla1 etc.
+ *
+ * dla0 || b0-s0 | b1-s0 | b2-s0 |
+ * dla1 ||       | b0-s1 | b1-s1 | b2-s1 |
+ * dla2 ||       |       | b0-s2 | b1-s2 | b2-s2 |
+ * dla3 ||       |       |       | b0-s3 | b1-s3 | b2-s3 |
+ */
+bool
+can_schedule_op_on_dev_same_stage_id_on_same_dev(struct dla_common_op_desc *op_desc, uint8_t batch_id, uint8_t stage_id, uint8_t dev_id)
+{
+	struct dla_engine* engine;
+	int8_t num_dlas;
+
+	engine = dla_get_engine();
+	num_dlas = engine->num_dlas;
+
+	return (stage_id % num_dlas) == dev_id;
 }

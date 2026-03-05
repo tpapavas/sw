@@ -86,6 +86,8 @@ dla_get_op_desc(struct dla_task *task, int16_t index,
 	struct dla_common_op_desc *u__descs = (struct dla_common_op_desc *) u__task->deps;
 	struct dla_common_op_desc *u__desc = &u__descs[index];
 
+	char *op_name = op_type == DLA_OP_BDMA ? "BDMA" : (op_type == DLA_OP_CONV ? "CONV" : (op_type ==  DLA_OP_SDP ? "SDP" : (op_type == DLA_OP_PDP ? "PDP" : (op_type ==  DLA_OP_CDP ? "CDP" : "RUBIK")))); // DLA_OP_RUBIK
+
 	if (index == -1) {
 		dla_debug("no desc get due to index==-1\n");
 		goto exit;
@@ -105,6 +107,8 @@ dla_get_op_desc(struct dla_task *task, int16_t index,
 				continue;
 			}
 			desc_refcount[op_type][i]++;
+			dla_debug("%s: desc_cache[%s][%d]: op index: %d\n",
+				__func__, op_name, i, index);
 			goto exit;
 		}
 	}
@@ -166,6 +170,8 @@ dla_get_op_desc(struct dla_task *task, int16_t index,
 			assert(desc_refcount[op_type][i] == 0);
 
 			desc_refcount[op_type][i]++;
+			dla_debug("%s: desc_cache[%s][%d]: op index: %d\n",
+				__func__, op_name, i, index);
 			goto exit;
 		}
 	}
@@ -232,6 +238,9 @@ dla_put_op_desc(struct dla_common_op_desc *op_desc)
 	if (op_desc == NULL)
 		return;
 
+	uint8_t op_type = op_desc->op_type;
+	char *op_name = op_type == DLA_OP_BDMA ? "BDMA" : (op_type == DLA_OP_CONV ? "CONV" : (op_type ==  DLA_OP_SDP ? "SDP" : (op_type == DLA_OP_PDP ? "PDP" : (op_type ==  DLA_OP_CDP ? "CDP" : "RUBIK")))); // DLA_OP_RUBIK
+
 	if (op_desc->index == -1)
 		return;
 
@@ -250,8 +259,11 @@ dla_put_op_desc(struct dla_common_op_desc *op_desc)
 			/**
 			 * Free desc if refcount is 0
 			 */
-			if (desc_refcount[op_desc->op_type][i] == 0)
+			if (desc_refcount[op_desc->op_type][i] == 0) {
 				dla_free_op_desc(op_desc);
+			}
+			dla_debug("%s: desc_cache[%s][%d]: op index: %d\n",
+				__func__, op_name, i, desc->index);
 
 			return;
 		}

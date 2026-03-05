@@ -62,6 +62,7 @@
 #include "nvdla_interface.h"
 #include "nvdla_inf.h"
 #include "nvdla_linux.h"
+#include "dla_engine.h"
 
 // #define to_nvdla_obj(x) container_of(x, struct nvdla_gem_object, object)
 
@@ -118,6 +119,7 @@ int32_t u__nvdla_submit(/* struct drm_device *drm, */void *arg /*, struct drm_fi
 	//// [KUMD] Set nvdla_device manually
 	struct nvdla_device *nvdla_dev = (struct nvdla_device *) malloc(sizeof(struct nvdla_device));
 	struct nvdla_config *config_data = (struct nvdla_config *) malloc(sizeof(struct nvdla_config));
+	struct dla_engine *engine;
 	config_data->atom_size = 32;
 	config_data->bdma_enable = false;
 	config_data->rubik_enable = false;
@@ -126,10 +128,51 @@ int32_t u__nvdla_submit(/* struct drm_device *drm, */void *arg /*, struct drm_fi
 	nvdla_dev->base = 0x40000000;
 	nvdla_dev->config_data = config_data;
 
+	// [MULTI-CORE]
+	nvdla_dev->current_dla_id = 0;
+
 	dla_register_driver(&nvdla_dev->engine_context, (void *)nvdla_dev);
 
 	struct nvdla_submit_args *args =
 			(struct nvdla_submit_args *)arg;
+
+	/**
+	 * TODO: check if this is needed
+	 */
+	nvdla_dev->num_dlas = args->num_dlas;
+
+	engine = (struct dla_engine*) nvdla_dev->engine_context;
+	engine->num_dlas = args->num_dlas;
+	engine->num_batches = args->num_batches;
+	/**
+	 * TODO: add functionality for more stages
+	 */
+	engine->num_stages = 1;
+	// engine->num_stages = 2;
+	// engine->stage_limits[0] = 3; // for lenet (after CONV1-SDP1-PDP1)
+
+	/**
+	 * TODO: add argument for bs scheduler type
+	 */
+	// switch (args->batch_stage_scheduler_type) {
+	uint8_t bs_sched_type = BS_SCHED_NAIVE;
+	// uint8_t bs_sched_type = BS_SCHED_WHOLE_STAGE;
+	switch (bs_sched_type) {
+		case BS_SCHED_NAIVE:
+			engine->can_schedule_op_on_dev = can_schedule_op_on_dev_anyware;
+			break;
+
+		case BS_SCHED_WHOLE_BATCH:
+			engine->can_schedule_op_on_dev = can_schedule_op_on_dev_all_batch_ops_on_corr_dev;
+			break;
+
+		case BS_SCHED_WHOLE_STAGE:
+			engine->can_schedule_op_on_dev = can_schedule_op_on_dev_same_stage_id_on_same_dev;
+			break;
+
+		default:
+			return -EINVAL;
+	}
 
 	user_task = (struct nvdla_ioctl_submit_task __user *)
 			(uintptr_t)args->tasks;

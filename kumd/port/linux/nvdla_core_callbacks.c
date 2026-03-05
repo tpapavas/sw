@@ -146,7 +146,7 @@ void dla_reg_write(void *driver_context, uint32_t addr, uint32_t reg)
 	struct nvdla_device *nvdla_dev =
 			(struct nvdla_device *)driver_context;
 
-	m5_nvdla_write_reg(reg, addr);
+	m5_nvdla_write_reg(nvdla_dev->current_dla_id, reg, addr);
 	return;
 
 	/*
@@ -162,7 +162,7 @@ uint32_t dla_reg_read(void *driver_context, uint32_t addr)
 	struct nvdla_device *nvdla_dev =
 			(struct nvdla_device *)driver_context;
 
-	return m5_nvdla_read_reg(addr);
+	return m5_nvdla_read_reg(nvdla_dev->current_dla_id, addr);
 
 	/*
 	if (!nvdla_dev)
@@ -351,6 +351,7 @@ int32_t u__nvdla_task_submit(struct nvdla_device *nvdla_dev, struct nvdla_task *
 	// struct nvdla_device *nvdla_dev;
 	int32_t err = 0;
 	uint32_t task_complete = 0;
+	uint32_t dla_id;
 
 	nvdla_dev->task = task;
 
@@ -375,16 +376,34 @@ int32_t u__nvdla_task_submit(struct nvdla_device *nvdla_dev, struct nvdla_task *
 
 		err = dla_process_events(nvdla_dev->engine_context, &task_complete);
 
-		if (m5_nvdla_read_reg(0x20000) == 1) {
-			fprintf(stderr, "OP COMPLETED ...\n");
-			dla_isr_handler(nvdla_dev->engine_context);
+		/**
+		 * TODO: Replace CURRENT_DLA_DEV_NUM with actual dla number
+		 */
+		for (dla_id = 0; dla_id < CURRENT_DLA_DEV_NUM; dla_id++) {
+			if (m5_nvdla_read_reg(dla_id, 0x20000) == 1) {
+				fprintf(stderr, "OP COMPLETED ...\n");
+				dla_isr_handler(nvdla_dev->engine_context, dla_id);
+			}
 		}
+		// nvdla_dev->current_dla_id = (nvdla_dev->current_dla_id+1)%2;
+		// if (m5_nvdla_read_reg(nvdla_dev->current_dla_id, 0x20000) == 1) {
+		// 	fprintf(stderr, "OP COMPLETED ...\n");
+		// 	dla_isr_handler(nvdla_dev->engine_context, 1);
+		// }
+		// nvdla_dev->current_dla_id = (nvdla_dev->current_dla_id+1)%2;
 
 		// spin_unlock_irqrestore(&nvdla_dev->nvdla_lock, flags);
 
 		if (/*err ||*/ task_complete) {
 			// emulate network completion signaling to dla (for spm flush)
-			m5_nvdla_read_reg(0x20004);
+			/**
+			 * TODO: make sure dma (cache flush) is finished before
+			 * EMU reads operation's input
+			 */
+			for (dla_id = 0; dla_id < CURRENT_DLA_DEV_NUM; dla_id++){
+				m5_nvdla_read_reg(dla_id, 0x20004);
+			}
+			// m5_nvdla_read_reg(1, 0x20004);
 			break;
 		}
 	}

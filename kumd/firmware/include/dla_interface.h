@@ -58,6 +58,45 @@
 /** @} */
 
 /**
+ * @ingroup Engine
+ * @name Type of batch-stage scheduler
+ * @brief ...
+ * @{
+ */
+#define BS_SCHED_NAIVE			0
+#define BS_SCHED_WHOLE_BATCH	1
+#define BS_SCHED_WHOLE_STAGE	2
+/** @} */
+
+/**
+ * @ingroup Engine
+ * @name Maximum number of online batches
+ * @brief ...
+ * @{
+ */
+#define MAX_BATCH_NUM		4
+/** @} */
+
+/**
+ * @ingroup Engine
+ * @name Maximum number of net stages
+ * @brief ...
+ * @{
+ */
+#define MAX_STAGE_NUM		2
+/** @} */
+
+/**
+ * @ingroup Engine
+ * @name Maximum number of DLA devices
+ * @brief DLA has 2 devices
+ * @{
+ */
+#define DLA_DEV_NUM		2
+#define CURRENT_DLA_DEV_NUM		1
+/** @} */
+
+/**
  * @ingroup Processors
  * @name Maximum number of processors
  * @brief DLA ash 6 processors

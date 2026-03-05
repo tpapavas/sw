@@ -105,6 +105,9 @@ struct nvdla_device {
 	struct nvdla_config *config_data;
 	// struct platform_device *pdev;
 	// struct completion event_notifier;
+	uint8_t current_dla_id;
+
+	uint8_t num_dlas;
 
 	void *engine_context;
 };

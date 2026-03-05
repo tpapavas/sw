@@ -50,6 +50,95 @@
 static uint64_t roi_array_length __aligned(8);
 static struct dla_network_desc network;
 
+static inline uint8_t
+get_op_batch_id(struct dla_common_op_desc* op_desc) {
+	return op_desc->index % dla_get_engine()->num_batches;
+}
+
+/**
+ * TODO: implement some logic
+ */
+static inline uint8_t
+get_op_stage_id(struct dla_common_op_desc* op_desc) {
+	uint8_t single_batch_op_index = op_desc->index / dla_get_engine()->num_batches;
+	uint8_t num_stages = dla_get_engine()->num_stages;
+	uint8_t* stage_limits = &dla_get_engine()->stage_limits;
+
+	for (int i = 0; i < num_stages-1; i++) {
+		if (single_batch_op_index < stage_limits[i]) {
+			return i;
+		}
+	}
+
+	return num_stages-1;
+}
+
+// [gem5-plus]
+static void
+update_job_map(struct dla_common_op_desc* op_desc, struct dla_processor* processor)
+{
+	uint8_t batch_id;
+	uint8_t stage_id;
+	struct dla_engine* engine;
+	int8_t* current_job_dev;
+
+	dla_debug("Enter: %s\n", __func__);
+
+	batch_id = get_op_batch_id(op_desc);
+	stage_id = get_op_stage_id(op_desc);
+	engine = dla_get_engine();
+	current_job_dev = &engine->job_map[batch_id][stage_id];
+
+	/**
+	 * TODO: custom assertion based on different scheduling algorithms
+	 */
+	assert(*current_job_dev == -1 || *current_job_dev == processor->dev_id);
+
+	*current_job_dev = processor->dev_id;
+	dla_debug("set job_map[%d][%d] = %d\n", batch_id, stage_id, engine->job_map[batch_id][stage_id]);
+
+	dla_debug("Exit: %s\n", __func__);
+}
+
+static bool
+check_custom_deps(struct dla_common_op_desc* op_desc, struct dla_processor* processor)
+{
+	uint8_t batch_id;
+	uint8_t stage_id;
+	struct dla_engine* engine;
+	int8_t* current_job_dev;
+	bool custom_deps_met;
+
+	dla_debug("Enter: %s\n", __func__);
+
+	batch_id = get_op_batch_id(op_desc);
+	stage_id = get_op_stage_id(op_desc);
+	engine = dla_get_engine();
+	current_job_dev = &engine->job_map[batch_id][stage_id];
+
+	custom_deps_met = false;
+
+	dla_debug("current_job_dev: %d\n", *current_job_dev);
+	if (*current_job_dev == -1) {
+		/**
+		 * TODO: custom condition based on different scheduling algorithms
+		 */
+		custom_deps_met = engine->can_schedule_op_on_dev(op_desc, batch_id, stage_id, processor->dev_id);
+	} else if (*current_job_dev == processor->dev_id) {
+		// current job has already been scheduled on this device
+		custom_deps_met = true;
+	} else if (*current_job_dev > 0) {
+		// current job has already been scheduled on a different device
+		custom_deps_met = false;
+	}
+
+	dla_debug("check custom deps (b_id: %d, s_id %d): %s\n", batch_id, stage_id, custom_deps_met ? "OK" : "NOT OK");
+
+	dla_debug("Exit: %s\n", __func__);
+
+	return custom_deps_met;
+}
+
 static int
 dla_update_consumers(struct dla_processor_group *group,
 			struct dla_common_op_desc *op, uint8_t event);
@@ -395,9 +484,11 @@ dla_prepare_operation(struct dla_processor *processor,
 	uint8_t rdma_id;
 	struct dla_processor_group *group;
 	struct dla_engine *engine = dla_get_engine();
+	struct nvdla_device *nvdla_dev = (struct nvdla_device *)engine->driver_context;
+	nvdla_dev->current_dla_id = processor->dev_id;
+	int32_t ii;
 
 	dla_debug("Enter: %s\n", __func__);
-
 	/*
 	 * If not already programmed then find out if
 	 * processor is free and which group is free
@@ -437,7 +528,38 @@ dla_prepare_operation(struct dla_processor *processor,
 		processor->rdma_status |= (1 << rdma_id);
 	}
 
-	processor->tail_op = op_desc;
+	// int16_t max_index = -1;
+	// int16_t curr_processor_tail_op_index = -1;
+	// struct dla_processor* max_processor;
+	struct dla_processor* curr_processor;
+	for (ii = 0; ii < engine->num_dlas; ii++) {
+		curr_processor = &engine->processors[ii][processor->op_type];
+		curr_processor->tail_op = op_desc;
+		// if (curr_processor->tail_op != NULL) {
+		// 	if (curr_processor->tail_op->consumers[processor->op_type].index == -1) {
+		// 		max_index = -1;
+		// 		break;
+		// 	}
+		// 	if (curr_processor->tail_op->consumers[processor->op_type].index > max_index) {
+		// 		max_index = curr_processor->tail_op->consumers[processor->op_type].index;
+		// 		max_processor = &engine->processors[ii][processor->op_type];
+		// 		dla_debug("%s: ", curr_processor->name);
+		// 		dla_debug("tail_op index: %d, tail_op consumer index: %d\n",
+		// 			curr_processor->tail_op->index,
+		// 			curr_processor->tail_op->consumers[processor->op_type].index);
+		// 	}
+		// }
+	}
+	// processor->tail_op = op_desc;
+
+	// index = max_index;
+	// max_processor->roi_index = 0;
+
+	// [gem5-plus]
+	// I assume here we can safely say
+	// that this op_desc is assigned to this processor.
+	// Update job_map.
+	update_job_map(op_desc, processor);
 exit:
 	dla_debug("Exit: %s status=%d\n", __func__, ret);
 	RETURN(ret);
@@ -451,6 +573,8 @@ dla_program_operation(struct dla_processor *processor,
 	int32_t ret = 0;
 	struct dla_common_op_desc *op_desc;
 	struct dla_engine *engine = dla_get_engine();
+	struct nvdla_device *nvdla_dev = (struct nvdla_device *)engine->driver_context;
+	nvdla_dev->current_dla_id = processor->dev_id;
 
 	dla_debug("Enter: %s\n", __func__);
 
@@ -516,6 +640,7 @@ dla_enable_operation(struct dla_processor *processor,
 	int32_t group_id;
 	struct dla_engine *engine;
 	struct dla_processor_group *group;
+	struct nvdla_device *nvdla_dev;
 
 	dla_debug("Enter: %s\n", __func__);
 	assert(op_desc->dependency_count == 0);
@@ -527,6 +652,9 @@ dla_enable_operation(struct dla_processor *processor,
 	engine = dla_get_engine();
 	if (engine->status)
 		goto exit;
+
+	nvdla_dev = (struct nvdla_device *)engine->driver_context;
+	nvdla_dev->current_dla_id = processor->dev_id;
 
 	/**
 	 * Find out if operation is already programmed
@@ -631,6 +759,7 @@ dla_dequeue_operation(struct dla_engine *engine,
 	int32_t ret = 0;
 	int16_t index;
 	struct dla_common_op_desc *consumer;
+	int32_t ii;
 
 	dla_debug("Enter: %s\n", __func__);
 
@@ -675,7 +804,21 @@ dla_dequeue_operation(struct dla_engine *engine,
 		goto exit;
 	}
 
-	ret = dla_submit_operation(processor, consumer, processor->roi_index);
+	uint8_t op_type = processor->op_type;
+	// processor = &engine->processors[1][op_type];
+	for (ii = 0; ii < engine->num_dlas; ii++) {
+		processor = &engine->processors[ii][op_type];
+		dla_debug("Check custom dependencies");
+		if (check_custom_deps(consumer, processor)) {
+			dla_debug("custom dependencies solved");
+			ret = dla_submit_operation(processor, consumer, processor->roi_index);
+			/**
+			 * TODO: check that operation was actually scheduled
+			 * (maybe both groups were busy)
+			 */
+			break;
+		}
+	}
 	dla_put_op_desc(consumer);
 
 exit:
@@ -686,11 +829,13 @@ exit:
 static int
 dla_update_dependency(struct dla_consumer *consumer,
 			struct dla_common_op_desc *op_desc,
-			uint8_t event, uint8_t roi_index)
+			uint8_t event, uint8_t roi_index, uint8_t processor_id)
 {
+	int32_t i;
 	int32_t ret = 0;
 	struct dla_processor *processor;
 	struct dla_engine *engine = dla_get_engine();
+	int32_t ii;
 
 	if (consumer->index == -1)
 		goto exit;
@@ -718,13 +863,19 @@ dla_update_dependency(struct dla_consumer *consumer,
 	op_desc->dependency_count--;
 
 	if (op_desc->dependency_count == 0) {
-		processor = &engine->processors[op_desc->op_type];
-		dla_debug("enable %s in %s as depdency are resolved\n",
-			processor->name, __func__);
+		for (ii = 0; ii < engine->num_dlas; ii++) {
+			/**
+			 * TODO: [GEM5-PLUS, MULTI-DLA] maybe check both DLAs for operation
+			 */
+			dla_debug("check processor in dev %d", ii);
+			processor = &engine->processors[ii][op_desc->op_type];
+			dla_debug("enable %s in %s as depdency are resolved\n",
+				processor->name, __func__);
 
-		ret = dla_enable_operation(processor, op_desc);
-		if (ret)
-			goto exit;
+			ret = dla_enable_operation(processor, op_desc);
+			// if (ret)
+			// 	goto exit;
+		}
 	}
 exit:
 	RETURN(ret);
@@ -747,7 +898,8 @@ dla_update_consumers(struct dla_processor_group *group,
 	for (i = 0; i < DLA_OP_NUM; i++) {
 		ret = dla_update_dependency(&op->consumers[i],
 						group->consumers[i],
-						event, group->roi_index);
+						event, group->roi_index,
+						group->processor_id);
 		if (ret) {
 			dla_error("Failed to update dependency for "
 				"consumer %d, ROI %d", i, group->roi_index);
@@ -757,7 +909,8 @@ dla_update_consumers(struct dla_processor_group *group,
 
 	ret = dla_update_dependency(&op->fused_parent,
 					group->fused_parent,
-					event, group->roi_index);
+					event, group->roi_index,
+					group->processor_id);
 	if (ret) {
 		dla_error("Failed to update dependency for "
 			"fused parent, ROI %d", group->roi_index);
@@ -1116,6 +1269,7 @@ dla_initiate_processors(struct dla_engine *engine)
 	struct dla_processor *processor;
 	struct dla_common_op_desc *consumer;
 	struct dla_network_desc *nw;
+	struct nvdla_device *nvdla_dev = (struct nvdla_device *)engine->driver_context;
 
 	dla_debug("Enter: %s\n", __func__);
 
@@ -1155,7 +1309,7 @@ dla_initiate_processors(struct dla_engine *engine)
 			goto exit;
 		}
 
-		processor = &engine->processors[consumer->op_type];
+		processor = &engine->processors[0][consumer->op_type];
 
 		ret = dla_submit_operation(processor, consumer, 0);
 		dla_put_op_desc(consumer);
@@ -1243,19 +1397,22 @@ dla_process_events(void *engine_context, uint32_t *task_complete)
 	int32_t i;
 	int32_t ret = 0;
 	struct dla_engine *engine = (struct dla_engine *)engine_context;
+	int32_t ii;
 
-	for (i = 0; i < DLA_OP_NUM; i++) {
-		struct dla_processor *processor;
+	for (ii = 0; ii < engine->num_dlas; ii++) {
+		for (i = 0; i < DLA_OP_NUM; i++) {
+			struct dla_processor *processor;
 
-		processor = &engine->processors[i];
-		ret = dla_handle_events(processor);
-		/**
-		 * Incase engine status is non-zero, then don't
-		 * update the engine status. We should keep its
-		 * status for later cleaning of engine.
-		 */
-		if (!engine->status)
-			engine->status = ret;
+			processor = &engine->processors[ii][i];
+			ret = dla_handle_events(processor);
+			/**
+			 * Incase engine status is non-zero, then don't
+			 * update the engine status. We should keep its
+			 * status for later cleaning of engine.
+			 */
+			if (!engine->status)
+				engine->status = ret;
+		}
 	}
 
 	if (engine->network->num_operations == engine->num_proc_hwl)
@@ -1361,7 +1518,7 @@ dla_clear_task(void *engine_context)
 	struct dla_engine *engine = (struct dla_engine *)engine_context;
 
 	for (i = 0; i < DLA_OP_NUM; i++) {
-		struct dla_processor *processor = &engine->processors[i];
+		struct dla_processor *processor = &engine->processors[0][i];
 
 		processor->roi_index = 0;
 		processor->group_status = 0;
