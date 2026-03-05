@@ -154,7 +154,7 @@ NvDlaError createImageCopy(const TestAppArgs* appArgs, const NvDlaImage* in, con
 
     if (in->m_meta.width != out->m_meta.width )
         ORIGINATE_ERROR(NvDlaError_BadParameter, "Mismatched width: %u != %u", in->m_meta.width, out->m_meta.width);
-    if (in->m_meta.height != out->m_meta.height )
+    if (in->m_meta.height != out->m_meta.height*outTensorDesc->dims.n )
         ORIGINATE_ERROR(NvDlaError_BadParameter, "Mismatched height: %u != %u", in->m_meta.height, out->m_meta.height);
     if (in->m_meta.channel != out->m_meta.channel )
         REPORT_ERROR(NvDlaError_BadParameter, "Mismatched channel: %u != %u", in->m_meta.channel, out->m_meta.channel);
@@ -237,14 +237,24 @@ NvDlaError createImageCopy(const TestAppArgs* appArgs, const NvDlaImage* in, con
     ibuf = static_cast<NvU8*>(in->m_pData);
     obuf = static_cast<NvU8*>(out->m_pData);
 
+    // FIX THIS ************ //
+    NvS32 num_of_imgs = outTensorDesc->dims.n;
+    NvS32 single_img_height = in->m_meta.height / num_of_imgs;
+    NvS32 single_img_size = in->m_meta.size / num_of_imgs;
     for (NvU32 y=0; y < in->m_meta.height; y++)
     {
         for (NvU32 x=0; x < in->m_meta.width; x++)
         {
             for (NvU32 z=0; z < in->m_meta.channel; z++)
             {
+                NvDlaDebugPrintf("[DEBUG] h: %d, w: %d, c: %d\n", y, x, z);
                 NvS32 ioffset = in->getAddrOffset(x, y, z);
-                NvS32 ooffset = out->getAddrOffset(x, y, z);
+                NvDlaDebugPrintf("[DEBUG] ioffset: %d\n", ioffset);
+                // FIX THIS ************ //
+                NvS32 ooffset = out->getAddrOffset(x, y%single_img_height, z)
+                  + single_img_size*(y/single_img_height);
+
+                NvDlaDebugPrintf("[DEBUG] ooffset: %d\n", ooffset);
 
                 if (ioffset < 0)
                     ORIGINATE_ERROR(NvDlaError_BadParameter);
