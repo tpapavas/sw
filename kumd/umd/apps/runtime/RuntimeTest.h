@@ -48,6 +48,7 @@ struct TestAppArgs
     NvU8 normalize_value;
     float mean[4];
     bool rawOutputDump;
+    NvU8 num_dlas;
 
     TestAppArgs() :
         inputPath("./"),
@@ -56,7 +57,8 @@ struct TestAppArgs
         serverPort(6666),
         normalize_value(1),
         mean{0.0, 0.0, 0.0, 0.0},
-        rawOutputDump(false)
+        rawOutputDump(false),
+        num_dlas(1)
     {}
 };
 

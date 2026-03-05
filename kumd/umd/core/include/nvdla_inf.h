@@ -74,7 +74,7 @@ void NvDlaClose(void *device_handle);
 NvDlaError NvDlaSubmit(void *session_handle, void *device_handle, NvDlaTask *tasks, NvU32 num_tasks,
                         struct dla_network_desc *network, struct dla_common_op_desc *deps,
                         union dla_operation_container *ops, union dla_surface_container *surfs,
-                        struct dla_lut_param *luts
+                        struct dla_lut_param *luts, NvU8 num_dlas, NvU8 num_batches
 );
 
 NvDlaError NvDlaAllocMem(void *session_handle, void *device_handle,

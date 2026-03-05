@@ -900,7 +900,7 @@ NvDlaError Runtime::submitInternal()
                     std::cout << "[Runtime::submitInternal]   fillTaskAddressList() done\n";
 
                     std::cout << "[Runtime::submitInternal]   Calling NvDlaSubmit(DLA1)\n";
-                    PROPAGATE_ERROR_FAIL( NvDlaSubmit(NULL, dev, &dla_task, 1, net, deps, ops, surfs, luts) );
+                    PROPAGATE_ERROR_FAIL( NvDlaSubmit(NULL, dev, &dla_task, 1, net, deps, ops, surfs, luts, num_dlas, num_batches) );
                     std::cout << "[Runtime::submitInternal]   NvDlaSubmit(DLA1) OK\n";
                 }
                 break;
@@ -2355,6 +2355,41 @@ Runtime::TensorDesc::TensorDesc(const ILoadable::TensorDescListEntry &e)
     stride[5] = e.stride[5];
     stride[6] = e.stride[6];
     stride[7] = e.stride[7];
+}
+
+NvDlaError Runtime::setNumDLAs(NvU8 dlas)
+{
+    NvDlaError e = NvDlaSuccess;
+
+    if (dlas > MAX_NUM_DLAS) {
+        ORIGINATE_ERROR_FAIL(NvDlaError_InvalidSize,
+            "number of dlas %d is not supported (max: %d)",
+            dlas, MAX_NUM_DLAS);
+    }
+    num_dlas = dlas;
+
+fail:
+    return e;
+}
+
+NvU8 Runtime::getNumDLAs()
+{
+    return num_dlas;
+}
+
+NvDlaError Runtime::setNumBatches(NvU8 batches)
+{
+    NvDlaError e = NvDlaSuccess;
+
+    if (batches > MAX_NUM_BATCHES) {
+        ORIGINATE_ERROR_FAIL(NvDlaError_InvalidSize,
+            "number of batches %d is not supported (max: %d)",
+            batches, MAX_NUM_BATCHES);
+    }
+    num_batches = batches;
+
+fail:
+    return e;
 }
 
 } // nvdla::priv

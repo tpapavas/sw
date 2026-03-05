@@ -158,6 +158,8 @@ NvDlaError setupInputBuffer
 
     PROPAGATE_ERROR_FAIL(runtime->getInputTensorDesc(0, &tDesc));
 
+    PROPAGATE_ERROR_FAIL(runtime->setNumBatches(tDesc.dims.n));
+
     PROPAGATE_ERROR_FAIL(runtime->allocateSystemMemory(&hMem, tDesc.bufferSize, pInputBuffer));
     i->inputHandle = (NvU8 *)hMem;
     PROPAGATE_ERROR_FAIL(copyImageToInputTensor(appArgs, i, pInputBuffer, &tDesc));
@@ -382,6 +384,7 @@ NvDlaError runTest(const TestAppArgs* appArgs, TestInfo* i)
     struct timespec before, after;
 
     nvdla::IRuntime* runtime = i->runtime;
+    PROPAGATE_ERROR_FAIL(runtime->setNumDLAs(appArgs->num_dlas));
     if (!runtime)
         ORIGINATE_ERROR_FAIL(NvDlaError_BadParameter, "getRuntime() failed");
 

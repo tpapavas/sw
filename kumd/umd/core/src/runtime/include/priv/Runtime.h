@@ -102,6 +102,10 @@ public: // externally facing
     virtual NvDlaError getOutputTensorDesc(int id, IRuntime::NvDlaTensor *);
     virtual NvDlaError setOutputTensorDesc(int id, const IRuntime::NvDlaTensor *);
 
+    virtual NvDlaError setNumDLAs(NvU8);
+    virtual NvU8 getNumDLAs();
+    virtual NvDlaError setNumBatches(NvU8);
+
     virtual bool submit();
 
 public: // internally facing
@@ -143,6 +147,10 @@ protected:
     std::vector<ILoadable::EventListEntry> m_event_entries;
     std::vector<ILoadable::TensorDescListEntry> m_tensor_desc_entries;
     std::vector<ILoadable::RelocEntry> m_reloc_entries;
+
+    // [gem5-plus]
+    NvU8 num_dlas;
+    NvU8 num_batches;
 
     class Task  {
     public:

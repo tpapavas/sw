@@ -101,6 +101,8 @@ struct nvdla_submit_args {
 #define NVDLA_SUBMIT_FLAGS_ATOMIC   (1 << 0)
     __u16 flags;
     __u32 version;
+    __u8 num_dlas;
+    __u8 num_batches;
 };
 
 /**
