@@ -72,6 +72,49 @@ uint64_t m5_wait_accel(uint64_t addr, uint64_t elements);
 uint64_t m5_wait_accel_id(int accel_id);
 uint32_t m5_nvdla_read_reg(int accel_id, uint64_t addr);
 uint32_t m5_nvdla_write_reg(int accel_id, uint32_t data, uint64_t addr);
+
+void m5_nvdla_start_count_bdma_0(int accel_id);
+void m5_nvdla_end_count_bdma_0(int accel_id);
+void m5_nvdla_start_count_bdma_1(int accel_id);
+void m5_nvdla_end_count_bdma_1(int accel_id);
+void m5_nvdla_start_count_cdp_0(int accel_id);
+void m5_nvdla_end_count_cdp_0(int accel_id);
+void m5_nvdla_start_count_cdp_1(int accel_id);
+void m5_nvdla_end_count_cdp_1(int accel_id);
+void m5_nvdla_start_count_conv_0(int accel_id);
+void m5_nvdla_end_count_conv_0(int accel_id);
+void m5_nvdla_start_count_conv_1(int accel_id);
+void m5_nvdla_end_count_conv_1(int accel_id);
+void m5_nvdla_start_count_pdp_0(int accel_id);
+void m5_nvdla_end_count_pdp_0(int accel_id);
+void m5_nvdla_start_count_pdp_1(int accel_id);
+void m5_nvdla_end_count_pdp_1(int accel_id);
+void m5_nvdla_start_count_rubik_0(int accel_id);
+void m5_nvdla_end_count_rubik_0(int accel_id);
+void m5_nvdla_start_count_rubik_1(int accel_id);
+void m5_nvdla_end_count_rubik_1(int accel_id);
+void m5_nvdla_start_count_sdp_0(int accel_id);
+void m5_nvdla_end_count_sdp_0(int accel_id);
+void m5_nvdla_start_count_sdp_1(int accel_id);
+void m5_nvdla_end_count_sdp_1(int accel_id);
+void m5_nvdla_start_count_cacc_0(int accel_id);
+void m5_nvdla_end_count_cacc_0(int accel_id);
+void m5_nvdla_start_count_cacc_1(int accel_id);
+void m5_nvdla_end_count_cacc_1(int accel_id);
+void m5_nvdla_start_count_cdma_dat_0(int accel_id);
+void m5_nvdla_end_count_cdma_dat_0(int accel_id);
+void m5_nvdla_start_count_cdma_dat_1(int accel_id);
+void m5_nvdla_end_count_cdma_dat_1(int accel_id);
+void m5_nvdla_start_count_cdma_wt_0(int accel_id);
+void m5_nvdla_end_count_cdma_wt_0(int accel_id);
+void m5_nvdla_start_count_cdma_wt_1(int accel_id);
+void m5_nvdla_end_count_cdma_wt_1(int accel_id);
+
+
+
+
+bool m5_nvdla_got_response(void);
+uint32_t m5_nvdla_get_data(void);
 /*
  * Send a very generic poke to the workload so it can do something. It's up to
  * the workload to know what information to look for to interpret an event,

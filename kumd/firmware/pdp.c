@@ -147,14 +147,25 @@ dla_pdp_enable(struct dla_processor_group *group)
 	int32_t ret = 0;
 	uint32_t reg;
 	struct dla_engine *engine = dla_get_engine();
+	struct nvdla_device *nvdla_dev = (struct nvdla_device *)engine->driver_context;
 
 	dla_trace("Enter: %s", __func__);
+
 
 	if (!group) {
 		ret = ERR(INVALID_INPUT);
 		goto exit;
 	}
 
+	if (group->id == 0){
+		dla_debug("Starting PDP 0 counter \n");
+		start_pdp_0();
+	}
+	else {
+		dla_debug("Starting PDP 1 counter \n");
+		start_pdp_1();
+	}
+	
 	if (engine->stat_enable == (uint32_t)1) {
 		reg = FIELD_ENUM(PDP_D_PERF_ENABLE_0, DMA_EN, ENABLE);
 		pdp_reg_write(D_PERF_ENABLE, reg);

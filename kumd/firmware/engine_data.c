@@ -831,3 +831,171 @@ void reg_write(uint32_t addr, uint32_t reg)
 {
 	dla_reg_write(engine.driver_context, addr, reg);
 }
+
+void start_bdma_0()
+{
+	dla_start_count_bdma_0(engine.driver_context);
+}
+
+void end_bdma_0()
+{
+	dla_end_count_bdma_0(engine.driver_context);
+}
+
+void start_bdma_1()
+{
+	dla_start_count_bdma_1(engine.driver_context);
+}
+
+void end_bdma_1()
+{
+	dla_end_count_bdma_1(engine.driver_context);
+}
+
+void start_cdp_0()
+{
+	dla_start_count_cdp_0(engine.driver_context);
+}
+
+void end_cdp_0()
+{
+	dla_end_count_cdp_0(engine.driver_context);
+}
+
+void start_cdp_1()
+{
+	dla_start_count_cdp_1(engine.driver_context);
+}
+
+void end_cdp_1()
+{
+	dla_end_count_cdp_1(engine.driver_context);
+}
+
+void start_conv_0()
+{
+	dla_start_count_conv_0(engine.driver_context);
+}
+
+void end_conv_0()
+{
+	dla_end_count_conv_0(engine.driver_context);
+}
+
+void start_conv_1()
+{
+	dla_start_count_conv_1(engine.driver_context);
+}
+
+void end_conv_1()
+{
+	dla_end_count_conv_1(engine.driver_context);
+}
+
+void start_pdp_0()
+{
+	dla_start_count_pdp_0(engine.driver_context);
+}
+
+void end_pdp_0()
+{
+	dla_end_count_pdp_0(engine.driver_context);
+}
+
+void start_pdp_1()
+{
+	dla_start_count_pdp_1(engine.driver_context);
+}
+
+void end_pdp_1()
+{
+	dla_end_count_pdp_1(engine.driver_context);
+}
+
+void start_rubik_0()
+{
+	dla_start_count_rubik_0(engine.driver_context);
+}
+
+void end_rubik_0()
+{
+	dla_end_count_rubik_0(engine.driver_context);
+}
+
+void start_rubik_1()
+{
+	dla_start_count_rubik_1(engine.driver_context);
+}
+
+void end_rubik_1()
+{
+	dla_end_count_rubik_1(engine.driver_context);
+}
+
+void start_sdp_0()
+{
+	dla_start_count_sdp_0(engine.driver_context);
+}
+
+void end_sdp_0()
+{
+	dla_end_count_sdp_0(engine.driver_context);
+}
+
+void start_sdp_1()
+{
+	dla_start_count_sdp_1(engine.driver_context);
+}
+
+void end_sdp_1()
+{
+	dla_end_count_sdp_1(engine.driver_context);
+}
+
+void start_cacc_0()
+{
+	dla_start_count_cacc_0(engine.driver_context);
+}
+void end_cacc_0()
+{
+	dla_end_count_cacc_0(engine.driver_context);
+}
+void start_cacc_1()
+{
+	dla_start_count_cacc_1(engine.driver_context);
+}
+void end_cacc_1()
+{
+	dla_end_count_cacc_1(engine.driver_context);
+}
+void start_cdma_dat_0()
+{
+	dla_start_count_cdma_dat_0(engine.driver_context);
+}
+void end_cdma_dat_0()
+{
+	dla_end_count_cdma_dat_0(engine.driver_context);
+}
+void start_cdma_dat_1()
+{
+	dla_start_count_cdma_dat_1(engine.driver_context);
+}
+void end_cdma_dat_1()
+{
+	dla_end_count_cdma_dat_1(engine.driver_context);
+}
+void start_cdma_wt_0()
+{
+	dla_start_count_cdma_wt_0(engine.driver_context);
+}
+void end_cdma_wt_0()
+{
+	dla_end_count_cdma_wt_0(engine.driver_context);
+}
+void start_cdma_wt_1(){
+	dla_start_count_cdma_wt_1(engine.driver_context);
+}
+void end_cdma_wt_1()
+{
+	dla_end_count_cdma_wt_1(engine.driver_context);
+}

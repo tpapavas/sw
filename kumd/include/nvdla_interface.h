@@ -332,4 +332,42 @@ void *dla_memset(void *src, int ch, uint64_t len);
  */
 void *dla_memcpy(void *dest, const void *src, uint64_t len);
 
+
+void dla_start_count_bdma_0(void *driver_context);
+void dla_end_count_bdma_0(void *driver_context);
+void dla_start_count_bdma_1(void *driver_context);
+void dla_end_count_bdma_1(void *driver_context);
+void dla_start_count_cdp_0(void *driver_context);
+void dla_end_count_cdp_0(void *driver_context);
+void dla_start_count_cdp_1(void *driver_context);
+void dla_end_count_cdp_1(void *driver_context);
+void dla_start_count_conv_0(void *driver_context);
+void dla_end_count_conv_0(void *driver_context);
+void dla_start_count_conv_1(void *driver_context);
+void dla_end_count_conv_1(void *driver_context);
+void dla_start_count_pdp_0(void *driver_context);
+void dla_end_count_pdp_0(void *driver_context);
+void dla_start_count_pdp_1(void *driver_context);
+void dla_end_count_pdp_1(void *driver_context);
+void dla_start_count_rubik_0(void *driver_context);
+void dla_end_count_rubik_0(void *driver_context);
+void dla_start_count_rubik_1(void *driver_context);
+void dla_end_count_rubik_1(void *driver_context);
+void dla_start_count_sdp_0(void *driver_context);
+void dla_end_count_sdp_0(void *driver_context);
+void dla_start_count_sdp_1(void *driver_context);
+void dla_end_count_sdp_1(void *driver_context);
+void dla_start_count_cacc_0(void *driver_context);
+void dla_end_count_cacc_0(void *driver_context);
+void dla_start_count_cacc_1(void *driver_context);
+void dla_end_count_cacc_1(void *driver_context);
+void dla_start_count_cdma_dat_0(void *driver_context);
+void dla_end_count_cdma_dat_0(void *driver_context);
+void dla_start_count_cdma_dat_1(void *driver_context);
+void dla_end_count_cdma_dat_1(void *driver_context);
+void dla_start_count_cdma_wt_0(void *driver_context);
+void dla_end_count_cdma_wt_0(void *driver_context);
+void dla_start_count_cdma_wt_1(void *driver_context);
+void dla_end_count_cdma_wt_1(void *driver_context);
+
 #endif

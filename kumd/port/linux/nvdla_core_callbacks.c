@@ -141,6 +141,225 @@ int64_t dla_get_time_us(void)
 	return 0;
 }
 
+void dla_start_count_bdma_0(void *driver_context)
+{
+	struct nvdla_device *nvdla_dev = (struct nvdla_device *)driver_context;
+	m5_nvdla_start_count_bdma_0(nvdla_dev->current_dla_id);
+}
+
+void dla_end_count_bdma_0(void *driver_context)
+{
+	struct nvdla_device *nvdla_dev = (struct nvdla_device *)driver_context;
+	m5_nvdla_end_count_bdma_0(nvdla_dev->current_dla_id);
+}
+
+void dla_start_count_bdma_1(void *driver_context)
+{
+	struct nvdla_device *nvdla_dev = (struct nvdla_device *)driver_context;
+	m5_nvdla_start_count_bdma_1(nvdla_dev->current_dla_id);
+}
+
+void dla_end_count_bdma_1(void *driver_context)
+{
+	struct nvdla_device *nvdla_dev = (struct nvdla_device *)driver_context;
+	m5_nvdla_end_count_bdma_1(nvdla_dev->current_dla_id);
+}
+
+void dla_start_count_cdp_0(void *driver_context)
+{
+	struct nvdla_device *nvdla_dev = (struct nvdla_device *)driver_context;
+	m5_nvdla_start_count_cdp_0(nvdla_dev->current_dla_id);
+}
+
+void dla_end_count_cdp_0(void *driver_context)
+{
+	struct nvdla_device *nvdla_dev = (struct nvdla_device *)driver_context;
+	m5_nvdla_end_count_cdp_0(nvdla_dev->current_dla_id);
+}
+
+void dla_start_count_cdp_1(void *driver_context)
+{
+	struct nvdla_device *nvdla_dev = (struct nvdla_device *)driver_context;
+	m5_nvdla_start_count_cdp_1(nvdla_dev->current_dla_id);
+}
+
+void dla_end_count_cdp_1(void *driver_context)
+{
+	struct nvdla_device *nvdla_dev = (struct nvdla_device *)driver_context;
+	m5_nvdla_end_count_cdp_1(nvdla_dev->current_dla_id);
+}
+
+void dla_start_count_conv_0(void *driver_context)
+{
+	struct nvdla_device *nvdla_dev = (struct nvdla_device *)driver_context;
+	m5_nvdla_start_count_conv_0(nvdla_dev->current_dla_id);
+}
+
+void dla_end_count_conv_0(void *driver_context)
+{
+	struct nvdla_device *nvdla_dev = (struct nvdla_device *)driver_context;
+	m5_nvdla_end_count_conv_0(nvdla_dev->current_dla_id);
+}
+
+void dla_start_count_conv_1(void *driver_context)
+{
+	struct nvdla_device *nvdla_dev = (struct nvdla_device *)driver_context;
+	m5_nvdla_start_count_conv_1(nvdla_dev->current_dla_id);
+}
+
+void dla_end_count_conv_1(void *driver_context)
+{
+	struct nvdla_device *nvdla_dev = (struct nvdla_device *)driver_context;
+	m5_nvdla_end_count_conv_1(nvdla_dev->current_dla_id);
+}
+
+void dla_start_count_pdp_0(void *driver_context)
+{
+	struct nvdla_device *nvdla_dev = (struct nvdla_device *)driver_context;
+	m5_nvdla_start_count_pdp_0(nvdla_dev->current_dla_id);
+}
+
+void dla_end_count_pdp_0(void *driver_context)
+{
+	struct nvdla_device *nvdla_dev = (struct nvdla_device *)driver_context;
+	m5_nvdla_end_count_pdp_0(nvdla_dev->current_dla_id);
+}
+
+void dla_start_count_pdp_1(void *driver_context)
+{
+	struct nvdla_device *nvdla_dev = (struct nvdla_device *)driver_context;
+	m5_nvdla_start_count_pdp_1(nvdla_dev->current_dla_id);
+}
+
+void dla_end_count_pdp_1(void *driver_context)
+{
+	struct nvdla_device *nvdla_dev = (struct nvdla_device *)driver_context;
+	m5_nvdla_end_count_pdp_1(nvdla_dev->current_dla_id);
+}
+
+void dla_start_count_rubik_0(void *driver_context)
+{
+	struct nvdla_device *nvdla_dev = (struct nvdla_device *)driver_context;
+	m5_nvdla_start_count_rubik_0(nvdla_dev->current_dla_id);
+}
+
+void dla_end_count_rubik_0(void *driver_context)
+{
+	struct nvdla_device *nvdla_dev = (struct nvdla_device *)driver_context;
+	m5_nvdla_end_count_rubik_0(nvdla_dev->current_dla_id);
+}
+
+void dla_start_count_rubik_1(void *driver_context)
+{
+	struct nvdla_device *nvdla_dev = (struct nvdla_device *)driver_context;
+	m5_nvdla_start_count_rubik_1(nvdla_dev->current_dla_id);
+}
+
+void dla_end_count_rubik_1(void *driver_context)
+{
+	struct nvdla_device *nvdla_dev = (struct nvdla_device *)driver_context;
+	m5_nvdla_end_count_rubik_1(nvdla_dev->current_dla_id);
+}
+
+void dla_start_count_sdp_0(void *driver_context)
+{
+	struct nvdla_device *nvdla_dev = (struct nvdla_device *)driver_context;
+	m5_nvdla_start_count_sdp_0(nvdla_dev->current_dla_id);
+}
+
+void dla_end_count_sdp_0(void *driver_context)
+{
+	struct nvdla_device *nvdla_dev = (struct nvdla_device *)driver_context;
+	m5_nvdla_end_count_sdp_0(nvdla_dev->current_dla_id);
+}
+
+void dla_start_count_sdp_1(void *driver_context)
+{
+	struct nvdla_device *nvdla_dev = (struct nvdla_device *)driver_context;
+	m5_nvdla_start_count_sdp_1(nvdla_dev->current_dla_id);
+}
+
+void dla_end_count_sdp_1(void *driver_context)
+{
+	struct nvdla_device *nvdla_dev = (struct nvdla_device *)driver_context;
+	m5_nvdla_end_count_sdp_1(nvdla_dev->current_dla_id);
+}
+
+void dla_start_count_cacc_0(void *driver_context)
+{
+	struct nvdla_device *nvdla_dev = (struct nvdla_device *)driver_context;
+	m5_nvdla_start_count_cacc_0(nvdla_dev->current_dla_id);
+}
+
+void dla_end_count_cacc_0(void *driver_context)
+{
+	struct nvdla_device *nvdla_dev = (struct nvdla_device *)driver_context;
+	m5_nvdla_end_count_cacc_0(nvdla_dev->current_dla_id);
+}
+
+void dla_start_count_cacc_1(void *driver_context)
+{
+	struct nvdla_device *nvdla_dev = (struct nvdla_device *)driver_context;
+	m5_nvdla_start_count_cacc_1(nvdla_dev->current_dla_id);
+}
+
+void dla_end_count_cacc_1(void *driver_context)
+{
+	struct nvdla_device *nvdla_dev = (struct nvdla_device *)driver_context;
+	m5_nvdla_end_count_cacc_1(nvdla_dev->current_dla_id);
+}
+
+void dla_start_count_cdma_dat_0(void *driver_context)
+{
+	struct nvdla_device *nvdla_dev = (struct nvdla_device *)driver_context;
+	m5_nvdla_start_count_cdma_dat_0(nvdla_dev->current_dla_id);
+}
+
+void dla_end_count_cdma_dat_0(void *driver_context)
+{
+	struct nvdla_device *nvdla_dev = (struct nvdla_device *)driver_context;
+	m5_nvdla_end_count_cdma_dat_0(nvdla_dev->current_dla_id);
+}
+
+void dla_start_count_cdma_dat_1(void *driver_context)
+{
+	struct nvdla_device *nvdla_dev = (struct nvdla_device *)driver_context;
+	m5_nvdla_start_count_cdma_dat_1(nvdla_dev->current_dla_id);
+}
+
+void dla_end_count_cdma_dat_1(void *driver_context)
+{
+	struct nvdla_device *nvdla_dev = (struct nvdla_device *)driver_context;
+	m5_nvdla_end_count_cdma_dat_1(nvdla_dev->current_dla_id);
+}
+
+
+void dla_start_count_cdma_wt_0(void *driver_context)
+{
+	struct nvdla_device *nvdla_dev = (struct nvdla_device *)driver_context;
+	m5_nvdla_start_count_cdma_wt_0(nvdla_dev->current_dla_id);
+}
+
+
+void dla_end_count_cdma_wt_0(void *driver_context)
+{
+	struct nvdla_device *nvdla_dev = (struct nvdla_device *)driver_context;
+	m5_nvdla_end_count_cdma_wt_0(nvdla_dev->current_dla_id);
+}
+
+
+void dla_start_count_cdma_wt_1(void *driver_context)
+{
+	struct nvdla_device *nvdla_dev = (struct nvdla_device *)driver_context;
+	m5_nvdla_start_count_cdma_wt_1(nvdla_dev->current_dla_id);
+}
+
+void dla_end_count_cdma_wt_1(void *driver_context)
+{
+	struct nvdla_device *nvdla_dev = (struct nvdla_device *)driver_context;
+	m5_nvdla_end_count_cdma_wt_1(nvdla_dev->current_dla_id);
+}
+
 void dla_reg_write(void *driver_context, uint32_t addr, uint32_t reg)
 {
 	struct nvdla_device *nvdla_dev =
@@ -162,7 +381,18 @@ uint32_t dla_reg_read(void *driver_context, uint32_t addr)
 	struct nvdla_device *nvdla_dev =
 			(struct nvdla_device *)driver_context;
 
-	return m5_nvdla_read_reg(nvdla_dev->current_dla_id, addr);
+	return m5_nvdla_read_reg(nvdla_dev->current_dla_id, addr); 
+	
+
+	
+	//m5_nvdla_read_reg(nvdla_dev->current_dla_id, addr);
+//
+	//uint32_t data;
+	//while (m5_nvdla_got_response()) {}
+	//	// do nothing
+	//return m5_nvdla_get_data();
+	
+
 
 	/*
 	if (!nvdla_dev)
@@ -380,9 +610,12 @@ int32_t u__nvdla_task_submit(struct nvdla_device *nvdla_dev, struct nvdla_task *
 		 * TODO: Replace CURRENT_DLA_DEV_NUM with actual dla number
 		 */
 		for (dla_id = 0; dla_id < CURRENT_DLA_DEV_NUM; dla_id++) {
-			if (m5_nvdla_read_reg(dla_id, 0x20000) == 1) {
+			//if (m5_nvdla_read_reg(dla_id, 0x20000) == 1) {
+			// uint32_t dla_reg_read(void *driver_context, uint32_t addr)
+			if (dla_reg_read( nvdla_dev->engine_context ,0x20000) == 1) {
 				fprintf(stderr, "OP COMPLETED ...\n");
 				dla_isr_handler(nvdla_dev->engine_context, dla_id);
+				
 			}
 		}
 		// nvdla_dev->current_dla_id = (nvdla_dev->current_dla_id+1)%2;
@@ -393,15 +626,19 @@ int32_t u__nvdla_task_submit(struct nvdla_device *nvdla_dev, struct nvdla_task *
 		// nvdla_dev->current_dla_id = (nvdla_dev->current_dla_id+1)%2;
 
 		// spin_unlock_irqrestore(&nvdla_dev->nvdla_lock, flags);
+		fprintf(stderr, "Before at if task_complete ...%d\n",task_complete);
 
 		if (/*err ||*/ task_complete) {
+			fprintf(stderr, "Inside at if task_complete ...\n");
+
 			// emulate network completion signaling to dla (for spm flush)
 			/**
 			 * TODO: make sure dma (cache flush) is finished before
 			 * EMU reads operation's input
 			 */
 			for (dla_id = 0; dla_id < CURRENT_DLA_DEV_NUM; dla_id++){
-				m5_nvdla_read_reg(dla_id, 0x20004);
+				//m5_nvdla_read_reg(dla_id, 0x20004);
+				dla_reg_read(nvdla_dev->engine_context,0x20004 );
 			}
 			// m5_nvdla_read_reg(1, 0x20004);
 			break;
