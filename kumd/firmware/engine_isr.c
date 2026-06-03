@@ -175,6 +175,9 @@ int32_t dla_isr_handler(void *engine_data, uint8_t dla_id)
         dla_debug("End CACC 0 counter \n");
         end_cacc_0();
 
+        dla_debug("End CMAC 1 counter \n");
+        end_cmac_1();
+
     }
 
     if (reg & MASK(GLB_S_INTR_STATUS_0, CACC_DONE_STATUS1)) {
@@ -186,6 +189,8 @@ int32_t dla_isr_handler(void *engine_data, uint8_t dla_id)
         dla_debug("End CACC 1 counter \n");
         end_cacc_1();
 
+        dla_debug("End CMAC 1 counter \n");
+        end_cmac_1();
     }
 
     // ---------------- SDP ----------------
