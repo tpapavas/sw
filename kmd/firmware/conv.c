@@ -218,7 +218,8 @@ dla_conv_enable(struct dla_processor_group *group)
 	struct dla_engine *engine = dla_get_engine();
 
 	dla_trace("Enter: %s", __func__);
-
+	dla_trace("Starting time counter");
+	cdma_reg_
 	do {
 		reg = cdma_reg_read(S_CBUF_FLUSH_STATUS);
 	} while (!(reg & MASK(CDMA_S_CBUF_FLUSH_STATUS_0, FLUSH_DONE)));
