@@ -244,6 +244,24 @@ int32_t dla_isr_handler(void *engine_data, uint8_t dla_id)
         dla_debug("End CDP 1 counter \n");
         end_cdp_1();
     }
+    // ---------------- RUBIK ----------------
+    if (reg & MASK(GLB_S_INTR_STATUS_0, RUBIK_DONE_STATUS0)) {
+        dla_trace("[ISR] RUBIK_DONE_STATUS0\n");
+		processor = &engine->processors[dla_id][DLA_OP_RUBIK];
+		group = &processor->groups[0];
+		group->events |= (1 << DLA_EVENT_OP_COMPLETED);
+        dla_debug("End RUBIK 0 counter \n");
+        end_rubik_0();
+	}
+    
+	if (reg & MASK(GLB_S_INTR_STATUS_0, RUBIK_DONE_STATUS1)) {
+        dla_trace("[ISR] RUBIK_DONE_STATUS1\n");
+		processor = &engine->processors[dla_id][DLA_OP_RUBIK];
+		group = &processor->groups[1];
+		group->events |= (1 << DLA_EVENT_OP_COMPLETED);
+        dla_debug("End RUBIK 1 counter \n");
+        end_rubik_1();
+	}
 
     // ---------------- BDMA ----------------
     if (reg & MASK(GLB_S_INTR_STATUS_0, BDMA_DONE_STATUS0)) {
@@ -298,7 +316,6 @@ int32_t dla_isr_handler(void *engine_data, uint8_t dla_id)
         group = &processor->groups[1];
         group->events |= (1 << DLA_EVENT_CDMA_WT_DONE);
         dla_debug("End CDMA WT 1 counter \n");
-        //dla_end_count_cdma_wt_1(nvdla_dev->current_dla_id);
         end_cdma_wt_1();
     }
 

@@ -1,6 +1,10 @@
-/data/ngiannopoulos/Phd/NVDLA/tools/sw-gem5_rtl_measue_stats/kumd/umd/out/core/src/runtime/libnvdla_runtime/Runtime.o: \
- Runtime.cpp /usr/aarch64-linux-gnu/include/stdc-predef.h \
- /usr/aarch64-linux-gnu/include/c++/5/cstdio \
+/data/ngiannopoulos/Phd/NVDLA/tools/sw-gem5_rtl_measue_stats/kumd/umd/out/core/src/runtime/libnvdla_runtime//data/ngiannopoulos/Phd/NVDLA/tools/sw-gem5_rtl_measue_stats/kumd/umd/core/src/common/EMUInterfaceA.o: \
+ /data/ngiannopoulos/Phd/NVDLA/tools/sw-gem5_rtl_measue_stats/kumd/umd/core/src/common/EMUInterfaceA.cpp \
+ /usr/aarch64-linux-gnu/include/stdc-predef.h \
+ /data/ngiannopoulos/Phd/NVDLA/tools/sw-gem5_rtl_measue_stats/kumd/umd/core/src/common/include/priv/EMUInterface.h \
+ /usr/lib/gcc-cross/aarch64-linux-gnu/5/include/stdbool.h \
+ /data/ngiannopoulos/Phd/NVDLA/tools/sw-gem5_rtl_measue_stats/kumd/umd/core/src/common/include/priv/Type.h \
+ /usr/aarch64-linux-gnu/include/c++/5/string \
  /usr/aarch64-linux-gnu/include/c++/5/aarch64-linux-gnu/bits/c++config.h \
  /usr/aarch64-linux-gnu/include/c++/5/aarch64-linux-gnu/bits/os_defines.h \
  /usr/aarch64-linux-gnu/include/features.h \
@@ -9,39 +13,12 @@
  /usr/aarch64-linux-gnu/include/gnu/stubs.h \
  /usr/aarch64-linux-gnu/include/gnu/stubs-lp64.h \
  /usr/aarch64-linux-gnu/include/c++/5/aarch64-linux-gnu/bits/cpu_defines.h \
- /usr/aarch64-linux-gnu/include/stdio.h \
- /usr/lib/gcc-cross/aarch64-linux-gnu/5/include/stddef.h \
- /usr/aarch64-linux-gnu/include/bits/types.h \
- /usr/aarch64-linux-gnu/include/bits/typesizes.h \
- /usr/aarch64-linux-gnu/include/libio.h \
- /usr/aarch64-linux-gnu/include/_G_config.h \
- /usr/aarch64-linux-gnu/include/wchar.h \
- /usr/lib/gcc-cross/aarch64-linux-gnu/5/include/stdarg.h \
- /usr/aarch64-linux-gnu/include/bits/stdio_lim.h \
- /usr/aarch64-linux-gnu/include/bits/sys_errlist.h \
- /usr/aarch64-linux-gnu/include/bits/stdio2.h \
- /usr/aarch64-linux-gnu/include/c++/5/cstring \
- /usr/aarch64-linux-gnu/include/string.h \
- /usr/aarch64-linux-gnu/include/xlocale.h \
- /usr/aarch64-linux-gnu/include/bits/string3.h \
- /usr/aarch64-linux-gnu/include/c++/5/sstream \
- /usr/aarch64-linux-gnu/include/c++/5/istream \
- /usr/aarch64-linux-gnu/include/c++/5/ios \
- /usr/aarch64-linux-gnu/include/c++/5/iosfwd \
  /usr/aarch64-linux-gnu/include/c++/5/bits/stringfwd.h \
  /usr/aarch64-linux-gnu/include/c++/5/bits/memoryfwd.h \
- /usr/aarch64-linux-gnu/include/c++/5/bits/postypes.h \
- /usr/aarch64-linux-gnu/include/c++/5/cwchar \
- /usr/aarch64-linux-gnu/include/bits/wchar.h \
- /usr/aarch64-linux-gnu/include/bits/wchar2.h \
- /usr/aarch64-linux-gnu/include/c++/5/exception \
- /usr/aarch64-linux-gnu/include/c++/5/bits/atomic_lockfree_defines.h \
- /usr/aarch64-linux-gnu/include/c++/5/bits/exception_ptr.h \
- /usr/aarch64-linux-gnu/include/c++/5/bits/exception_defines.h \
- /usr/aarch64-linux-gnu/include/c++/5/bits/nested_exception.h \
  /usr/aarch64-linux-gnu/include/c++/5/bits/char_traits.h \
  /usr/aarch64-linux-gnu/include/c++/5/bits/stl_algobase.h \
  /usr/aarch64-linux-gnu/include/c++/5/bits/functexcept.h \
+ /usr/aarch64-linux-gnu/include/c++/5/bits/exception_defines.h \
  /usr/aarch64-linux-gnu/include/c++/5/bits/cpp_type_traits.h \
  /usr/aarch64-linux-gnu/include/c++/5/ext/type_traits.h \
  /usr/aarch64-linux-gnu/include/c++/5/ext/numeric_traits.h \
@@ -55,21 +32,47 @@
  /usr/aarch64-linux-gnu/include/c++/5/bits/stl_iterator.h \
  /usr/aarch64-linux-gnu/include/c++/5/bits/ptr_traits.h \
  /usr/aarch64-linux-gnu/include/c++/5/bits/predefined_ops.h \
+ /usr/aarch64-linux-gnu/include/c++/5/bits/postypes.h \
+ /usr/aarch64-linux-gnu/include/c++/5/cwchar \
+ /usr/aarch64-linux-gnu/include/wchar.h \
+ /usr/aarch64-linux-gnu/include/stdio.h \
+ /usr/lib/gcc-cross/aarch64-linux-gnu/5/include/stdarg.h \
+ /usr/aarch64-linux-gnu/include/bits/wchar.h \
+ /usr/lib/gcc-cross/aarch64-linux-gnu/5/include/stddef.h \
+ /usr/aarch64-linux-gnu/include/xlocale.h \
+ /usr/aarch64-linux-gnu/include/bits/wchar2.h \
  /usr/aarch64-linux-gnu/include/c++/5/cstdint \
  /usr/lib/gcc-cross/aarch64-linux-gnu/5/include/stdint.h \
  /usr/aarch64-linux-gnu/include/stdint.h \
+ /usr/aarch64-linux-gnu/include/c++/5/bits/allocator.h \
+ /usr/aarch64-linux-gnu/include/c++/5/aarch64-linux-gnu/bits/c++allocator.h \
+ /usr/aarch64-linux-gnu/include/c++/5/ext/new_allocator.h \
+ /usr/aarch64-linux-gnu/include/c++/5/new \
+ /usr/aarch64-linux-gnu/include/c++/5/exception \
+ /usr/aarch64-linux-gnu/include/c++/5/bits/atomic_lockfree_defines.h \
+ /usr/aarch64-linux-gnu/include/c++/5/bits/exception_ptr.h \
+ /usr/aarch64-linux-gnu/include/c++/5/bits/nested_exception.h \
  /usr/aarch64-linux-gnu/include/c++/5/bits/localefwd.h \
  /usr/aarch64-linux-gnu/include/c++/5/aarch64-linux-gnu/bits/c++locale.h \
  /usr/aarch64-linux-gnu/include/c++/5/clocale \
  /usr/aarch64-linux-gnu/include/locale.h \
  /usr/aarch64-linux-gnu/include/bits/locale.h \
+ /usr/aarch64-linux-gnu/include/c++/5/iosfwd \
  /usr/aarch64-linux-gnu/include/c++/5/cctype \
  /usr/aarch64-linux-gnu/include/ctype.h \
+ /usr/aarch64-linux-gnu/include/bits/types.h \
+ /usr/aarch64-linux-gnu/include/bits/typesizes.h \
  /usr/aarch64-linux-gnu/include/endian.h \
  /usr/aarch64-linux-gnu/include/bits/endian.h \
  /usr/aarch64-linux-gnu/include/bits/byteswap.h \
  /usr/aarch64-linux-gnu/include/bits/byteswap-16.h \
- /usr/aarch64-linux-gnu/include/c++/5/bits/ios_base.h \
+ /usr/aarch64-linux-gnu/include/c++/5/bits/ostream_insert.h \
+ /usr/aarch64-linux-gnu/include/c++/5/bits/cxxabi_forced.h \
+ /usr/aarch64-linux-gnu/include/c++/5/bits/stl_function.h \
+ /usr/aarch64-linux-gnu/include/c++/5/backward/binders.h \
+ /usr/aarch64-linux-gnu/include/c++/5/bits/range_access.h \
+ /usr/aarch64-linux-gnu/include/c++/5/initializer_list \
+ /usr/aarch64-linux-gnu/include/c++/5/bits/basic_string.h \
  /usr/aarch64-linux-gnu/include/c++/5/ext/atomicity.h \
  /usr/aarch64-linux-gnu/include/c++/5/aarch64-linux-gnu/bits/gthr.h \
  /usr/aarch64-linux-gnu/include/c++/5/aarch64-linux-gnu/bits/gthr-default.h \
@@ -82,19 +85,6 @@
  /usr/aarch64-linux-gnu/include/bits/pthreadtypes.h \
  /usr/aarch64-linux-gnu/include/bits/setjmp.h \
  /usr/aarch64-linux-gnu/include/c++/5/aarch64-linux-gnu/bits/atomic_word.h \
- /usr/aarch64-linux-gnu/include/c++/5/bits/locale_classes.h \
- /usr/aarch64-linux-gnu/include/c++/5/string \
- /usr/aarch64-linux-gnu/include/c++/5/bits/allocator.h \
- /usr/aarch64-linux-gnu/include/c++/5/aarch64-linux-gnu/bits/c++allocator.h \
- /usr/aarch64-linux-gnu/include/c++/5/ext/new_allocator.h \
- /usr/aarch64-linux-gnu/include/c++/5/new \
- /usr/aarch64-linux-gnu/include/c++/5/bits/ostream_insert.h \
- /usr/aarch64-linux-gnu/include/c++/5/bits/cxxabi_forced.h \
- /usr/aarch64-linux-gnu/include/c++/5/bits/stl_function.h \
- /usr/aarch64-linux-gnu/include/c++/5/backward/binders.h \
- /usr/aarch64-linux-gnu/include/c++/5/bits/range_access.h \
- /usr/aarch64-linux-gnu/include/c++/5/initializer_list \
- /usr/aarch64-linux-gnu/include/c++/5/bits/basic_string.h \
  /usr/aarch64-linux-gnu/include/c++/5/ext/alloc_traits.h \
  /usr/aarch64-linux-gnu/include/c++/5/bits/alloc_traits.h \
  /usr/aarch64-linux-gnu/include/c++/5/ext/string_conversions.h \
@@ -111,6 +101,12 @@
  /usr/aarch64-linux-gnu/include/alloca.h \
  /usr/aarch64-linux-gnu/include/bits/stdlib-float.h \
  /usr/aarch64-linux-gnu/include/bits/stdlib.h \
+ /usr/aarch64-linux-gnu/include/c++/5/cstdio \
+ /usr/aarch64-linux-gnu/include/libio.h \
+ /usr/aarch64-linux-gnu/include/_G_config.h \
+ /usr/aarch64-linux-gnu/include/bits/stdio_lim.h \
+ /usr/aarch64-linux-gnu/include/bits/sys_errlist.h \
+ /usr/aarch64-linux-gnu/include/bits/stdio2.h \
  /usr/aarch64-linux-gnu/include/c++/5/cerrno \
  /usr/aarch64-linux-gnu/include/errno.h \
  /usr/aarch64-linux-gnu/include/bits/errno.h \
@@ -121,6 +117,11 @@
  /usr/aarch64-linux-gnu/include/c++/5/bits/functional_hash.h \
  /usr/aarch64-linux-gnu/include/c++/5/bits/hash_bytes.h \
  /usr/aarch64-linux-gnu/include/c++/5/bits/basic_string.tcc \
+ /usr/aarch64-linux-gnu/include/c++/5/sstream \
+ /usr/aarch64-linux-gnu/include/c++/5/istream \
+ /usr/aarch64-linux-gnu/include/c++/5/ios \
+ /usr/aarch64-linux-gnu/include/c++/5/bits/ios_base.h \
+ /usr/aarch64-linux-gnu/include/c++/5/bits/locale_classes.h \
  /usr/aarch64-linux-gnu/include/c++/5/bits/locale_classes.tcc \
  /usr/aarch64-linux-gnu/include/c++/5/system_error \
  /usr/aarch64-linux-gnu/include/c++/5/aarch64-linux-gnu/bits/error_constants.h \
@@ -150,40 +151,12 @@
  /usr/aarch64-linux-gnu/include/c++/5/array \
  /usr/aarch64-linux-gnu/include/c++/5/bits/uses_allocator.h \
  /usr/aarch64-linux-gnu/include/c++/5/bits/stl_multimap.h \
- /usr/aarch64-linux-gnu/include/c++/5/list \
- /usr/aarch64-linux-gnu/include/c++/5/bits/stl_list.h \
- /usr/aarch64-linux-gnu/include/c++/5/bits/list.tcc \
- /data/ngiannopoulos/Phd/NVDLA/tools/sw-gem5_rtl_measue_stats/kumd/umd/core/include/dlatypes.h \
- /usr/lib/gcc-cross/aarch64-linux-gnu/5/include/stdbool.h \
- /data/ngiannopoulos/Phd/NVDLA/tools/sw-gem5_rtl_measue_stats/kumd/umd/core/include/dlaerror.h \
- /data/ngiannopoulos/Phd/NVDLA/tools/sw-gem5_rtl_measue_stats/kumd/umd/core/include/nvdla_inf.h \
- /data/ngiannopoulos/Phd/NVDLA/tools/sw-gem5_rtl_measue_stats/kumd/umd/core/include/dlaerror.h \
- /data/ngiannopoulos/Phd/NVDLA/tools/sw-gem5_rtl_measue_stats/kumd/umd/core/include/dlatypes.h \
- include/priv/Dla_fw_layout.h \
- /data/ngiannopoulos/Phd/NVDLA/tools/sw-gem5_rtl_measue_stats/kumd/umd/core/include/nvdla_os_inf.h \
- /usr/aarch64-linux-gnu/include/dirent.h \
- /usr/aarch64-linux-gnu/include/bits/dirent.h \
- /usr/aarch64-linux-gnu/include/bits/posix1_lim.h \
- /usr/aarch64-linux-gnu/include/bits/local_lim.h \
- /usr/aarch64-linux-gnu/include/linux/limits.h include/priv/Emulator.h \
- /usr/aarch64-linux-gnu/include/c++/5/queue \
- /usr/aarch64-linux-gnu/include/c++/5/deque \
- /usr/aarch64-linux-gnu/include/c++/5/bits/stl_construct.h \
- /usr/aarch64-linux-gnu/include/c++/5/bits/stl_uninitialized.h \
- /usr/aarch64-linux-gnu/include/c++/5/bits/stl_deque.h \
- /usr/aarch64-linux-gnu/include/c++/5/bits/deque.tcc \
- /usr/aarch64-linux-gnu/include/c++/5/vector \
- /usr/aarch64-linux-gnu/include/c++/5/bits/stl_vector.h \
- /usr/aarch64-linux-gnu/include/c++/5/bits/stl_bvector.h \
- /usr/aarch64-linux-gnu/include/c++/5/bits/vector.tcc \
- /usr/aarch64-linux-gnu/include/c++/5/bits/stl_heap.h \
- /usr/aarch64-linux-gnu/include/c++/5/bits/stl_queue.h \
- /data/ngiannopoulos/Phd/NVDLA/tools/sw-gem5_rtl_measue_stats/kumd/umd/core/src/common/include/priv/EMUInterface.h \
- /data/ngiannopoulos/Phd/NVDLA/tools/sw-gem5_rtl_measue_stats/kumd/umd/core/src/common/include/priv/Type.h \
  /usr/aarch64-linux-gnu/include/c++/5/algorithm \
  /usr/aarch64-linux-gnu/include/c++/5/bits/stl_algo.h \
  /usr/aarch64-linux-gnu/include/c++/5/bits/algorithmfwd.h \
+ /usr/aarch64-linux-gnu/include/c++/5/bits/stl_heap.h \
  /usr/aarch64-linux-gnu/include/c++/5/bits/stl_tempbuf.h \
+ /usr/aarch64-linux-gnu/include/c++/5/bits/stl_construct.h \
  /usr/aarch64-linux-gnu/include/c++/5/random \
  /usr/aarch64-linux-gnu/include/c++/5/cmath \
  /usr/aarch64-linux-gnu/include/math.h \
@@ -198,52 +171,22 @@
  /usr/aarch64-linux-gnu/include/bits/mathcalls.h \
  /usr/aarch64-linux-gnu/include/c++/5/limits \
  /usr/aarch64-linux-gnu/include/c++/5/bits/random.h \
+ /usr/aarch64-linux-gnu/include/c++/5/vector \
+ /usr/aarch64-linux-gnu/include/c++/5/bits/stl_uninitialized.h \
+ /usr/aarch64-linux-gnu/include/c++/5/bits/stl_vector.h \
+ /usr/aarch64-linux-gnu/include/c++/5/bits/stl_bvector.h \
+ /usr/aarch64-linux-gnu/include/c++/5/bits/vector.tcc \
  /usr/aarch64-linux-gnu/include/c++/5/bits/uniform_int_dist.h \
  /usr/aarch64-linux-gnu/include/c++/5/aarch64-linux-gnu/bits/opt_random.h \
  /usr/aarch64-linux-gnu/include/c++/5/bits/random.tcc \
  /usr/aarch64-linux-gnu/include/c++/5/numeric \
  /usr/aarch64-linux-gnu/include/c++/5/bits/stl_numeric.h \
  /data/ngiannopoulos/Phd/NVDLA/tools/sw-gem5_rtl_measue_stats/kumd/umd/core/include/nvdla/IType.h \
+ /data/ngiannopoulos/Phd/NVDLA/tools/sw-gem5_rtl_measue_stats/kumd/umd/core/include/dlaerror.h \
  /data/ngiannopoulos/Phd/NVDLA/tools/sw-gem5_rtl_measue_stats/kumd/umd/core/include/nvdla/c/NvDlaType.h \
+ /data/ngiannopoulos/Phd/NVDLA/tools/sw-gem5_rtl_measue_stats/kumd/umd/core/include/dlatypes.h \
  /data/ngiannopoulos/Phd/NVDLA/tools/sw-gem5_rtl_measue_stats/kumd/umd/core/src/common/include/priv/Check.h \
  /usr/aarch64-linux-gnu/include/c++/5/iostream \
  /data/ngiannopoulos/Phd/NVDLA/tools/sw-gem5_rtl_measue_stats/kumd/umd/core/src/common/include/priv/EMUInterfaceEnums.h \
- /data/ngiannopoulos/Phd/NVDLA/tools/sw-gem5_rtl_measue_stats/kumd/umd/core/src/common/include/priv/Loadable.h \
- /data/ngiannopoulos/Phd/NVDLA/tools/sw-gem5_rtl_measue_stats/kumd/umd/core/include/nvdla/ILoadable.h \
- /data/ngiannopoulos/Phd/NVDLA/tools/sw-gem5_rtl_measue_stats/kumd/umd/core/include/nvdla/c/NvDlaLoadable.h \
- /data/ngiannopoulos/Phd/NVDLA/tools/sw-gem5_rtl_measue_stats/kumd/umd/core/include/nvdla/IRuntime.h \
- /data/ngiannopoulos/Phd/NVDLA/tools/sw-gem5_rtl_measue_stats/kumd/umd/core/src/common/include/priv/loadable_generated.h \
- /data/ngiannopoulos/Phd/NVDLA/tools/sw-gem5_rtl_measue_stats/kumd/umd/external/include/flatbuffers/flatbuffers.h \
- /usr/aarch64-linux-gnu/include/assert.h \
- /usr/aarch64-linux-gnu/include/c++/5/cstddef \
- /usr/aarch64-linux-gnu/include/c++/5/set \
- /usr/aarch64-linux-gnu/include/c++/5/bits/stl_set.h \
- /usr/aarch64-linux-gnu/include/c++/5/bits/stl_multiset.h \
- /usr/aarch64-linux-gnu/include/c++/5/memory \
- /usr/aarch64-linux-gnu/include/c++/5/bits/stl_raw_storage_iter.h \
- /usr/aarch64-linux-gnu/include/c++/5/typeinfo \
- /usr/aarch64-linux-gnu/include/c++/5/ext/concurrence.h \
- /usr/aarch64-linux-gnu/include/c++/5/functional \
- /usr/aarch64-linux-gnu/include/c++/5/bits/unique_ptr.h \
- /usr/aarch64-linux-gnu/include/c++/5/bits/shared_ptr.h \
- /usr/aarch64-linux-gnu/include/c++/5/bits/shared_ptr_base.h \
- /usr/aarch64-linux-gnu/include/c++/5/bits/allocated_ptr.h \
- /usr/aarch64-linux-gnu/include/c++/5/bits/shared_ptr_atomic.h \
- /usr/aarch64-linux-gnu/include/c++/5/bits/atomic_base.h \
- /usr/aarch64-linux-gnu/include/c++/5/backward/auto_ptr.h \
- include/priv/Runtime.h include/priv/Dla_fw_layout.h \
- /data/ngiannopoulos/Phd/NVDLA/tools/sw-gem5_rtl_measue_stats/kumd/umd/core/include/ErrorMacros.h \
- /usr/aarch64-linux-gnu/include/c++/5/iomanip \
- /usr/aarch64-linux-gnu/include/c++/5/locale \
- /usr/aarch64-linux-gnu/include/c++/5/bits/locale_facets_nonio.h \
- /usr/aarch64-linux-gnu/include/c++/5/ctime \
- /usr/aarch64-linux-gnu/include/c++/5/aarch64-linux-gnu/bits/time_members.h \
- /usr/aarch64-linux-gnu/include/c++/5/aarch64-linux-gnu/bits/messages_members.h \
- /usr/aarch64-linux-gnu/include/libintl.h \
- /usr/aarch64-linux-gnu/include/c++/5/bits/codecvt.h \
- /usr/aarch64-linux-gnu/include/c++/5/bits/locale_facets_nonio.tcc \
- /usr/aarch64-linux-gnu/include/c++/5/bits/locale_conv.h \
- /usr/aarch64-linux-gnu/include/c++/5/bits/stringfwd.h \
- /usr/aarch64-linux-gnu/include/c++/5/bits/allocator.h \
- /usr/aarch64-linux-gnu/include/c++/5/bits/codecvt.h \
- /usr/aarch64-linux-gnu/include/c++/5/bits/unique_ptr.h
+ /data/ngiannopoulos/Phd/NVDLA/tools/sw-gem5_rtl_measue_stats/kumd/umd/core/src/common/include/priv/emu/emu1/A/emu_version.h \
+ /data/ngiannopoulos/Phd/NVDLA/tools/sw-gem5_rtl_measue_stats/kumd/umd/core/src/common/include/priv/emu/emu1/A/emu_interface.h

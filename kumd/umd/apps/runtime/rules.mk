@@ -46,7 +46,7 @@ INCLUDES += \
     -I$(LOCAL_DIR)/include \
     -I$(LOCAL_DIR) \
     -I$(ROOT)/core/src/runtime/include \
-    -include /data/ngiannopoulos/Phd/NVDLA/tools/sw-gem5/umd/fix_half_isnan.hh
+    -include /data/ngiannopoulos/Phd/NVDLA/tools/sw-gem5_rtl_measue_stats/kumd/umd/fix_half_isnan.hh
 
 MODULE_CPPFLAGS := -DNVDLA_UTILS_ERROR_TAG="\"DLA_TEST\""
 MODULE_CFLAGS := -DNVDLA_UTILS_ERROR_TAG="\"DLA_TEST\""

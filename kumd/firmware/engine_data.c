@@ -872,24 +872,24 @@ void end_cdp_1()
 	dla_end_count_cdp_1(engine.driver_context);
 }
 
-void start_conv_0()
+void start_cmac_0()
 {
-	dla_start_count_conv_0(engine.driver_context);
+	dla_start_count_cmac_0(engine.driver_context);
 }
 
-void end_conv_0()
+void end_cmac_0()
 {
-	dla_end_count_conv_0(engine.driver_context);
+	dla_end_count_cmac_0(engine.driver_context);
 }
 
-void start_conv_1()
+void start_cmac_1()
 {
-	dla_start_count_conv_1(engine.driver_context);
+	dla_start_count_cmac_1(engine.driver_context);
 }
 
-void end_conv_1()
+void end_cmac_1()
 {
-	dla_end_count_conv_1(engine.driver_context);
+	dla_end_count_cmac_1(engine.driver_context);
 }
 
 void start_pdp_0()

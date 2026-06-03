@@ -189,28 +189,28 @@ void dla_end_count_cdp_1(void *driver_context)
 	m5_nvdla_end_count_cdp_1(nvdla_dev->current_dla_id);
 }
 
-void dla_start_count_conv_0(void *driver_context)
+void dla_start_count_cmac_0(void *driver_context)
 {
 	struct nvdla_device *nvdla_dev = (struct nvdla_device *)driver_context;
-	m5_nvdla_start_count_conv_0(nvdla_dev->current_dla_id);
+	m5_nvdla_start_count_cmac_0(nvdla_dev->current_dla_id);
 }
 
-void dla_end_count_conv_0(void *driver_context)
+void dla_end_count_cmac_0(void *driver_context)
 {
 	struct nvdla_device *nvdla_dev = (struct nvdla_device *)driver_context;
-	m5_nvdla_end_count_conv_0(nvdla_dev->current_dla_id);
+	m5_nvdla_end_count_cmac_0(nvdla_dev->current_dla_id);
 }
 
-void dla_start_count_conv_1(void *driver_context)
+void dla_start_count_cmac_1(void *driver_context)
 {
 	struct nvdla_device *nvdla_dev = (struct nvdla_device *)driver_context;
-	m5_nvdla_start_count_conv_1(nvdla_dev->current_dla_id);
+	m5_nvdla_start_count_cmac_1(nvdla_dev->current_dla_id);
 }
 
-void dla_end_count_conv_1(void *driver_context)
+void dla_end_count_cmac_1(void *driver_context)
 {
 	struct nvdla_device *nvdla_dev = (struct nvdla_device *)driver_context;
-	m5_nvdla_end_count_conv_1(nvdla_dev->current_dla_id);
+	m5_nvdla_end_count_cmac_1(nvdla_dev->current_dla_id);
 }
 
 void dla_start_count_pdp_0(void *driver_context)

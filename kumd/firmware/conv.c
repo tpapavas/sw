@@ -224,15 +224,6 @@ dla_conv_enable(struct dla_processor_group *group)
 
 	dla_trace("Enter: %s", __func__);
 
-	if (group->id == 0){
-		dla_debug("Starting CONV 0 counter \n");
-		start_conv_0();
-	}
-	else {
-		dla_debug("Starting CONV 1 counter \n");
-		start_conv_1();
-	}
-
 	do {
 		reg = cdma_reg_read(S_CBUF_FLUSH_STATUS);
 	} while (!(reg & MASK(CDMA_S_CBUF_FLUSH_STATUS_0, FLUSH_DONE)));
@@ -255,6 +246,14 @@ dla_conv_enable(struct dla_processor_group *group)
 	}
 	cmac_a_reg_write(D_OP_ENABLE, reg);
 	cmac_b_reg_write(D_OP_ENABLE, reg);
+	if (group->id == 0){
+		dla_debug("Starting CMAC 0 counter \n");
+		start_cmac_0();
+	}
+	else {
+		dla_debug("Starting CMAC 1 counter \n");
+		start_cmac_1();
+	}
 	csc_reg_write(D_OP_ENABLE, reg);
 	cdma_reg_write(D_OP_ENABLE, reg);
 	if (group->id == 0){

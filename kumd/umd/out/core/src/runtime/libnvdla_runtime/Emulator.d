@@ -1,4 +1,4 @@
-/data/ngiannopoulos/Phd/NVDLA/tools/sw-gem5/kumd/umd/out/core/src/runtime/libnvdla_runtime/Emulator.o: \
+/data/ngiannopoulos/Phd/NVDLA/tools/sw-gem5_rtl_measue_stats/kumd/umd/out/core/src/runtime/libnvdla_runtime/Emulator.o: \
  Emulator.cpp /usr/aarch64-linux-gnu/include/stdc-predef.h \
  /usr/aarch64-linux-gnu/include/c++/5/queue \
  /usr/aarch64-linux-gnu/include/c++/5/deque \
@@ -54,7 +54,7 @@
  /usr/aarch64-linux-gnu/include/c++/5/backward/binders.h \
  /usr/aarch64-linux-gnu/include/c++/5/bits/stl_queue.h \
  /usr/aarch64-linux-gnu/include/c++/5/bits/uses_allocator.h \
- /data/ngiannopoulos/Phd/NVDLA/tools/sw-gem5/kumd/umd/external/include/half.h \
+ /data/ngiannopoulos/Phd/NVDLA/tools/sw-gem5_rtl_measue_stats/kumd/umd/external/include/half.h \
  /usr/aarch64-linux-gnu/include/c++/5/utility \
  /usr/aarch64-linux-gnu/include/c++/5/bits/stl_relops.h \
  /usr/aarch64-linux-gnu/include/c++/5/algorithm \
@@ -191,9 +191,9 @@
  /usr/aarch64-linux-gnu/include/c++/5/typeinfo \
  /usr/aarch64-linux-gnu/include/c++/5/tuple \
  /usr/aarch64-linux-gnu/include/c++/5/array include/priv/Emulator.h \
- /data/ngiannopoulos/Phd/NVDLA/tools/sw-gem5/kumd/umd/core/src/common/include/priv/EMUInterface.h \
+ /data/ngiannopoulos/Phd/NVDLA/tools/sw-gem5_rtl_measue_stats/kumd/umd/core/src/common/include/priv/EMUInterface.h \
  /usr/lib/gcc-cross/aarch64-linux-gnu/5/include/stdbool.h \
- /data/ngiannopoulos/Phd/NVDLA/tools/sw-gem5/kumd/umd/core/src/common/include/priv/Type.h \
+ /data/ngiannopoulos/Phd/NVDLA/tools/sw-gem5_rtl_measue_stats/kumd/umd/core/src/common/include/priv/Type.h \
  /usr/aarch64-linux-gnu/include/c++/5/sstream \
  /usr/aarch64-linux-gnu/include/c++/5/bits/sstream.tcc \
  /usr/aarch64-linux-gnu/include/c++/5/map \
@@ -201,15 +201,15 @@
  /usr/aarch64-linux-gnu/include/c++/5/ext/aligned_buffer.h \
  /usr/aarch64-linux-gnu/include/c++/5/bits/stl_map.h \
  /usr/aarch64-linux-gnu/include/c++/5/bits/stl_multimap.h \
- /data/ngiannopoulos/Phd/NVDLA/tools/sw-gem5/kumd/umd/core/include/nvdla/IType.h \
- /data/ngiannopoulos/Phd/NVDLA/tools/sw-gem5/kumd/umd/core/include/dlaerror.h \
- /data/ngiannopoulos/Phd/NVDLA/tools/sw-gem5/kumd/umd/core/include/nvdla/c/NvDlaType.h \
- /data/ngiannopoulos/Phd/NVDLA/tools/sw-gem5/kumd/umd/core/include/dlatypes.h \
- /data/ngiannopoulos/Phd/NVDLA/tools/sw-gem5/kumd/umd/core/src/common/include/priv/Check.h \
- /data/ngiannopoulos/Phd/NVDLA/tools/sw-gem5/kumd/umd/core/src/common/include/priv/EMUInterfaceEnums.h \
- /data/ngiannopoulos/Phd/NVDLA/tools/sw-gem5/kumd/umd/core/include/nvdla_os_inf.h \
+ /data/ngiannopoulos/Phd/NVDLA/tools/sw-gem5_rtl_measue_stats/kumd/umd/core/include/nvdla/IType.h \
+ /data/ngiannopoulos/Phd/NVDLA/tools/sw-gem5_rtl_measue_stats/kumd/umd/core/include/dlaerror.h \
+ /data/ngiannopoulos/Phd/NVDLA/tools/sw-gem5_rtl_measue_stats/kumd/umd/core/include/nvdla/c/NvDlaType.h \
+ /data/ngiannopoulos/Phd/NVDLA/tools/sw-gem5_rtl_measue_stats/kumd/umd/core/include/dlatypes.h \
+ /data/ngiannopoulos/Phd/NVDLA/tools/sw-gem5_rtl_measue_stats/kumd/umd/core/src/common/include/priv/Check.h \
+ /data/ngiannopoulos/Phd/NVDLA/tools/sw-gem5_rtl_measue_stats/kumd/umd/core/src/common/include/priv/EMUInterfaceEnums.h \
+ /data/ngiannopoulos/Phd/NVDLA/tools/sw-gem5_rtl_measue_stats/kumd/umd/core/include/nvdla_os_inf.h \
  /usr/aarch64-linux-gnu/include/dirent.h \
  /usr/aarch64-linux-gnu/include/bits/dirent.h \
- /data/ngiannopoulos/Phd/NVDLA/tools/sw-gem5/kumd/umd/core/include/dlaerror.h \
- /data/ngiannopoulos/Phd/NVDLA/tools/sw-gem5/kumd/umd/core/include/dlatypes.h \
- /data/ngiannopoulos/Phd/NVDLA/tools/sw-gem5/kumd/umd/core/include/ErrorMacros.h
+ /data/ngiannopoulos/Phd/NVDLA/tools/sw-gem5_rtl_measue_stats/kumd/umd/core/include/dlaerror.h \
+ /data/ngiannopoulos/Phd/NVDLA/tools/sw-gem5_rtl_measue_stats/kumd/umd/core/include/dlatypes.h \
+ /data/ngiannopoulos/Phd/NVDLA/tools/sw-gem5_rtl_measue_stats/kumd/umd/core/include/ErrorMacros.h

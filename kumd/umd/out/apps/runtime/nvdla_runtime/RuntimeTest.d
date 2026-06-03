@@ -1,7 +1,7 @@
-/data/ngiannopoulos/Phd/NVDLA/tools/sw-gem5/kumd/umd/out/apps/runtime/nvdla_runtime/RuntimeTest.o: \
+/data/ngiannopoulos/Phd/NVDLA/tools/sw-gem5_rtl_measue_stats/kumd/umd/out/apps/runtime/nvdla_runtime/RuntimeTest.o: \
  RuntimeTest.cpp /usr/aarch64-linux-gnu/include/stdc-predef.h \
- /data/ngiannopoulos/Phd/NVDLA/tools/sw-gem5/umd/fix_half_isnan.hh \
- /data/ngiannopoulos/Phd/NVDLA/tools/sw-gem5/kumd/umd/external/include/half.h \
+ /data/ngiannopoulos/Phd/NVDLA/tools/sw-gem5_rtl_measue_stats/kumd/umd/fix_half_isnan.hh \
+ /data/ngiannopoulos/Phd/NVDLA/tools/sw-gem5_rtl_measue_stats/kumd/umd/external/include/half.h \
  /usr/aarch64-linux-gnu/include/c++/5/utility \
  /usr/aarch64-linux-gnu/include/c++/5/aarch64-linux-gnu/bits/c++config.h \
  /usr/aarch64-linux-gnu/include/c++/5/aarch64-linux-gnu/bits/os_defines.h \
@@ -144,23 +144,23 @@
  /usr/lib/gcc-cross/aarch64-linux-gnu/5/include/stdbool.h DlaImage.h \
  /usr/aarch64-linux-gnu/include/c++/5/sstream \
  /usr/aarch64-linux-gnu/include/c++/5/bits/sstream.tcc \
- /data/ngiannopoulos/Phd/NVDLA/tools/sw-gem5/kumd/umd/core/include/dlaerror.h \
- /data/ngiannopoulos/Phd/NVDLA/tools/sw-gem5/kumd/umd/core/include/dlatypes.h \
+ /data/ngiannopoulos/Phd/NVDLA/tools/sw-gem5_rtl_measue_stats/kumd/umd/core/include/dlaerror.h \
+ /data/ngiannopoulos/Phd/NVDLA/tools/sw-gem5_rtl_measue_stats/kumd/umd/core/include/dlatypes.h \
  /usr/lib/gcc-cross/aarch64-linux-gnu/5/include/stdint.h \
  /usr/aarch64-linux-gnu/include/stdint.h \
- /data/ngiannopoulos/Phd/NVDLA/tools/sw-gem5/kumd/umd/core/include/nvdla/IRuntime.h \
- /data/ngiannopoulos/Phd/NVDLA/tools/sw-gem5/kumd/umd/core/include/nvdla/IType.h \
+ /data/ngiannopoulos/Phd/NVDLA/tools/sw-gem5_rtl_measue_stats/kumd/umd/core/include/nvdla/IRuntime.h \
+ /data/ngiannopoulos/Phd/NVDLA/tools/sw-gem5_rtl_measue_stats/kumd/umd/core/include/nvdla/IType.h \
  /usr/aarch64-linux-gnu/include/c++/5/map \
  /usr/aarch64-linux-gnu/include/c++/5/bits/stl_tree.h \
  /usr/aarch64-linux-gnu/include/c++/5/bits/stl_map.h \
  /usr/aarch64-linux-gnu/include/c++/5/bits/stl_multimap.h \
- /data/ngiannopoulos/Phd/NVDLA/tools/sw-gem5/kumd/umd/core/include/nvdla/c/NvDlaType.h \
- /data/ngiannopoulos/Phd/NVDLA/tools/sw-gem5/kumd/umd/core/include/ErrorMacros.h \
+ /data/ngiannopoulos/Phd/NVDLA/tools/sw-gem5_rtl_measue_stats/kumd/umd/core/include/nvdla/c/NvDlaType.h \
+ /data/ngiannopoulos/Phd/NVDLA/tools/sw-gem5_rtl_measue_stats/kumd/umd/core/include/ErrorMacros.h \
  RuntimeTest.h \
- /data/ngiannopoulos/Phd/NVDLA/tools/sw-gem5/kumd/umd/core/include/nvdla_inf.h \
- /data/ngiannopoulos/Phd/NVDLA/tools/sw-gem5/kumd/umd/core/include/dlaerror.h \
- /data/ngiannopoulos/Phd/NVDLA/tools/sw-gem5/kumd/umd/core/include/dlatypes.h \
- /data/ngiannopoulos/Phd/NVDLA/tools/sw-gem5/kumd/umd/core/src/runtime/include/priv/Dla_fw_layout.h \
+ /data/ngiannopoulos/Phd/NVDLA/tools/sw-gem5_rtl_measue_stats/kumd/umd/core/include/nvdla_inf.h \
+ /data/ngiannopoulos/Phd/NVDLA/tools/sw-gem5_rtl_measue_stats/kumd/umd/core/include/dlaerror.h \
+ /data/ngiannopoulos/Phd/NVDLA/tools/sw-gem5_rtl_measue_stats/kumd/umd/core/include/dlatypes.h \
+ /data/ngiannopoulos/Phd/NVDLA/tools/sw-gem5_rtl_measue_stats/kumd/umd/core/src/runtime/include/priv/Dla_fw_layout.h \
  /usr/aarch64-linux-gnu/include/c++/5/vector \
  /usr/aarch64-linux-gnu/include/c++/5/bits/stl_uninitialized.h \
  /usr/aarch64-linux-gnu/include/c++/5/bits/stl_vector.h \
@@ -170,7 +170,7 @@
  /usr/aarch64-linux-gnu/include/libio.h \
  /usr/aarch64-linux-gnu/include/_G_config.h \
  /usr/aarch64-linux-gnu/include/bits/sys_errlist.h main.h \
- /data/ngiannopoulos/Phd/NVDLA/tools/sw-gem5/kumd/umd/core/include/nvdla_os_inf.h \
+ /data/ngiannopoulos/Phd/NVDLA/tools/sw-gem5_rtl_measue_stats/kumd/umd/core/include/nvdla_os_inf.h \
  /usr/aarch64-linux-gnu/include/dirent.h \
  /usr/aarch64-linux-gnu/include/bits/dirent.h \
  /usr/aarch64-linux-gnu/include/c++/5/cstdio

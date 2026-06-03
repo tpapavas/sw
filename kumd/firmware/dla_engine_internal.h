@@ -99,45 +99,6 @@
 #define cdp_reg_read(reg)           reg_read(CDP_REG(reg))
 #define rubik_reg_read(reg)         reg_read(RBK_REG(reg))
 
-/* alias for start/end for each sub-module */
-//#define start_bdma_0_           start_bdma_0()
-//#define end_bdma_0_             end_bdma_0()
-//#define start_bdma_1_           start_bdma_1()
-//#define end_bdma_1_             end_bdma_1()
-//#define start_cdp_0_           start_cdp_0()
-//#define end_cdp_0_             end_cdp_0()
-//#define start_cdp_1_           start_cdp_1()
-//#define end_cdp_1_             end_cdp_1()
-//#define start_conv_0_            start_conv_0()
-//#define end_conv_0_             end_conv_0()
-//#define start_conv_1_            start_conv_1()
-//#define end_conv_1_             end_conv_1()
-//#define start_pdp_0_             start_pdp_0()
-//#define end_pdp_0_               end_pdp_0()
-//#define start_pdp_1_             start_pdp_1()
-//#define end_pdp_1_               end_pdp_1()
-//#define start_rubik_0_             start_rubik_0()
-//#define end_rubik_0_               end_rubik_0()
-//#define start_rubik_1_             start_rubik_1()
-//#define end_rubik_1_               end_rubik_1()
-//#define start_sdp_0_             start_sdp_0()
-//#define end_sdp_0_               end_sdp_0()
-//#define start_sdp_1_             start_sdp_1()
-//#define end_sdp_1_               end_sdp_1()
-//#define start_cacc_0_          start_cacc_0()
-//#define end_cacc_0_             end_cacc_0()
-//#define start_cacc_1_           start_cacc_1()
-//#define end_cacc_1_             end_cacc_1()
-//#define start_cdma_dat_0_       start_cdma_dat_0()
-//#define end_cdma_dat_0_         end_cdma_dat_0()
-//#define start_cdma_dat_1_       start_cdma_dat_1()
-//#define end_cdma_dat_1_         end_cdma_dat_1()
-//#define start_cdma_wt_0_        start_cdma_wt_0()
-//#define end_cdma_wt_0_          end_cdma_wt_0()
-//#define start_cdma_wt_1_        start_cdma_wt_1()
-//#define end_cdma_wt_1_          end_cdma_wt_1()
-
-
 /* alias for register write for each sub-module */
 #define glb_reg_write(reg, val)      reg_write(GLB_REG(reg), val)
 #define bdma_reg_write(reg, val)     reg_write(BDMA_REG(reg), val)
@@ -401,10 +362,10 @@ void start_cdp_0();
 void end_cdp_0();
 void start_cdp_1();
 void end_cdp_1();
-void start_conv_0();
-void end_conv_0();
-void start_conv_1();
-void end_conv_1();
+void start_cmac_0();
+void end_cmac_0();
+void start_cmac_1();
+void end_cmac_1();
 void start_pdp_0();
 void end_pdp_0();
 void start_pdp_1();
