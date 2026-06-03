@@ -175,8 +175,8 @@ int32_t dla_isr_handler(void *engine_data, uint8_t dla_id)
         dla_debug("End CACC 0 counter \n");
         end_cacc_0();
 
-        dla_debug("End CMAC 1 counter \n");
-        end_cmac_1();
+        dla_debug("End CMAC 0 counter \n");
+        end_cmac_0();
 
     }
 
