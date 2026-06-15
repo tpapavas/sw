@@ -162,7 +162,13 @@ uint32_t dla_reg_read(void *driver_context, uint32_t addr)
 	struct nvdla_device *nvdla_dev =
 			(struct nvdla_device *)driver_context;
 
-	return m5_nvdla_read_reg(nvdla_dev->current_dla_id, addr);
+	//return m5_nvdla_read_reg(nvdla_dev->current_dla_id, addr); 	
+	m5_nvdla_read_reg(nvdla_dev->current_dla_id, addr);
+
+	uint32_t data;
+	while (m5_nvdla_got_response()) {}
+		// do nothing
+	return m5_nvdla_get_data();
 
 	/*
 	if (!nvdla_dev)
@@ -380,9 +386,12 @@ int32_t u__nvdla_task_submit(struct nvdla_device *nvdla_dev, struct nvdla_task *
 		 * TODO: Replace CURRENT_DLA_DEV_NUM with actual dla number
 		 */
 		for (dla_id = 0; dla_id < CURRENT_DLA_DEV_NUM; dla_id++) {
-			if (m5_nvdla_read_reg(dla_id, 0x20000) == 1) {
+			//if (m5_nvdla_read_reg(dla_id, 0x20000) == 1) {
+			// uint32_t dla_reg_read(void *driver_context, uint32_t addr)
+			if (dla_reg_read( nvdla_dev->engine_context ,0x20000) == 1) {
 				fprintf(stderr, "OP COMPLETED ...\n");
 				dla_isr_handler(nvdla_dev->engine_context, dla_id);
+				
 			}
 		}
 		// nvdla_dev->current_dla_id = (nvdla_dev->current_dla_id+1)%2;
@@ -393,15 +402,19 @@ int32_t u__nvdla_task_submit(struct nvdla_device *nvdla_dev, struct nvdla_task *
 		// nvdla_dev->current_dla_id = (nvdla_dev->current_dla_id+1)%2;
 
 		// spin_unlock_irqrestore(&nvdla_dev->nvdla_lock, flags);
+		fprintf(stderr, "Before at if task_complete ...%d\n",task_complete);
 
 		if (/*err ||*/ task_complete) {
+			fprintf(stderr, "Inside at if task_complete ...\n");
+
 			// emulate network completion signaling to dla (for spm flush)
 			/**
 			 * TODO: make sure dma (cache flush) is finished before
 			 * EMU reads operation's input
 			 */
 			for (dla_id = 0; dla_id < CURRENT_DLA_DEV_NUM; dla_id++){
-				m5_nvdla_read_reg(dla_id, 0x20004);
+				//m5_nvdla_read_reg(dla_id, 0x20004);
+				dla_reg_read(nvdla_dev->engine_context,0x20004 );
 			}
 			// m5_nvdla_read_reg(1, 0x20004);
 			break;

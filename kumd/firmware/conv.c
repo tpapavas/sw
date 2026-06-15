@@ -239,7 +239,6 @@ dla_conv_enable(struct dla_processor_group *group)
 	cmac_b_reg_write(D_OP_ENABLE, reg);
 	csc_reg_write(D_OP_ENABLE, reg);
 	cdma_reg_write(D_OP_ENABLE, reg);
-
 	dla_trace("Exit: %s", __func__);
 
 	RETURN(0);

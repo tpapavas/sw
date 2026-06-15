@@ -33,7 +33,7 @@
 #include "dlatypes.h"
 
 #ifndef KUMD
-#include "priv/Dla_fw_layout.h"
+#include "Dla_fw_layout.h"
 #else
 #include "dla_interface.h"
 #endif

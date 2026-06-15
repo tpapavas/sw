@@ -247,14 +247,14 @@ NvDlaError createImageCopy(const TestAppArgs* appArgs, const NvDlaImage* in, con
         {
             for (NvU32 z=0; z < in->m_meta.channel; z++)
             {
-                NvDlaDebugPrintf("[DEBUG] h: %d, w: %d, c: %d\n", y, x, z);
+                // NvDlaDebugPrintf("[DEBUG] h: %d, w: %d, c: %d\n", y, x, z);
                 NvS32 ioffset = in->getAddrOffset(x, y, z);
-                NvDlaDebugPrintf("[DEBUG] ioffset: %d\n", ioffset);
+                // NvDlaDebugPrintf("[DEBUG] ioffset: %d\n", ioffset);
                 // FIX THIS ************ //
                 NvS32 ooffset = out->getAddrOffset(x, y%single_img_height, z)
                   + single_img_size*(y/single_img_height);
 
-                NvDlaDebugPrintf("[DEBUG] ooffset: %d\n", ooffset);
+                // NvDlaDebugPrintf("[DEBUG] ooffset: %d\n", ooffset);
 
                 if (ioffset < 0)
                     ORIGINATE_ERROR(NvDlaError_BadParameter);

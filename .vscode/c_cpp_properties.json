@@ -1,0 +1,31 @@
+{
+    "configurations": [
+        {
+            "name": "Linux",
+            "includePath": [
+                "${default}",
+                // "${workspaceFolder}/kmd/port/linux/include",
+                // "${workspaceFolder}/kmd/include",
+                // "${workspaceFolder}/kmd/firmware/include",
+                // "${workspaceFolder}/umd/core/include",
+                // "${workspaceFolder}/umd/core/src/common/include",
+                // "${workspaceFolder}/umd/core/src/runtime/include",
+                // "${workspaceFolder}/umd/core/src/compiler/include",
+                // "${workspaceFolder}/umd/port/linux/include",
+                // "${workspaceFolder}/umd/ukmd/port/linux/include",
+                "${workspaceFolder}/kumd/port/linux/include",
+                "${workspaceFolder}/kumd/include",
+                "${workspaceFolder}/kumd/firmware",
+                "${workspaceFolder}/kumd/firmware/include",
+                "${workspaceFolder}/kumd/umd/core/include",
+                "${workspaceFolder}/kumd/umd/core/src/common/include",
+                "${workspaceFolder}/kumd/umd/core/src/runtime/include",
+                "${workspaceFolder}/kumd/umd/core/src/compiler/include",
+                "${workspaceFolder}/kumd/umd/port/linux/include",
+                "${workspaceFolder}"
+            ],
+            "defines": []
+        }
+    ],
+    "version": 4
+}

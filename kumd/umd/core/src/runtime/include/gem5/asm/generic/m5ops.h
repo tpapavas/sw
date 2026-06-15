@@ -78,6 +78,9 @@
 
 #define M5OP_NVDLA_WRITE_REG    0x5c // Added by user. Maybe not be correct
 
+#define M5OP_NVDLA_GOT_RESPONSE 0x5d
+#define M5OP_NVDLA_GET_DATA     0x5e
+
 #define M5OP_DIST_TOGGLE_SYNC   0x62
 
 #define M5OP_WORKLOAD           0x70
@@ -115,7 +118,9 @@
     M5OP(m5_start_accel_id, M5OP_START_ACCEL_ID)                \
     M5OP(m5_wait_accel_id, M5OP_WAIT_ACCEL_ID)                  \
     M5OP(m5_nvdla_read_reg, M5OP_NVDLA_READ_REG)                \
-    M5OP(m5_nvdla_write_reg, M5OP_NVDLA_WRITE_REG)
+    M5OP(m5_nvdla_write_reg, M5OP_NVDLA_WRITE_REG)              \
+    M5OP(m5_nvdla_got_response, M5OP_NVDLA_GOT_RESPONSE)        \
+    M5OP(m5_nvdla_get_data, M5OP_NVDLA_GET_DATA)
 #define M5OP_MERGE_TOKENS_I(a, b) a##b
 #define M5OP_MERGE_TOKENS(a, b) M5OP_MERGE_TOKENS_I(a, b)
 

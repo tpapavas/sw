@@ -428,19 +428,20 @@ bool Runtime::load(NvU8 *buf, int instance)
                     << " virt_addr=" << pointer_on_buffer
                     << " size=" << m_memory[idx_mem].size() << "\n";
 
-            unsigned char *p = (unsigned char*)pointer_on_buffer;
+            //unsigned char *p = (unsigned char*)pointer_on_buffer;
 
-            if(m_memory[idx_mem].flags() & ILoadable::MemoryListEntry::flags_set()){
-                /*
-                for (int idx = 0; idx <  m_memory[idx_mem].size(); idx++) {
-                    //p[idx] = 0xAA;
-                    printf("    p[%d] = 0x%02x\n", idx, p[idx]);
-                }
-                */
-            }
+           // if(m_memory[idx_mem].flags() & ILoadable::MemoryListEntry::flags_set()){
+           //     /*
+           //     for (int idx = 0; idx <  m_memory[idx_mem].size(); idx++) {
+           //         //p[idx] = 0xAA;
+           //         printf("    p[%d] = 0x%02x\n", idx, p[idx]);
+           //     }
+           //     */
+           // }
 
         }
     }
+    std::cout << "[Runtime] Finished loadMemory loop\n";
 
     m_address.resize(m_address_entries.size());
     if ( debugMemoryLayout() )

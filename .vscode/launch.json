@@ -1,0 +1,454 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug with decay",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/X86/gem5.debug",
+            "args": [
+                "--debug-flags=Cache,TPCacheDecayDebug",
+                // "--debug-break=50000000",
+                // "--debug-break=640744552854",
+                // "--debug-break=679545002346",
+                // "--debug-break=679568483868", // on update decay
+                // "configs/my_confs/complete/general/run_se.py",
+                "--outdir=m5out_decay",
+                "${workspaceFolder}/configs/my_confs/complete/spec2017_test/run_after_cpt.py",
+                // "configs/my_confs/resources/workloads/x86/matmul_100x100",
+                "/home/tpapavasileiou/cpu2017/benchspec/CPU/600.perlbench_s/build/build_base_mytest-m64.0000/perlbench_s",
+                "--args=-I./lib splitmail.pl 6400 12 26 16 100 0",
+                "--cpt-dir=/home/tpapavasileiou/xtras/gem5-new-debug/my_out/checkpoints/cpu2017/550m_13_03/600.perlbench_s/test_3/cpts",
+                "--l1d-size=32KiB",
+                "--l1d-assoc=8",
+                "--l1d-latency=2",
+                "--l1d-decay-event=on",
+                "--l1d-decay-period=2048",
+                "--l1d-local-decay-counter=8",
+                "--l1i-size=32KiB",
+                "--l1i-assoc=8",
+                "--l1i-latency=2",
+                "--l2-size=128KiB",
+                "--l2-assoc=8",
+                "--l2-latency=15",
+                "--l3-size=2048KiB",
+                "--l3-assoc=16",
+                "--l3-latency=40",
+                "--cpu-type=O3",
+                "--cpu-clock=3.4GHz",
+                "--processor-type=switch",
+                // "--warmup-insts=100000000"
+                // "--kernel=$M5_PATH/binaries/vmlinux_mhe_v4_9",
+                // "--disk-image=$M5_PATH/disks/ubuntu-18.04-arm64-docker.img",
+                // "--cpu-type=AtomicSimpleCPU",
+                // "--caches",
+                // "--dtb=$M5_PATH/system/arm/dt/armv8_gem5_v1_1cpu.dtb",
+                // "--nebit=0"
+            ],
+            "stopAtEntry": false,
+            // "cwd": "${workspaceFolder}",
+            "cwd": "/home/tpapavasileiou/cpu2017/benchspec/CPU/600.perlbench_s/run/run_base_refspeed_mytest-m64.0000",
+            "environment": [{
+                "name": "M5_PATH",
+                "value": "${workspaceFolder}"
+            }],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "miDebuggerPath": "/usr/bin/gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ]
+        },
+        {
+            "name": "Decay debug with matmul",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/X86/gem5.debug",
+            "args": [
+                "--debug-flags=Cache,TPCacheDecayDebug",
+                "--outdir=m5out_decay",
+                "configs/my_confs/complete/general/run_se.py",
+                "configs/my_confs/resources/workloads/x86/matmul_100x100",
+                "--l1d-size=32KiB",
+                "--l1d-assoc=8",
+                "--l1d-latency=2",
+                "--l1d-decay-event=on",
+                "--l1d-decay-period=2048",
+                "--l1d-local-decay-counter=8",
+                "--l1i-size=32KiB",
+                "--l1i-assoc=8",
+                "--l1i-latency=2",
+                "--l2-size=128KiB",
+                "--l2-assoc=8",
+                "--l2-latency=15",
+                "--l3-size=2048KiB",
+                "--l3-assoc=16",
+                "--l3-latency=40",
+                "--cpu-type=O3",
+                "--cpu-clock=3.4GHz",
+                // "--warmup-insts=100000000"
+            ],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [{
+                "name": "M5_PATH",
+                "value": "${workspaceFolder}"
+            }],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "miDebuggerPath": "/usr/bin/gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ]
+        },
+        {
+            "name": "Debug Abella",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/X86/gem5.debug",
+            "args": [
+                "--outdir=m5out5",
+                "--debug-file=trace.out",
+                // "--debug-break=353500", // insert block on newest version
+                // "--debug-break=8416500", // on decayed hit problem
+                // "--debug-break=678000",
+                // "--debug-break=608500",
+                // "--debug-break=500000",
+                // "--debug-break=46556000", // sendMSHRQueuePacket modified
+                // "--debug-break=14250000",  // decayed hit, but found as hit.
+                // "--debug-break=1078577500",
+                "--debug-flag=CacheAll,TPCacheIATACDebug", //,SnoopFilter,CoherentXBar",
+                "configs/my_confs/complete/general/run_se.py",
+                "configs/my_confs/resources/workloads/x86/matmul_100x100",
+                "--l2-iatac-decay-event=on",
+                // "| tee m5out1/trace.out"
+            ],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [{
+                "name": "M5_PATH",
+                "value": "${workspaceFolder}"
+            }],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "miDebuggerPath": "/usr/bin/gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ]
+        },
+        {
+            "name": "Debug original",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/X86/gem5.debug",
+            "args": [
+                "--debug-flags=Cache", //,CacheVerbose,PacketQueue",
+                "--debug-break=44561501",
+                "configs/my_confs/complete/general/run_se.py",
+                "configs/my_confs/resources/workloads/x86/matmul_100x100",
+            ],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [{
+                "name": "M5_PATH",
+                "value": "${workspaceFolder}"
+            }],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "miDebuggerPath": "/usr/bin/gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ]
+        },
+        {
+            "name": "Debug spec",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/X86/gem5.debug",
+            "args": [
+                "--outdir=m5runs/misses/std/no_wbc_no_warm_sm_25_04_w_log_verbose_expl",
+                "--debug-flags=CacheAll,TPExplain", //,CacheVerbose,PacketQueue",
+                // "--debug-break=569228240826",
+                "--debug-break=569203905564", // an L1D read miss, mshr miss, followed by an L2 access.
+                "--debug-file=trace.out", 
+                "/home/tpapavasileiou/xtras/gem5-dev/configs/my_confs/complete/spec/run_after_cpt_vanilla_no_warmup.py", 
+                "/home/tpapavasileiou/cpu2017/benchspec/CPU/620.omnetpp_s/build/build_base_mytest-m64.0000/omnetpp_s", 
+                "--args=-c General -r 0", 
+                "--cpt-dir=/home/tpapavasileiou/data_and_results/gem5_simpoints/cpu2017/500m_switchable_dev_raj_19_12/620.omnetpp_s/test_1/cpts/cpt.1",
+                "--l1d-size=32KiB", "--l1d-assoc=8", "--l1d-latency=2",
+                "--l1i-size=32KiB", "--l1i-assoc=8", "--l1i-latency=2", 
+                "--l2-size=128KiB", "--l2-assoc=8", "--l2-latency=15",
+                "--l3-size=2048KiB", "--l3-assoc=16", "--l3-latency=40", 
+                "--cpu-type=O3", "--cpu-clock=3.4GHz", 
+                "--processor-type=switch", "--warmup-insts=0", "--realsim-insts=20000000"
+            ],
+            "stopAtEntry": false,
+            "cwd": "/home/tpapavasileiou/cpu2017/benchspec/CPU/620.omnetpp_s/run/run_base_refspeed_mytest-m64.0000", // "${workspaceFolder}",
+            "environment": [{
+                "name": "M5_PATH",
+                "value": "${workspaceFolder}"
+            }],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "miDebuggerPath": "/usr/bin/gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ]
+        },
+        {
+            "name": "Debug decay_refactor cpu2000",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/X86/gem5.debug",
+            "args": [
+                "--debug-flags=TPCacheDecayDebug",
+                "--debug-break=18015485564500",
+                "--outdir=m5runs/m5out_decay_refactor",
+                "${workspaceFolder}/../gem5-dev/configs/my_confs/complete/spec/run_after_cpt.py",
+                "/home/tpapavasileiou/spec2000/benchspec/CINT2000/164.gzip/run/00000001/gzip",
+                "--args=-I./lib splitmail.pl 6400 12 26 16 100 0",
+                "--cpt-dir=/home/tpapavasileiou/data_and_results/gem5_simpoints/cpu2000/switchable_08_02/CINT2000/164.gzip/test_1/cpts/cpt.165",
+                "--l1d-size=32KiB",
+                "--l1d-assoc=8",
+                "--l1d-latency=2",
+                "--l1d-decay-event=on",
+                "--l1d-decay-period=2048",
+                "--l1d-local-decay-counter=8",
+                "--l1i-size=32KiB",
+                "--l1i-assoc=8",
+                "--l1i-latency=2",
+                "--l2-size=128KiB",
+                "--l2-assoc=8",
+                "--l2-latency=15",
+                "--l3-size=2048KiB",
+                "--l3-assoc=16",
+                "--l3-latency=40",
+                "--cpu-type=O3",
+                "--cpu-clock=3.4GHz",
+                "--processor-type=switch",
+            ],
+            "stopAtEntry": false,
+            "cwd": "/home/tpapavasileiou/spec2000/benchspec/CINT2000/164.gzip/run/my_run",
+            "environment": [{
+                "name": "M5_PATH",
+                "value": "${workspaceFolder}"
+            }],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "miDebuggerPath": "/usr/bin/gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ]
+        },
+        {
+            "name": "Debug decay_refactor IATAC cpu2000",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/X86/gem5.debug",
+            "args": [
+                // "--debug-flags=TPCacheDecayDebug,TPCacheIATACDebug",
+                // "--debug-break=18015485565084",
+                // "--debug-break=18022063035988",
+                "--debug-break=18022080454900",
+                "--outdir=${workspaceFolder}/m5runs/m5out_decay_refactor",
+                "${workspaceFolder}/../gem5-new/configs/my_confs/complete/spec/run_after_cpt_w_iatac.py",
+                "/home/tpapavasileiou/spec2000/benchspec/CINT2000/164.gzip/run/00000001/gzip",
+                "--args=-I./lib splitmail.pl 6400 12 26 16 100 0",
+                "--cpt-dir=/home/tpapavasileiou/data_and_results/gem5_simpoints/cpu2000/switchable_08_02/CINT2000/164.gzip/test_1/cpts/cpt.165",
+                "--l1d-size=32KiB",
+                "--l1d-assoc=8",
+                "--l1d-latency=2",
+                "--l1i-size=32KiB",
+                "--l1i-assoc=8",
+                "--l1i-latency=2",
+                "--l2-size=128KiB",
+                "--l2-assoc=8",
+                "--l2-latency=15",
+                "--l3-size=2048KiB",
+                "--l3-assoc=16",
+                "--l3-latency=40",
+                "--cpu-type=O3",
+                "--cpu-clock=3.4GHz",
+                "--processor-type=switch",
+                "--l2-iatac-decay-event=on",
+                "--l2-decay-period=4096",
+                "--l2-local-decay-counter=1",
+                "--iatac-global-counter=8192", 
+                "--iatac-local-counter=8192",
+                "--iatac-let-overflow=yes",
+                "--iatac-reset-on-decay-hit=no",
+                "--warmup-insts=10000000",
+                "--realsim-insts=20000000"
+            ],
+            "stopAtEntry": false,
+            "cwd": "/home/tpapavasileiou/spec2000/benchspec/CINT2000/164.gzip/run/my_run",
+            "environment": [{
+                "name": "M5_PATH",
+                "value": "${workspaceFolder}"
+            }],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "miDebuggerPath": "/usr/bin/gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ]
+        },
+        {
+            "name": "Faulty Caches Debug",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/X86/gem5.debug",
+            "args": [
+                "--debug-flags=CacheFaulty",
+                "--debug-break=85643376",
+                "--outdir=/home/tpapavasileiou/Trash/gem5_outputs/various/faulty_caches/print_array_experiment",
+                "configs/my_confs/scripts/general/run_se.py",
+                "configs/my_confs/resources/source/print_array_elements/print_array_elements_100x100",
+                "--l1d-size=32KiB",
+                "--l1d-assoc=4",
+                "--l1d-latency=2",
+                "--l1i-size=32KiB",
+                "--l1i-assoc=8",
+                "--l1i-latency=2",
+                "--l2-size=128KiB",
+                "--l2-assoc=8",
+                "--l2-latency=15",
+                "--l3-size=2048KiB",
+                "--l3-assoc=16",
+                "--l3-latency=40",
+                "--cpu-type=O3",
+                "--cpu-clock=3.4GHz",
+                "--processor-type=simple",
+                "--cpu-type=O3",
+                "--mem-size=8GiB"
+                // "--warmup-insts=100000000"
+            ],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [{
+                "name": "M5_PATH",
+                "value": "${workspaceFolder}"
+            }],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "miDebuggerPath": "/usr/bin/gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ]
+        },
+        {
+            "name": "Faulty Caches SPEC Debug",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/X86/gem5.debug",
+            "args": [
+                "--debug-flags=CacheFaulty,Cache,XBar",
+                "--debug-file=trace.out",
+                // "--debug-break=1502095726248012",
+                "--outdir=/home/tpapavasileiou/GEM5/results/COMPLETE/cpu2006/faulty_cache/all_faulty_map_8_large_06_06_25//400.perlbench/test_1/cpt.13788/O3_l1_32_l2_128_l3_2048",
+                "${workspaceFolder}/configs/my_confs/scripts/spec/run_after_cpt_w_faulty_cache.py",
+                "/home/tpapavasileiou/cpu2006/benchspec/CPU2006/400.perlbench/run/build_base_amd64-m64-gcc42-nn.0000/perlbench",
+                "--args='-I./lib checkspam.pl 2500 5 25 11 150 1 1 1 1'",
+                "--cpt-dir=/home/tpapavasileiou/GEM5/simpoints/cpu2006/all//400.perlbench/test_1/cpts/cpt.13788",
+                "--l1d-size=32KiB","--l1d-assoc=8", "--l1d-latency=2",
+                "--l1i-size=32KiB","--l1i-assoc=8", "--l1i-latency=2",
+                "--l2-size=128KiB", "--l2-assoc=8", "--l2-latency=15",
+                "--l3-size=2048KiB", "--l3-assoc=16", "--l3-latency=40",
+                "--cpu-type=O3", "--cpu-clock=3.4GHz", "--processor-type=switch", "--cpu-type=O3", "--mem-size=8GiB",
+                "--warmup-insts=10_000_000", "--realsim-insts=20_000_000",
+                "--l1i-faulty", "--l1d-faulty", "--l2-faulty"
+                // "--l1i-faulty", "--l1d-faulty", "--l2-faulty", "--l3-faulty"
+            ],
+            "stopAtEntry": false,
+            "cwd": "/home/tpapavasileiou/cpu2006/benchspec/CPU2006/400.perlbench/run/run_base_ref_amd64-m64-gcc42-nn.0000",
+            "environment": [{
+                "name": "M5_PATH",
+                "value": "${workspaceFolder}"
+            }],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "miDebuggerPath": "/usr/bin/gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ]
+        },
+        {
+            "name": "gem5-plus-runtime",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/kumd/umd/out/apps/runtime/nvdla_runtime/nvdla_runtime",
+            // "args": [
+            //     "--loadable", "nonet.nvdla", "--image", "random_2x2_bin.pgm"
+            // ],
+            // "environment": [{
+            //     "name": "LD_LIBRARY_PATH",
+            //     "value": "$LD_LIBRARY_PATH:${workspaceFolder}/ext/rtl/model_nvdla/gem5-nvdla-runtime/umd/out/core/src/runtime/libnvdla_runtime"
+            // }],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "externalConsole": false,
+            "miDebuggerServerAddress": "localhost:7000",
+            "targetArchitecture": "arm64",
+            "MIMode": "gdb",
+            "miDebuggerPath": "/home/tpapavasileiou/archives/gdb-9.2/build/gdb/gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                },{
+                    "text": "-interpreter-exec console \"set remote Z-packet on\"",
+                    "ignoreFailures": true
+                },
+                {
+                    "text": "-interpreter-exec console \"set breakpoint always-inserted on\""
+                },
+                {
+                    "text": "-interpreter-exec console \"set remote hardware-breakpoint-limit 16\""
+                },
+                {
+                    "text": "-interpreter-exec console \"set can-use-hw-watchpoints 1\""
+                }
+            ],
+        },
+    ]
+}

@@ -120,7 +120,11 @@ int32_t u__nvdla_submit(/* struct drm_device *drm, */void *arg /*, struct drm_fi
 	struct nvdla_device *nvdla_dev = (struct nvdla_device *) malloc(sizeof(struct nvdla_device));
 	struct nvdla_config *config_data = (struct nvdla_config *) malloc(sizeof(struct nvdla_config));
 	struct dla_engine *engine;
-	config_data->atom_size = 32;
+	// config_data->atom_size = 32;
+	// config_data->bdma_enable = false;
+	// config_data->rubik_enable = false;
+	// config_data->weight_compress_support = false;
+	config_data->atom_size = 8;
 	config_data->bdma_enable = false;
 	config_data->rubik_enable = false;
 	config_data->weight_compress_support = false;
