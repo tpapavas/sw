@@ -144,6 +144,14 @@ int32_t dla_isr_handler(void *engine_data, uint8_t dla_id)
 
 */
 
+static void __attribute__((noinline)) busy_delay(int n)
+{
+    volatile int x = 0;
+    for (int i = 0; i < n; i++) {
+        x++;
+    }
+}
+
 int32_t dla_isr_handler(void *engine_data, uint8_t dla_id)
 {
     uint32_t mask;
@@ -179,6 +187,8 @@ int32_t dla_isr_handler(void *engine_data, uint8_t dla_id)
         end_cmac_0();
 
     }
+
+    busy_delay(50);
 
     if (reg & MASK(GLB_S_INTR_STATUS_0, CACC_DONE_STATUS1)) {
         dla_trace("[ISR] CACC_DONE_STATUS1\n");
