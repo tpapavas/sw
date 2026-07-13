@@ -86,7 +86,8 @@ int
 dla_bdma_enable(struct dla_processor_group *group)
 {
 	struct dla_engine *engine = dla_get_engine();
-
+	struct nvdla_device *nvdla_dev = (struct nvdla_device *)engine->driver_context;
+	
 	dla_debug("Enter: %s\n", __func__);
 
 	if (group->surface_desc->bdma_surface.num_transfers == (uint16_t)0) {
@@ -103,12 +104,17 @@ dla_bdma_enable(struct dla_processor_group *group)
 	/**
 	 * Launch BDMA transfer
 	 */
-	if (group->id == 0)
+	if (group->id == 0) {
+		dla_debug("Starting BDMA 0 counter \n");
+		start_bdma_0();
 		bdma_reg_write(CFG_LAUNCH0, FIELD_ENUM(BDMA_CFG_LAUNCH0_0,
 							GRP0_LAUNCH, YES));
-	else
+	} else {
+		dla_debug("Starting BDMA 1 counter \n");
+		start_bdma_1();
 		bdma_reg_write(CFG_LAUNCH1, FIELD_ENUM(BDMA_CFG_LAUNCH1_0,
 							GRP1_LAUNCH, YES));
+	}
 
 exit:
 	dla_debug("Exit: %s\n", __func__);

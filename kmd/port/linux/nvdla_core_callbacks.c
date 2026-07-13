@@ -56,11 +56,14 @@
 #include <nvdla_linux.h>
 #include <nvdla_ioctl.h>
 
+#include "../../firmware/include/gem5/m5ops.h"
+
+
 static struct nvdla_config nvdla_config_os_initial = {
-	.atom_size = 32,
-	.bdma_enable = true,
-	.rubik_enable = true,
-	.weight_compress_support = true,
+	.atom_size = 8,
+	.bdma_enable = false,
+	.rubik_enable = false,
+	.weight_compress_support = false,
 };
 
 static struct nvdla_config nvdla_config_small = {
@@ -71,7 +74,7 @@ static struct nvdla_config nvdla_config_small = {
 };
 
 static struct nvdla_config nvdla_config_large = {
-	.atom_size = 32,
+	.atom_size = 8,
 	.bdma_enable = false,
 	.rubik_enable = false,
 	.weight_compress_support = false,
@@ -123,6 +126,225 @@ void *dla_memcpy(void *dest, const void *src, uint64_t len)
 int64_t dla_get_time_us(void)
 {
 	return ktime_get_ns() / NSEC_PER_USEC;
+}
+
+void dla_start_count_bdma_0(void *driver_context)
+{
+	struct nvdla_device *nvdla_dev = (struct nvdla_device *)driver_context;
+	m5_nvdla_start_count_bdma_0(0);
+}
+
+void dla_end_count_bdma_0(void *driver_context)
+{
+	struct nvdla_device *nvdla_dev = (struct nvdla_device *)driver_context;
+	m5_nvdla_end_count_bdma_0(0);
+}
+
+void dla_start_count_bdma_1(void *driver_context)
+{
+	struct nvdla_device *nvdla_dev = (struct nvdla_device *)driver_context;
+	m5_nvdla_start_count_bdma_1(0);
+}
+
+void dla_end_count_bdma_1(void *driver_context)
+{
+	struct nvdla_device *nvdla_dev = (struct nvdla_device *)driver_context;
+	m5_nvdla_end_count_bdma_1(0);
+}
+
+void dla_start_count_cdp_0(void *driver_context)
+{
+	struct nvdla_device *nvdla_dev = (struct nvdla_device *)driver_context;
+	m5_nvdla_start_count_cdp_0(0);
+}
+
+void dla_end_count_cdp_0(void *driver_context)
+{
+	struct nvdla_device *nvdla_dev = (struct nvdla_device *)driver_context;
+	m5_nvdla_end_count_cdp_0(0);
+}
+
+void dla_start_count_cdp_1(void *driver_context)
+{
+	struct nvdla_device *nvdla_dev = (struct nvdla_device *)driver_context;
+	m5_nvdla_start_count_cdp_1(0);
+}
+
+void dla_end_count_cdp_1(void *driver_context)
+{
+	struct nvdla_device *nvdla_dev = (struct nvdla_device *)driver_context;
+	m5_nvdla_end_count_cdp_1(0);
+}
+
+void dla_start_count_cmac_0(void *driver_context)
+{
+	struct nvdla_device *nvdla_dev = (struct nvdla_device *)driver_context;
+	m5_nvdla_start_count_cmac_0(0);
+}
+
+void dla_end_count_cmac_0(void *driver_context)
+{
+	struct nvdla_device *nvdla_dev = (struct nvdla_device *)driver_context;
+	m5_nvdla_end_count_cmac_0(0);
+}
+
+void dla_start_count_cmac_1(void *driver_context)
+{
+	struct nvdla_device *nvdla_dev = (struct nvdla_device *)driver_context;
+	m5_nvdla_start_count_cmac_1(0);
+}
+
+void dla_end_count_cmac_1(void *driver_context)
+{
+	struct nvdla_device *nvdla_dev = (struct nvdla_device *)driver_context;
+	m5_nvdla_end_count_cmac_1(0);
+}
+
+void dla_start_count_pdp_0(void *driver_context)
+{
+	struct nvdla_device *nvdla_dev = (struct nvdla_device *)driver_context;
+	m5_nvdla_start_count_pdp_0(0);
+}
+
+void dla_end_count_pdp_0(void *driver_context)
+{
+	struct nvdla_device *nvdla_dev = (struct nvdla_device *)driver_context;
+	m5_nvdla_end_count_pdp_0(0);
+}
+
+void dla_start_count_pdp_1(void *driver_context)
+{
+	struct nvdla_device *nvdla_dev = (struct nvdla_device *)driver_context;
+	m5_nvdla_start_count_pdp_1(0);
+}
+
+void dla_end_count_pdp_1(void *driver_context)
+{
+	struct nvdla_device *nvdla_dev = (struct nvdla_device *)driver_context;
+	m5_nvdla_end_count_pdp_1(0);
+}
+
+void dla_start_count_rubik_0(void *driver_context)
+{
+	struct nvdla_device *nvdla_dev = (struct nvdla_device *)driver_context;
+	m5_nvdla_start_count_rubik_0(0);
+}
+
+void dla_end_count_rubik_0(void *driver_context)
+{
+	struct nvdla_device *nvdla_dev = (struct nvdla_device *)driver_context;
+	m5_nvdla_end_count_rubik_0(0);
+}
+
+void dla_start_count_rubik_1(void *driver_context)
+{
+	struct nvdla_device *nvdla_dev = (struct nvdla_device *)driver_context;
+	m5_nvdla_start_count_rubik_1(0);
+}
+
+void dla_end_count_rubik_1(void *driver_context)
+{
+	struct nvdla_device *nvdla_dev = (struct nvdla_device *)driver_context;
+	m5_nvdla_end_count_rubik_1(0);
+}
+
+void dla_start_count_sdp_0(void *driver_context)
+{
+	struct nvdla_device *nvdla_dev = (struct nvdla_device *)driver_context;
+	m5_nvdla_start_count_sdp_0(0);
+}
+
+void dla_end_count_sdp_0(void *driver_context)
+{
+	struct nvdla_device *nvdla_dev = (struct nvdla_device *)driver_context;
+	m5_nvdla_end_count_sdp_0(0);
+}
+
+void dla_start_count_sdp_1(void *driver_context)
+{
+	struct nvdla_device *nvdla_dev = (struct nvdla_device *)driver_context;
+	m5_nvdla_start_count_sdp_1(0);
+}
+
+void dla_end_count_sdp_1(void *driver_context)
+{
+	struct nvdla_device *nvdla_dev = (struct nvdla_device *)driver_context;
+	m5_nvdla_end_count_sdp_1(0);
+}
+
+void dla_start_count_cacc_0(void *driver_context)
+{
+	struct nvdla_device *nvdla_dev = (struct nvdla_device *)driver_context;
+	m5_nvdla_start_count_cacc_0(0);
+}
+
+void dla_end_count_cacc_0(void *driver_context)
+{
+	struct nvdla_device *nvdla_dev = (struct nvdla_device *)driver_context;
+	m5_nvdla_end_count_cacc_0(0);
+}
+
+void dla_start_count_cacc_1(void *driver_context)
+{
+	struct nvdla_device *nvdla_dev = (struct nvdla_device *)driver_context;
+	m5_nvdla_start_count_cacc_1(0);
+}
+
+void dla_end_count_cacc_1(void *driver_context)
+{
+	struct nvdla_device *nvdla_dev = (struct nvdla_device *)driver_context;
+	m5_nvdla_end_count_cacc_1(0);
+}
+
+void dla_start_count_cdma_dat_0(void *driver_context)
+{
+	struct nvdla_device *nvdla_dev = (struct nvdla_device *)driver_context;
+	m5_nvdla_start_count_cdma_dat_0(0);
+}
+
+void dla_end_count_cdma_dat_0(void *driver_context)
+{
+	struct nvdla_device *nvdla_dev = (struct nvdla_device *)driver_context;
+	m5_nvdla_end_count_cdma_dat_0(0);
+}
+
+void dla_start_count_cdma_dat_1(void *driver_context)
+{
+	struct nvdla_device *nvdla_dev = (struct nvdla_device *)driver_context;
+	m5_nvdla_start_count_cdma_dat_1(0);
+}
+
+void dla_end_count_cdma_dat_1(void *driver_context)
+{
+	struct nvdla_device *nvdla_dev = (struct nvdla_device *)driver_context;
+	m5_nvdla_end_count_cdma_dat_1(0);
+}
+
+
+void dla_start_count_cdma_wt_0(void *driver_context)
+{
+	struct nvdla_device *nvdla_dev = (struct nvdla_device *)driver_context;
+	m5_nvdla_start_count_cdma_wt_0(0);
+}
+
+
+void dla_end_count_cdma_wt_0(void *driver_context)
+{
+	struct nvdla_device *nvdla_dev = (struct nvdla_device *)driver_context;
+	m5_nvdla_end_count_cdma_wt_0(0);
+}
+
+
+void dla_start_count_cdma_wt_1(void *driver_context)
+{
+	struct nvdla_device *nvdla_dev = (struct nvdla_device *)driver_context;
+	m5_nvdla_start_count_cdma_wt_1(0);
+}
+
+void dla_end_count_cdma_wt_1(void *driver_context)
+{
+	struct nvdla_device *nvdla_dev = (struct nvdla_device *)driver_context;
+	m5_nvdla_end_count_cdma_wt_1(0);
 }
 
 void dla_reg_write(void *driver_context, uint32_t addr, uint32_t reg)

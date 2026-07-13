@@ -34,9 +34,9 @@ obj-m += opendla.o
 
 ccflags-y += -I$(src)/include
 ccflags-y += -I$(src)/../../include
-ccflags-y += -Werror
 
 include $(src)/../../firmware/Makefile
 
 opendla-y += nvdla_core_callbacks.o
 opendla-y += nvdla_gem.o
+opendla-y += ../../firmware/include/gem5/m5ops_plus.o

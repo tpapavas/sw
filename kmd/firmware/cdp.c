@@ -114,8 +114,17 @@ dla_cdp_enable(struct dla_processor_group *group)
 	uint32_t reg;
 	uint8_t perf_reg;
 	struct dla_engine *engine = dla_get_engine();
+	struct nvdla_device *nvdla_dev = (struct nvdla_device *)engine->driver_context;
 
 	dla_debug("Enter: %s\n", __func__);
+
+	if (group->id == 0) {
+		dla_debug("Starting CDP 0 counter \n");
+		start_cdp_0();
+	} else {
+		dla_debug("Starting CDP 1 counter \n");
+		start_cdp_1();
+	}
 
 	if (engine->stat_enable == (uint32_t)1) {
 		perf_reg = (map_perf_dma[1] <<

@@ -44,93 +44,157 @@ int32_t dla_isr_handler(void *engine_data)
 	mask = glb_reg_read(S_INTR_MASK);
 	reg = glb_reg_read(S_INTR_STATUS);
 
+    dla_trace("\n================= NVDLA ISR ENTER =================\n");
+    dla_trace("[ISR] RAW STATUS = 0x%x\n", reg);
+    dla_trace("[ISR] MASK       = 0x%x\n", mask);
+    dla_trace("[ISR] ACTIVE     = 0x%x (reg & ~mask)\n", reg & ~mask);
+
 	dla_trace("Enter: dla_isr_handler, reg:%x, mask:%x\n", reg, mask);
 	if (reg & MASK(GLB_S_INTR_STATUS_0, CACC_DONE_STATUS0)) {
 		processor = &engine->processors[DLA_OP_CONV];
 		group = &processor->groups[0];
 		group->events |= (1 << DLA_EVENT_OP_COMPLETED);
+
+        dla_debug("End CACC 0 counter \n");
+        end_cacc_0();
+
+        dla_debug("End CMAC 0 counter \n");
+        end_cmac_0();
 	}
 	if (reg & MASK(GLB_S_INTR_STATUS_0, CACC_DONE_STATUS1)) {
 		processor = &engine->processors[DLA_OP_CONV];
 		group = &processor->groups[1];
 		group->events |= (1 << DLA_EVENT_OP_COMPLETED);
+
+        dla_debug("End CACC 1 counter \n");
+        end_cacc_1();
+
+        dla_debug("End CMAC 1 counter \n");
+        end_cmac_1();
 	}
 	if (reg & MASK(GLB_S_INTR_STATUS_0, SDP_DONE_STATUS0)) {
 		processor = &engine->processors[DLA_OP_SDP];
 		group = &processor->groups[0];
 		group->events |= (1 << DLA_EVENT_OP_COMPLETED);
+
+        dla_debug("End SDP 0 counter \n");
+        end_sdp_0();
 	}
 	if (reg & MASK(GLB_S_INTR_STATUS_0, SDP_DONE_STATUS1)) {
 		processor = &engine->processors[DLA_OP_SDP];
 		group = &processor->groups[1];
 		group->events |= (1 << DLA_EVENT_OP_COMPLETED);
+
+        dla_debug("End SDP 1 counter \n");
+        end_sdp_1();
 	}
 	if (reg & MASK(GLB_S_INTR_STATUS_0, CDP_DONE_STATUS0)) {
 		processor = &engine->processors[DLA_OP_CDP];
 		group = &processor->groups[0];
 		group->events |= (1 << DLA_EVENT_OP_COMPLETED);
+
+        dla_debug("End CDP 0 counter \n");
+        end_cdp_0();
 	}
 	if (reg & MASK(GLB_S_INTR_STATUS_0, CDP_DONE_STATUS1)) {
 		processor = &engine->processors[DLA_OP_CDP];
 		group = &processor->groups[1];
 		group->events |= (1 << DLA_EVENT_OP_COMPLETED);
+
+        dla_debug("End CDP 1 counter \n");
+        end_cdp_1();
 	}
 	if (reg & MASK(GLB_S_INTR_STATUS_0, RUBIK_DONE_STATUS0)) {
 		processor = &engine->processors[DLA_OP_RUBIK];
 		group = &processor->groups[0];
 		group->events |= (1 << DLA_EVENT_OP_COMPLETED);
+
+        dla_debug("End RUBIK 0 counter \n");
+        end_rubik_0();
 	}
 	if (reg & MASK(GLB_S_INTR_STATUS_0, RUBIK_DONE_STATUS1)) {
 		processor = &engine->processors[DLA_OP_RUBIK];
 		group = &processor->groups[1];
 		group->events |= (1 << DLA_EVENT_OP_COMPLETED);
+
+        dla_debug("End RUBIK 1 counter \n");
+        end_rubik_1();
 	}
 	if (reg & MASK(GLB_S_INTR_STATUS_0, PDP_DONE_STATUS0)) {
 		processor = &engine->processors[DLA_OP_PDP];
 		group = &processor->groups[0];
 		group->events |= (1 << DLA_EVENT_OP_COMPLETED);
+
+        dla_debug("End PDP 0 counter \n");
+        end_pdp_0();
 	}
 	if (reg & MASK(GLB_S_INTR_STATUS_0, PDP_DONE_STATUS1)) {
 		processor = &engine->processors[DLA_OP_PDP];
 		group = &processor->groups[1];
 		group->events |= (1 << DLA_EVENT_OP_COMPLETED);
+
+        dla_debug("End PDP 1 counter \n");
+        end_pdp_1();
 	}
 	if (reg & MASK(GLB_S_INTR_STATUS_0, BDMA_DONE_STATUS0)) {
 		processor = &engine->processors[DLA_OP_BDMA];
 		group = &processor->groups[0];
 		group->events |= (1 << DLA_EVENT_OP_COMPLETED);
+
+        dla_debug("End BDMA 0 counter \n");
+        end_bdma_0();
 	}
 	if (reg & MASK(GLB_S_INTR_STATUS_0, BDMA_DONE_STATUS1)) {
 		processor = &engine->processors[DLA_OP_BDMA];
 		group = &processor->groups[1];
 		group->events |= (1 << DLA_EVENT_OP_COMPLETED);
+
+        dla_debug("End BDMA 1 counter \n");
+        end_bdma_1();
 	}
 	if (reg & MASK(GLB_S_INTR_STATUS_0, CDMA_DAT_DONE_STATUS0)) {
 		processor = &engine->processors[DLA_OP_CONV];
 		group = &processor->groups[0];
 		group->events |= (1 << DLA_EVENT_CDMA_DT_DONE);
+
+        dla_debug("End CDMA DAT 0 counter \n");
+        end_cdma_dat_0();
 	}
 	if (reg & MASK(GLB_S_INTR_STATUS_0, CDMA_DAT_DONE_STATUS1)) {
 		processor = &engine->processors[DLA_OP_CONV];
 		group = &processor->groups[1];
 		group->events |= (1 << DLA_EVENT_CDMA_DT_DONE);
+
+        dla_debug("End CDMA DAT 0 counter \n");
+        end_cdma_dat_0();
 	}
 	if (reg & MASK(GLB_S_INTR_STATUS_0, CDMA_WT_DONE_STATUS0)) {
 		processor = &engine->processors[DLA_OP_CONV];
 		group = &processor->groups[0];
 		group->events |= (1 << DLA_EVENT_CDMA_WT_DONE);
+
+        dla_debug("End CDMA WT 0 counter \n");
+        end_cdma_wt_0();
 	}
 	if (reg & MASK(GLB_S_INTR_STATUS_0, CDMA_WT_DONE_STATUS1)) {
 		processor = &engine->processors[DLA_OP_CONV];
 		group = &processor->groups[1];
 		group->events |= (1 << DLA_EVENT_CDMA_WT_DONE);
+
+        dla_debug("End CDMA WT 1 counter \n");
+        end_cdma_wt_1();
 	}
 
+    dla_trace("[ISR] Clearing interrupt: 0x%x\n", reg);
 	glb_reg_write(S_INTR_STATUS, reg);
 
 	mask = glb_reg_read(S_INTR_MASK);
 	reg = glb_reg_read(S_INTR_STATUS);
 
+    dla_trace("[ISR] AFTER CLEAR STATUS = 0x%x\n", reg);
+    dla_trace("[ISR] AFTER CLEAR MASK   = 0x%x\n", mask);
+    dla_trace("================= NVDLA ISR EXIT =================\n\n");
 	dla_trace("Exit: dla_isr_handler, reg:%x, mask:%x\n", reg, mask);
+    
 	RETURN(0);
 }

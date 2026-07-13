@@ -76,10 +76,59 @@
 #define M5OP_WORK_BEGIN         0x5a
 #define M5OP_WORK_END           0x5b
 
+#define M5OP_NVDLA_WRITE_REG    0x5c // Added by user. Maybe not be correct
+
+#define M5OP_NVDLA_GOT_RESPONSE 0x5d
+#define M5OP_NVDLA_GET_DATA     0x5e
+
 #define M5OP_DIST_TOGGLE_SYNC   0x62
 
 #define M5OP_WORKLOAD           0x70
 
+#define M5OP_NVDLA_START_BDMA_0      0x80
+#define M5OP_NVDLA_END_BDMA_0        0x81
+#define M5OP_NVDLA_START_BDMA_1      0x82
+#define M5OP_NVDLA_END_BDMA_1        0x83
+
+#define M5OP_NVDLA_START_CDP_0       0x84
+#define M5OP_NVDLA_END_CDP_0         0x85
+#define M5OP_NVDLA_START_CDP_1       0x86
+#define M5OP_NVDLA_END_CDP_1         0x87
+
+#define M5OP_NVDLA_START_CMAC_0      0x88
+#define M5OP_NVDLA_END_CMAC_0        0x89
+#define M5OP_NVDLA_START_CMAC_1      0x8A
+#define M5OP_NVDLA_END_CMAC_1        0x8B
+
+#define M5OP_NVDLA_START_PDP_0       0x8C
+#define M5OP_NVDLA_END_PDP_0         0x8D
+#define M5OP_NVDLA_START_PDP_1       0x8E
+#define M5OP_NVDLA_END_PDP_1         0x8F
+
+#define M5OP_NVDLA_START_RUBIK_0     0x90
+#define M5OP_NVDLA_END_RUBIK_0       0x91
+#define M5OP_NVDLA_START_RUBIK_1     0x92
+#define M5OP_NVDLA_END_RUBIK_1       0x93
+
+#define M5OP_NVDLA_START_SDP_0       0x94
+#define M5OP_NVDLA_END_SDP_0         0x95
+#define M5OP_NVDLA_START_SDP_1       0x96
+#define M5OP_NVDLA_END_SDP_1         0x97
+
+#define M5OP_NVDLA_START_CACC_0      0x98
+#define M5OP_NVDLA_END_CACC_0        0x99
+#define M5OP_NVDLA_START_CACC_1      0x9A
+#define M5OP_NVDLA_END_CACC_1        0x9B
+
+#define M5OP_NVDLA_START_CDMA_DAT_0  0x9C
+#define M5OP_NVDLA_END_CDMA_DAT_0    0x9D
+#define M5OP_NVDLA_START_CDMA_DAT_1  0x9E
+#define M5OP_NVDLA_END_CDMA_DAT_1    0x9F
+
+#define M5OP_NVDLA_START_CDMA_WT_0   0xA0
+#define M5OP_NVDLA_END_CDMA_WT_0     0xA1
+#define M5OP_NVDLA_START_CDMA_WT_1   0xA2
+#define M5OP_NVDLA_END_CDMA_WT_1     0xA3
 
 #define M5OP_FOREACH                                            \
     M5OP(m5_arm, M5OP_ARM)                                      \
@@ -113,7 +162,45 @@
     M5OP(m5_start_accel_id, M5OP_START_ACCEL_ID)                \
     M5OP(m5_wait_accel_id, M5OP_WAIT_ACCEL_ID)                  \
     M5OP(m5_nvdla_read_reg, M5OP_NVDLA_READ_REG)                \
-    M5OP(m5_nvdla_write_reg, M5OP_NVDLA_WRITE_REG)
+    M5OP(m5_nvdla_write_reg, M5OP_NVDLA_WRITE_REG)              \
+    M5OP(m5_nvdla_got_response, M5OP_NVDLA_GOT_RESPONSE)        \
+    M5OP(m5_nvdla_get_data, M5OP_NVDLA_GET_DATA)                \
+    M5OP(m5_nvdla_start_count_bdma_0, M5OP_NVDLA_START_BDMA_0) \
+    M5OP(m5_nvdla_end_count_bdma_0, M5OP_NVDLA_END_BDMA_0) \
+    M5OP(m5_nvdla_start_count_bdma_1, M5OP_NVDLA_START_BDMA_1) \
+    M5OP(m5_nvdla_end_count_bdma_1, M5OP_NVDLA_END_BDMA_1) \
+    M5OP(m5_nvdla_start_count_cdp_0, M5OP_NVDLA_START_CDP_0) \
+    M5OP(m5_nvdla_end_count_cdp_0, M5OP_NVDLA_END_CDP_0) \
+    M5OP(m5_nvdla_start_count_cdp_1, M5OP_NVDLA_START_CDP_1) \
+    M5OP(m5_nvdla_end_count_cdp_1, M5OP_NVDLA_END_CDP_1) \
+    M5OP(m5_nvdla_start_count_cmac_0, M5OP_NVDLA_START_CMAC_0) \
+    M5OP(m5_nvdla_end_count_cmac_0, M5OP_NVDLA_END_CMAC_0) \
+    M5OP(m5_nvdla_start_count_cmac_1, M5OP_NVDLA_START_CMAC_1) \
+    M5OP(m5_nvdla_end_count_cmac_1, M5OP_NVDLA_END_CMAC_1) \
+    M5OP(m5_nvdla_start_count_pdp_0, M5OP_NVDLA_START_PDP_0) \
+    M5OP(m5_nvdla_end_count_pdp_0, M5OP_NVDLA_END_PDP_0) \
+    M5OP(m5_nvdla_start_count_pdp_1, M5OP_NVDLA_START_PDP_1) \
+    M5OP(m5_nvdla_end_count_pdp_1, M5OP_NVDLA_END_PDP_1) \
+    M5OP(m5_nvdla_start_count_rubik_0, M5OP_NVDLA_START_RUBIK_0) \
+    M5OP(m5_nvdla_end_count_rubik_0, M5OP_NVDLA_END_RUBIK_0) \
+    M5OP(m5_nvdla_start_count_rubik_1, M5OP_NVDLA_START_RUBIK_1) \
+    M5OP(m5_nvdla_end_count_rubik_1, M5OP_NVDLA_END_RUBIK_1)  \
+    M5OP(m5_nvdla_start_count_sdp_0, M5OP_NVDLA_START_SDP_0) \
+    M5OP(m5_nvdla_end_count_sdp_0, M5OP_NVDLA_END_SDP_0)  \
+    M5OP(m5_nvdla_start_count_sdp_1, M5OP_NVDLA_START_SDP_1) \
+    M5OP(m5_nvdla_end_count_sdp_1, M5OP_NVDLA_END_SDP_1)  \
+    M5OP(m5_nvdla_start_count_cacc_0, M5OP_NVDLA_START_CACC_0) \
+    M5OP(m5_nvdla_end_count_cacc_0, M5OP_NVDLA_END_CACC_0) \
+    M5OP(m5_nvdla_start_count_cacc_1, M5OP_NVDLA_START_CACC_1) \
+    M5OP(m5_nvdla_end_count_cacc_1, M5OP_NVDLA_END_CACC_1) \
+    M5OP(m5_nvdla_start_count_cdma_dat_0, M5OP_NVDLA_START_CDMA_DAT_0) \
+    M5OP(m5_nvdla_end_count_cdma_dat_0, M5OP_NVDLA_END_CDMA_DAT_0) \
+    M5OP(m5_nvdla_start_count_cdma_dat_1, M5OP_NVDLA_START_CDMA_DAT_1) \
+    M5OP(m5_nvdla_end_count_cdma_dat_1, M5OP_NVDLA_END_CDMA_DAT_1) \
+    M5OP(m5_nvdla_start_count_cdma_wt_0, M5OP_NVDLA_START_CDMA_WT_0) \
+    M5OP(m5_nvdla_end_count_cdma_wt_0, M5OP_NVDLA_END_CDMA_WT_0) \
+    M5OP(m5_nvdla_start_count_cdma_wt_1, M5OP_NVDLA_START_CDMA_WT_1) \
+    M5OP(m5_nvdla_end_count_cdma_wt_1, M5OP_NVDLA_END_CDMA_WT_1)
 #define M5OP_MERGE_TOKENS_I(a, b) a##b
 #define M5OP_MERGE_TOKENS(a, b) M5OP_MERGE_TOKENS_I(a, b)
 

@@ -216,10 +216,12 @@ dla_conv_enable(struct dla_processor_group *group)
 {
 	uint32_t reg;
 	struct dla_engine *engine = dla_get_engine();
+	struct nvdla_device *nvdla_dev = (struct nvdla_device *)engine->driver_context;
 
 	dla_trace("Enter: %s", __func__);
 	dla_trace("Starting time counter");
 	
+
 	do {
 		reg = cdma_reg_read(S_CBUF_FLUSH_STATUS);
 	} while (!(reg & MASK(CDMA_S_CBUF_FLUSH_STATUS_0, FLUSH_DONE)));
@@ -232,10 +234,38 @@ dla_conv_enable(struct dla_processor_group *group)
 	/* enable all sub-modules */
 	reg = FIELD_ENUM(CACC_D_OP_ENABLE_0, OP_EN, ENABLE);
 	cacc_reg_write(D_OP_ENABLE, reg);
+
+	if (group->id == 0) {
+		dla_debug("Starting CACC 0 counter \n");
+		start_cacc_0();
+	} else {
+		dla_debug("Starting CACC 1 counter \n");
+		start_cacc_1();
+	}
+
 	cmac_a_reg_write(D_OP_ENABLE, reg);
 	cmac_b_reg_write(D_OP_ENABLE, reg);
+
+	if (group->id == 0) {
+		dla_debug("Starting CMAC 0 counter \n");
+		start_cmac_0();
+	} else {
+		dla_debug("Starting CMAC 1 counter \n");
+		start_cmac_1();
+	}
+
 	csc_reg_write(D_OP_ENABLE, reg);
 	cdma_reg_write(D_OP_ENABLE, reg);
+
+	if (group->id == 0) {
+		dla_debug("Starting CDMA 0 counter \n");
+		start_cdma_dat_0();
+		start_cdma_wt_0();
+	} else {
+		dla_debug("Starting CDMA 1 counter \n");
+		start_cdma_dat_1();
+		start_cdma_wt_1();
+	}
 
 	dla_trace("Exit: %s", __func__);
 

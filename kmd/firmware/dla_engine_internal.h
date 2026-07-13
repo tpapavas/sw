@@ -358,4 +358,41 @@ static inline void
 dla_rubik_dump_stat(struct dla_processor *processor) {}
 #endif
 
+void start_bdma_0(void);
+void end_bdma_0(void);
+void start_bdma_1(void);
+void end_bdma_1(void);
+void start_cdp_0(void);
+void end_cdp_0(void);
+void start_cdp_1(void);
+void end_cdp_1(void);
+void start_cmac_0(void);
+void end_cmac_0(void);
+void start_cmac_1(void);
+void end_cmac_1(void);
+void start_pdp_0(void);
+void end_pdp_0(void);
+void start_pdp_1(void);
+void end_pdp_1(void);
+void start_rubik_0(void);
+void end_rubik_0(void);
+void start_rubik_1(void);
+void end_rubik_1(void);
+void start_sdp_0(void);
+void end_sdp_0(void);
+void start_sdp_1(void);
+void end_sdp_1(void);
+void start_cacc_0(void);
+void end_cacc_0(void);
+void start_cacc_1(void);
+void end_cacc_1(void);
+void start_cdma_dat_0(void);
+void end_cdma_dat_0(void);
+void start_cdma_dat_1(void);
+void end_cdma_dat_1(void);
+void start_cdma_wt_0(void);
+void end_cdma_wt_0(void);
+void start_cdma_wt_1(void);
+void end_cdma_wt_1(void);
+
 #endif
