@@ -44,7 +44,8 @@ INCLUDES += \
     -I$(ROOT)/external/include \
     -I$(ROOT)/external/libjpeg-turbo \
     -I$(LOCAL_DIR)/include \
-    -I$(LOCAL_DIR)
+    -I$(LOCAL_DIR) \
+    -include $(ROOT)/fix_half_isnan.hh
 
 MODULE_CPPFLAGS := -DNVDLA_UTILS_ERROR_TAG="\"DLA_TEST\""
 MODULE_CFLAGS := -DNVDLA_UTILS_ERROR_TAG="\"DLA_TEST\""
