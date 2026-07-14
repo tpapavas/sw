@@ -143,6 +143,7 @@ int64_t dla_get_time_us(void)
 	return 0;
 }
 
+#ifdef NVDLA_VERILATED
 void dla_start_count_bdma_0(void *driver_context)
 {
 	struct nvdla_device *nvdla_dev = (struct nvdla_device *)driver_context;
@@ -361,6 +362,44 @@ void dla_end_count_cdma_wt_1(void *driver_context)
 	struct nvdla_device *nvdla_dev = (struct nvdla_device *)driver_context;
 	m5_nvdla_end_count_cdma_wt_1(nvdla_dev->current_dla_id);
 }
+#else
+void dla_start_count_bdma_0(void *driver_context) {}
+void dla_end_count_bdma_0(void *driver_context) {}
+void dla_start_count_bdma_1(void *driver_context) {}
+void dla_end_count_bdma_1(void *driver_context) {}
+void dla_start_count_cdp_0(void *driver_context) {}
+void dla_end_count_cdp_0(void *driver_context) {}
+void dla_start_count_cdp_1(void *driver_context) {}
+void dla_end_count_cdp_1(void *driver_context) {}
+void dla_start_count_cmac_0(void *driver_context) {}
+void dla_end_count_cmac_0(void *driver_context) {}
+void dla_start_count_cmac_1(void *driver_context) {}
+void dla_end_count_cmac_1(void *driver_context) {}
+void dla_start_count_pdp_0(void *driver_context) {}
+void dla_end_count_pdp_0(void *driver_context) {}
+void dla_start_count_pdp_1(void *driver_context) {}
+void dla_end_count_pdp_1(void *driver_context) {}
+void dla_start_count_rubik_0(void *driver_context) {}
+void dla_end_count_rubik_0(void *driver_context) {}
+void dla_start_count_rubik_1(void *driver_context) {}
+void dla_end_count_rubik_1(void *driver_context) {}
+void dla_start_count_sdp_0(void *driver_context) {}
+void dla_end_count_sdp_0(void *driver_context) {}
+void dla_start_count_sdp_1(void *driver_context) {}
+void dla_end_count_sdp_1(void *driver_context) {}
+void dla_start_count_cacc_0(void *driver_context) {}
+void dla_end_count_cacc_0(void *driver_context) {}
+void dla_start_count_cacc_1(void *driver_context) {}
+void dla_end_count_cacc_1(void *driver_context) {}
+void dla_start_count_cdma_dat_0(void *driver_context) {}
+void dla_end_count_cdma_dat_0(void *driver_context) {}
+void dla_start_count_cdma_dat_1(void *driver_context) {}
+void dla_end_count_cdma_dat_1(void *driver_context) {}
+void dla_start_count_cdma_wt_0(void *driver_context) {}
+void dla_end_count_cdma_wt_0(void *driver_context) {}
+void dla_start_count_cdma_wt_1(void *driver_context) {}
+void dla_end_count_cdma_wt_1(void *driver_context) {}
+#endif
 
 void dla_reg_write(void *driver_context, uint32_t addr, uint32_t reg)
 {
