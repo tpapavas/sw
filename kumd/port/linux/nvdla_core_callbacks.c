@@ -70,6 +70,8 @@
 
 #include "gem5/m5ops.h"
 
+#define NVDLA_VERILATED
+
 static struct nvdla_config nvdla_config_os_initial = {
 	.atom_size = 32,
 	.bdma_enable = true,
@@ -381,17 +383,16 @@ uint32_t dla_reg_read(void *driver_context, uint32_t addr)
 	struct nvdla_device *nvdla_dev =
 			(struct nvdla_device *)driver_context;
 
+#ifdef NVDLA_VERILATED
 	return m5_nvdla_read_reg(nvdla_dev->current_dla_id, addr); 
-	
+#else
+	m5_nvdla_read_reg(nvdla_dev->current_dla_id, addr);
 
-	
-	//m5_nvdla_read_reg(nvdla_dev->current_dla_id, addr);
-//
-	//uint32_t data;
-	//while (m5_nvdla_got_response()) {}
-	//	// do nothing
-	//return m5_nvdla_get_data();
-	
+	uint32_t data;
+	while (m5_nvdla_got_response()) {}
+		// do nothing
+	return m5_nvdla_get_data();
+#endif
 
 
 	/*
