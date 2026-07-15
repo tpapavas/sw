@@ -156,7 +156,7 @@ bool Emulator::run()
 
         if (m_taskQueue.empty())
         {
-            NvDlaSleepMS(500);
+            NvDlaSleepMS(5);
         }
     }
 
@@ -416,25 +416,31 @@ NvDlaError Emulator::executeSoftmax
         half* pDst = reinterpret_cast<half*>( addressList[*dst.addressIndex()] + *dst.addressIndexOffset());
 
         NvF32 maxval = -INFINITY;
+        NvDlaDebugPrintf("[GEM5 LOG] DLA OUTPUT\n");
         for (NvU32 ii=0; ii<*src.channel(); ii++)
         {
+            NvDlaDebugPrintf("#%u: 0x%08x\n", ii, pSrc[ii]);
             if (float(pSrc[ii]) > maxval)
             {
                 maxval = float(pSrc[ii]);
             }
         }
+        NvDlaDebugPrintf("\n");
         NvF32 sumexp = 0.0f;
         for (NvU32 ii=0; ii<*src.channel(); ii++)
         {
             sumexp += expf(float(pSrc[ii])-maxval);
         }
+        NvDlaDebugPrintf("[GEM5 LOG] NET OUTPUT\n");
         for (NvU32 ii=0; ii<*src.channel(); ii++)
         {
             pDst[ii] = expf(float(pSrc[ii])-maxval) / sumexp;
+            NvDlaDebugPrintf("#%u: %f\n", ii, float(pDst[ii]));
         }
     }
     else if ((*src.format() == EMU_FORMAT_INT8) || (*src.format() == EMU_FORMAT_INT8_8))
     {
+        NvDlaDebugPrintf("[GEM5 LOG] DLA OUTPUT\n");
         NvS8* pSrc = reinterpret_cast<NvS8*>( addressList[*src.addressIndex()] + *src.addressIndexOffset() );
         NvS8* pDst = reinterpret_cast<NvS8*>( addressList[*dst.addressIndex()] + *dst.addressIndexOffset() );
 
@@ -444,8 +450,10 @@ NvDlaError Emulator::executeSoftmax
         // scale input for processing in FLOAT land
         for (NvU32 ii = 0; ii < *src.channel(); ii++)
         {
+            NvDlaDebugPrintf("#%u: 0x%08x\n", ii, pSrc[ii]);
             pHalfSrc[ii] = pSrc[ii] * (*commonOpDesc.input_scale_factor());
         }
+        NvDlaDebugPrintf("\n");
 
         NvF32 maxval = -INFINITY;
         for (NvU32 ii=0; ii<*src.channel(); ii++)
@@ -464,12 +472,16 @@ NvDlaError Emulator::executeSoftmax
         for (NvU32 ii=0; ii<*src.channel(); ii++)
         {
             pHalfDst[ii] = static_cast<half>(expf(float(pHalfSrc[ii])-maxval) / sumexp);
+            NvDlaDebugPrintf("#%u: %f\n", ii, float(pDst[ii]));
         }
+
+        NvDlaDebugPrintf("[GEM5 LOG] NET OUTPUT\n");
 
         // rescale output to write out in INT8 land
         for (NvU32 ii = 0; ii < *dst.channel(); ii++)
         {
             pDst[ii] = saturate<NvF32, NvS8>(pHalfDst[ii] / (*commonOpDesc.output_scale_factor()));
+            NvDlaDebugPrintf("#%u: %d\n", ii, NvS8(pDst[ii]));
         }
 
         if (debugPrint())
@@ -493,8 +505,6 @@ NvDlaError Emulator::executeSoftmax
             NvDlaDebugPrintf("Post-softmax max value: (half) %f, (int) %f\n", maxHalfDst, maxIntDst);
             NvDlaDebugPrintf("at indices (half) %d, (int) %d\n", maxHalfIndex, maxIntIndex);
         }
-
-
     }
     else
     {
