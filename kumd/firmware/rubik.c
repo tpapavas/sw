@@ -35,6 +35,8 @@
 #include "dla_engine_internal.h"
 #include "engine_debug.h"
 
+#include "nvdla_linux.h"
+
 static uint8_t map_rubik_mode[] = {
 	FIELD_ENUM(RBK_D_MISC_CFG_0, RUBIK_MODE, CONTRACT),
 	FIELD_ENUM(RBK_D_MISC_CFG_0, RUBIK_MODE, SPLIT),
@@ -150,6 +152,9 @@ processor_rubik_program(struct dla_processor_group *group)
 	struct dla_rubik_op_desc *rubik_op;
 	struct dla_rubik_surface_desc *rubik_surface;
 
+	struct nvdla_task *task;
+	task = (struct nvdla_task *) engine->task->task_data;
+
 	dla_trace("Enter: %s", __func__);
 
 	rubik_op = &group->operation_desc->rubik_op;
@@ -176,6 +181,10 @@ processor_rubik_program(struct dla_processor_group *group)
 				rubik_surface->dst_data.offset,
 				(void *)&output_address,
 				DESTINATION_DMA);
+	output_address = task->address_list[rubik_surface->dst_data.address].v_addr
+		+ task->address_list[rubik_surface->dst_data.address].offset
+		+ rubik_surface->dst_data.offset;
+	dla_trace("[KUMD] rubik: output_address: 0x%08x", output_address);
 
 	/* config rubik */
 	reg = (((uint32_t)map_rubik_mode[rubik_op->mode]) <<
