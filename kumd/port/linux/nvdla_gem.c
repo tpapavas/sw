@@ -122,11 +122,19 @@ int32_t u__nvdla_submit(/* struct drm_device *drm, */void *arg /*, struct drm_fi
 	struct dla_engine *engine;
 #ifdef DLA_2_CONFIG
 	config_data->atom_size = 8;
-#else
-	config_data->atom_size = 32;
-#endif
 	config_data->bdma_enable = false;
 	config_data->rubik_enable = false;
+#else
+	/**
+	 * NOTE: This is for nv_full configuration, not for nv_large
+	 * TODO: Add extra configuration for nv_large
+	 */
+	config_data->atom_size = 32;
+	config_data->bdma_enable = true;
+	config_data->rubik_enable = true;
+#endif
+	// config_data->bdma_enable = false;
+	// config_data->rubik_enable = false;
 	config_data->weight_compress_support = false;
 
 	nvdla_dev->base = 0x40000000;
