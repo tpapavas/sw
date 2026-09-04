@@ -117,6 +117,10 @@ struct emu_buffer_desc
     /* stride information */
     NvU32 line_stride;
     NvU32 surf_stride;
+
+    // from dla_data_cube
+	// /* For Rubik only */
+	uint32_t plane_stride;
 } __attribute__ ((packed, aligned(256)));
 
 struct emu_power_buffer_descs
