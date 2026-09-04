@@ -257,6 +257,11 @@ NvDlaError Emulator::processTask(NvU8* task_mem, std::vector<NvU8*> addressList)
 
             PROPAGATE_ERROR_FAIL(executePool(pool_op_desc, common_op_desc, pool_op_buffer_descs, addressList));
 
+        } else if (*common_op_desc.op_type() == NVDLA_EMU_OP_SDP /* SDP */) {
+            EMUSdpOpDescAccessor sdp_op_desc = operation_container.sdpOpDescAccessor(op);
+            EMUSdpBufferDescsAccessor sdp_op_buffer_descs = operation_buffer_container.sdpBufferDescsAccessor(op);
+
+            PROPAGATE_ERROR_FAIL(executeSdp(sdp_op_desc, common_op_desc, sdp_op_buffer_descs, addressList));
         } else {
             NvDlaDebugPrintf("Unknown op type %u\n", *common_op_desc.op_type());
         }
@@ -1626,6 +1631,199 @@ NvDlaError Emulator::executePool
 fail:
     return e;
 }
+
+NvDlaError Emulator::executeSdp
+(
+    EMUSdpOpDescAccessor opDesc,
+    EMUCommonOpDescAccessor commonOpDesc,
+    EMUSdpBufferDescsAccessor bufDescs,
+    std::vector<NvU8*> addressList
+)
+{
+    NvDlaError e = NvDlaSuccess;
+
+    EMUBufferDescAccessor src = bufDescs.srcDataAccessor();
+    EMUBufferDescAccessor x1_data = bufDescs.x1DataAccessor();
+    EMUBufferDescAccessor x2_data = bufDescs.x2DataAccessor();
+    EMUBufferDescAccessor y_data = bufDescs.yDataAccessor();
+    EMUBufferDescAccessor dst = bufDescs.dstDataAccessor();
+
+    fp16_t *in = reinterpret_cast<half*>( addressList[*src.addressIndex()] + *src.addressIndexOffset());
+    fp16_t *x1 = reinterpret_cast<half*>( addressList[*x1_data.addressIndex()] + *x1_data.addressIndexOffset());
+    fp16_t *out = reinterpret_cast<half*>( addressList[*dst.addressIndex()] + *dst.addressIndexOffset());
+
+    if ( debugOps() )
+    {
+        NvDlaDebugPrintf("Processing sdp (%s)\n",
+            (*opDesc.x1_op()).type == SDP_OP_NONE ? "none" :
+            (*opDesc.x1_op()).type == SDP_OP_MUL ? "mul" :
+            (*opDesc.x1_op()).type == SDP_OP_ALU ? "alu (add)" : "mul+alu");
+        // NvDlaDebugPrintf("precision %u\n", *opDesc.precision());
+        NvDlaDebugPrintf("\t SRC\n");
+        NvDlaDebugPrintf("\taddress[%u][%u] 0x%llx (%ux%ux%u) %uB\n", *src.addressIndex(), *src.addressIndexOffset(),
+                addressList[*src.addressIndex()], *src.width(), *src.height(), *src.channel(), *src.size());
+        NvDlaDebugPrintf("\tline_stride %uB surface_stride %uB\n", *src.lineStride(), *src.surfStride());
+        NvDlaDebugPrintf("\tinput scale factor: %f, output scale factor: %f\n", *commonOpDesc.input_scale_factor(), *commonOpDesc.output_scale_factor());
+
+        NvDlaDebugPrintf("\t X1\n");
+        NvDlaDebugPrintf("\taddress[%u][%u] 0x%llx (%ux%ux%u) %uB\n", *x1_data.addressIndex(), *x1_data.addressIndexOffset(),
+                addressList[*x1_data.addressIndex()], *x1_data.width(), *x1_data.height(), *x1_data.channel(), *x1_data.size());
+        NvDlaDebugPrintf("\tline_stride %uB surface_stride %uB\n", *x1_data.lineStride(), *x1_data.surfStride());
+        NvDlaDebugPrintf("\tinput scale factor: %f, output scale factor: %f\n", *commonOpDesc.input_scale_factor(), *commonOpDesc.output_scale_factor());
+
+        NvDlaDebugPrintf("\t DST\n");
+        NvDlaDebugPrintf("\taddress[%u][%u] 0x%llx (%ux%ux%u) %uB\n", *dst.addressIndex(),  *dst.addressIndexOffset(),
+                addressList[*dst.addressIndex()], *dst.width(), *dst.height(), *dst.channel(), *dst.size());
+        NvDlaDebugPrintf("\tline_stride %uB surface_stride %uB\n", *dst.lineStride(), *dst.surfStride());
+        NvDlaDebugPrintf("\tprecision: %d\n", *opDesc.src_precision());
+    }
+
+    // input
+    int Ci = *src.channel(), Hi = *src.height(), Wi = *src.width();
+    // output
+    int Co = *dst.channel(), Ho = *dst.height(), Wo = *dst.width();
+
+    ////////////////////////////////////////////////
+    //////////////     TESTING      ////////////////
+    ////////////////////////////////////////////////
+    uint8_t *in_bytes = reinterpret_cast<uint8_t*>( addressList[*src.addressIndex()] + *src.addressIndexOffset());
+    uint8_t * in_unpacked = new uint8_t[Ci*Hi*Wi*ELEMENT_SIZE];
+    unpack_nvdla_feature_map(in_bytes, in_unpacked, Ci, Hi, Wi, Wi, Wi, 32);
+    half *in_unpacked_half = reinterpret_cast<half*>(in_unpacked);
+
+    in = in_unpacked_half;
+
+    if ( *src.format() != *dst.format() )
+    {
+        ORIGINATE_ERROR_FAIL(NvDlaError_NotSupported, "Don't support EMU sdp operation with different "
+            " src (%d) and dst (%d) formats\n", static_cast<NvU32>(*src.format()),
+            static_cast<NvU32>(*dst.format()));
+    }
+
+    // Execute
+    if (*opDesc.src_precision() == EMU_FORMAT_FF16)
+    {
+        half *out_unpacked_half = new half[Co * Ho * Wo];
+
+        if ((*opDesc.x1_op()).type == SDP_OP_MUL) {
+            if ((*opDesc.x1_op()).mode == SDP_OP_PER_KERNEL) {
+                for (int c = 0; c < Ci; c++) {
+                    float x1_c = float(x1[c]);
+                    for (int ih = 0; ih < Hi; ih++) {
+                        for (int iw = 0; iw < Wi; iw++) {
+                            float in_c_h_w = float(in[((c * Hi + ih) * Wi) + iw]);
+                            // out[((oh * Wo + ow) * Ci) + c] = (cnt > 0) ? (sum / (float)cnt) : 0.f;
+                            out_unpacked_half[(c * Hi + ih) * Wi + iw] = in_c_h_w * x1_c;
+                        }
+                    }
+                }
+            }
+        } else if ((*opDesc.x1_op()).type == SDP_OP_ALU) {
+            if ((*opDesc.x1_op()).mode == SDP_OP_PER_KERNEL) {
+                // OP: OUT(c,h,w) = IN(c,h,w) + X1(c)
+
+                for (int c = 0; c < Ci; c++) {
+                    float x1_c = float(x1[c]);
+                    for (int ih = 0; ih < Hi; ih++) {
+                        for (int iw = 0; iw < Wi; iw++) {
+                            float in_c_h_w = float(in[((c * Hi + ih) * Wi) + iw]);
+                            // out[((oh * Wo + ow) * Ci) + c] = (cnt > 0) ? (sum / (float)cnt) : 0.f;
+                            out_unpacked_half[(c * Hi + ih) * Wi + iw] = in_c_h_w + x1_c;
+                        }
+                    }
+                }
+            } else if ((*opDesc.x1_op()).mode == SDP_OP_PER_POINT) {
+                // OP: OUT(c,h,w) = IN(c,h,w) + X1(c,h,w)
+                NvDlaDebugPrintf("\t op: per-point add\n");
+
+                // unpack x1
+                uint8_t *x1_bytes = reinterpret_cast<uint8_t*>( addressList[*x1_data.addressIndex()] + *x1_data.addressIndexOffset());
+                uint8_t * x1_unpacked = new uint8_t[Ci*Hi*Wi*ELEMENT_SIZE];
+                unpack_nvdla_feature_map(x1_bytes, x1_unpacked, Ci, Hi, Wi, Wi, Wi, 32);
+                half *x1_unpacked_half = reinterpret_cast<half*>(x1_unpacked);
+
+                x1 = x1_unpacked_half;
+
+                for (int c = 0; c < Ci; c++) {
+                    for (int ih = 0; ih < Hi; ih++) {
+                        for (int iw = 0; iw < Wi; iw++) {
+                            float x1_c_h_w = float(x1[((c * Hi + ih) * Wi) + iw]);
+                            float in_c_h_w = float(in[((c * Hi + ih) * Wi) + iw]);
+                            // out[((oh * Wo + ow) * Ci) + c] = (cnt > 0) ? (sum / (float)cnt) : 0.f;
+                            out_unpacked_half[((c * Hi + ih) * Wi) + iw] = in_c_h_w + x1_c_h_w;
+                        }
+                    }
+                }
+                delete[] x1_unpacked;
+            }
+        } else if ((*opDesc.x1_op()).type == SDP_OP_NONE & (*opDesc.x1_op()).act == ACTIVATION_RELU) {
+            // relu
+            NvDlaDebugPrintf("Executing relu...\n");
+            for (int c0 = 0; c0 < Co; c0++) {
+                for (int y0 = 0; y0 < Ho; y0++) {
+                    for (int x0 = 0; x0 < Wo; x0++) {
+                        uint32_t ind = (c0 * Ho + y0) * Wo + x0;
+                        if (in_unpacked_half[ind] < 0.0f) {
+                            out_unpacked_half[ind] = 0.0f;
+                        }
+                        else {
+                            out_unpacked_half[ind] = in_unpacked_half[ind];
+                        } 
+                    }
+                }
+            }
+        }
+
+        // print Pool result
+        // NvDlaDebugPrintf("=== Pool RESULT ===\n");
+        // for (int c0 = 0; c0 < Co; c0++) {
+        //     for (int y0 = 0; y0 < Ho; y0++) {
+        //         for (int x0 = 0; x0 < Wo; x0++) {
+        //             NvDlaDebugPrintf("%f ", float(out_unpacked_half[(c0 * Ho + y0) * Wo + x0]));
+        //         }
+        //         NvDlaDebugPrintf("\n");
+        //     }
+        // }
+        // NvDlaDebugPrintf("=== EOF Pool RESULT ===\n");
+
+        uint8_t *dst_bytes = reinterpret_cast<uint8_t*>( addressList[*dst.addressIndex()] + *dst.addressIndexOffset());
+        uint8_t *out_unpacked_bytes = reinterpret_cast<uint8_t*>(out_unpacked_half);
+        pack_nvdla_feature_map(out_unpacked_bytes, dst_bytes, Co, Ho, Wo, Wo, Wo, 32);
+        
+        // print sdp result
+        NvDlaDebugPrintf("=== Sdp RESULT ===\n");
+        for (int c0 = 0; c0 < Co; c0++) {
+            for (int y0 = 0; y0 < Ho; y0++) {
+                for (int x0 = 0; x0 < Wo; x0++) {
+                    NvDlaDebugPrintf("%02x %02x ", dst_bytes[((c0 * Ho + y0) * Wo + x0)*2], dst_bytes[((c0 * Ho + y0) * Wo + x0)*2+1]);
+                }
+                NvDlaDebugPrintf("\n");
+            }
+            break;
+        }
+        NvDlaDebugPrintf("=== EOF Sdp RESULT ===\n");
+
+        delete[] in_unpacked;
+        delete[] out_unpacked_half;
+    }
+    else if ((*opDesc.src_precision() == EMU_FORMAT_INT8) || (*opDesc.src_precision() == EMU_FORMAT_INT8_8))
+    {
+        NvS8* pSrc = reinterpret_cast<NvS8*>( addressList[*src.addressIndex()] + *src.addressIndexOffset() );
+        NvS8* pDst = reinterpret_cast<NvS8*>( addressList[*dst.addressIndex()] + *dst.addressIndexOffset() );
+
+        half* pHalfSrc = reinterpret_cast<half*>(malloc(*src.channel() * sizeof(half)));
+        half* pHalfDst = reinterpret_cast<half*>(malloc(*dst.channel() * sizeof(half)));
+    }
+    else
+    {
+        ORIGINATE_ERROR_FAIL(NvDlaError_NotSupported, "Don't support EMU sdp operation for format: %d\n",
+            static_cast<NvU32>(*src.format()));
+    }
+
+fail:
+    return e;
+}
+
 
 
 } // nvdla::priv

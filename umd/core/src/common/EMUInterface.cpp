@@ -251,6 +251,28 @@ NvU8 * EMUPoolOpDescAccessor::precision() const { return _n.precision(_base); }
 NvU8 * EMUPoolOpDescAccessor::reserved0() const { return _n.reserved0(_base); }
 NvS32 * EMUPoolOpDescAccessor::padding_value() const { return _n.padding_value(_base); }
 
+//
+// emu_sdp_op_desc
+//
+EMUSdpOpDescAccessor::EMUSdpOpDescAccessor(NvU8 *base, const EMUSdpOpDesc &n) : _base(base), _n(n) { }
+
+NvU8 * EMUSdpOpDescAccessor::struct_base()  const { return _base;      }
+size_t EMUSdpOpDescAccessor::struct_size()  const { return _n.struct_size();  }
+size_t EMUSdpOpDescAccessor::struct_align() const { return _n.struct_align(); }
+
+EMUCommonOpDescAccessor EMUSdpOpDescAccessor::commonOpDescAccessor() const { return _n.commonOpDescAccessor(_base); }
+uint8_t * EMUSdpOpDescAccessor::src_precision() const { return _n.src_precision(_base); }
+uint8_t * EMUSdpOpDescAccessor::dst_precision() const { return _n.dst_precision(_base); }
+int16_t * EMUSdpOpDescAccessor::lut_index() const { return _n.lut_index(_base); }
+struct emu_cvt_param * EMUSdpOpDescAccessor::out_cvt() const { return _n.out_cvt(_base); }
+uint8_t * EMUSdpOpDescAccessor::conv_mode() const { return _n.conv_mode(_base); }
+uint8_t * EMUSdpOpDescAccessor::batch_num() const { return _n.batch_num(_base); }
+uint16_t * EMUSdpOpDescAccessor::reserved0() const { return _n.reserved0(_base); }
+uint32_t * EMUSdpOpDescAccessor::batch_stride() const { return _n.batch_stride(_base); }
+struct emu_sdp_op * EMUSdpOpDescAccessor::x1_op() const { return _n.x1_op(_base); }
+struct emu_sdp_op * EMUSdpOpDescAccessor::x2_op() const { return _n.x2_op(_base); }
+struct emu_sdp_op * EMUSdpOpDescAccessor::y_op() const { return _n.y_op(_base); }
+
 
 //
 // emu_operation_container
@@ -265,6 +287,7 @@ EMUPowerOpDescAccessor EMUOperationContainerAccessor::powerOpDescAccessor(size_t
 EMUSoftmaxOpDescAccessor EMUOperationContainerAccessor::softmaxOpDescAccessor(size_t c) const { return _n.softmaxOpDescAccessor(_base, c); }
 EMUConvOpDescAccessor EMUOperationContainerAccessor::convOpDescAccessor(size_t c) const { return _n.convOpDescAccessor(_base, c); }
 EMUPoolOpDescAccessor EMUOperationContainerAccessor::poolOpDescAccessor(size_t c) const { return _n.poolOpDescAccessor(_base, c); }
+EMUSdpOpDescAccessor EMUOperationContainerAccessor::sdpOpDescAccessor(size_t c) const { return _n.sdpOpDescAccessor(_base, c); }
 
 
 //
@@ -351,6 +374,22 @@ EMUBufferDescAccessor EMUPoolBufferDescsAccessor::dstDataAccessor() const { retu
 
 
 //
+// emu_conv_buffer_descs
+//
+EMUSdpBufferDescsAccessor::EMUSdpBufferDescsAccessor(NvU8 *base, const EMUSdpBufferDescs &n) : _base(base), _n(n) { }
+
+NvU8 * EMUSdpBufferDescsAccessor::struct_base()  const { return _base;      }
+size_t EMUSdpBufferDescsAccessor::struct_size()  const { return _n.struct_size();  }
+size_t EMUSdpBufferDescsAccessor::struct_align() const { return _n.struct_align(); }
+
+EMUBufferDescAccessor EMUSdpBufferDescsAccessor::srcDataAccessor() const { return _n.srcDataAccessor(_base); }
+EMUBufferDescAccessor EMUSdpBufferDescsAccessor::x1DataAccessor() const { return _n.x1DataAccessor(_base); }
+EMUBufferDescAccessor EMUSdpBufferDescsAccessor::x2DataAccessor() const { return _n.x2DataAccessor(_base); }
+EMUBufferDescAccessor EMUSdpBufferDescsAccessor::yDataAccessor() const { return _n.yDataAccessor(_base); }
+EMUBufferDescAccessor EMUSdpBufferDescsAccessor::dstDataAccessor() const { return _n.dstDataAccessor(_base); }
+
+
+//
 // emu_operation_buffer_container
 //
 EMUOperationBufferContainerAccessor::EMUOperationBufferContainerAccessor(NvU8 *base, const EMUOperationBufferContainer &n) : _base(base), _n(n) { }
@@ -363,6 +402,7 @@ EMUPowerBufferDescsAccessor EMUOperationBufferContainerAccessor::powerBufferDesc
 EMUSoftmaxBufferDescsAccessor EMUOperationBufferContainerAccessor::softmaxBufferDescsAccessor(size_t c) const { return _n.softmaxBufferDescsAccessor(_base, c); }
 EMUConvBufferDescsAccessor EMUOperationBufferContainerAccessor::convBufferDescsAccessor(size_t c) const { return _n.convBufferDescsAccessor(_base, c); }
 EMUPoolBufferDescsAccessor EMUOperationBufferContainerAccessor::poolBufferDescsAccessor(size_t c) const { return _n.poolBufferDescsAccessor(_base, c); }
+EMUSdpBufferDescsAccessor EMUOperationBufferContainerAccessor::sdpBufferDescsAccessor(size_t c) const { return _n.sdpBufferDescsAccessor(_base, c); }
 
 
 //

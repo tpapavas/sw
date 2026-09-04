@@ -40,7 +40,38 @@
 #define NVDLA_EMU_OP_SOFTMAX  1
 #define NVDLA_EMU_OP_CONV     2
 #define NVDLA_EMU_OP_POOL     3
+#define NVDLA_EMU_OP_SDP      4
 /** @} */
+
+struct emu_cvt_param {
+	int16_t  scale;
+	uint8_t  truncate;
+	uint8_t  enable;
+
+	int32_t  offset;
+} __attribute__((packed)) __attribute__((aligned(4)));
+
+struct emu_sdp_cvt {
+	struct emu_cvt_param alu_cvt;
+	struct emu_cvt_param mul_cvt;
+} __attribute__((packed)) __attribute__((aligned(4)));
+
+struct emu_sdp_op {
+	uint8_t enable;
+	uint8_t alu_type; /* dla_sdp_alu_op_type */
+	uint8_t type; /* dla_sdp_op_type */
+	uint8_t mode; /* dla_sdp_op_mode */
+
+	uint8_t act; /* dla_act_type */
+	uint8_t shift_value; /* left shift */
+	uint8_t truncate;
+	uint8_t precision;
+
+	int32_t alu_operand;
+	int32_t mul_operand;
+
+	struct emu_sdp_cvt  cvt;
+} __attribute__((packed)) __attribute__((aligned(4)));
 
 /**
  * Address
@@ -296,12 +327,42 @@ struct emu_pool_op_desc
 	int32_t  padding_value[7];
 } __attribute__ ((packed, aligned(4)));
 
+struct emu_sdp_op_desc {
+    emu_common_op_desc common;
+
+	/* Precision parameters */
+	/* dla_precision */
+	uint8_t src_precision;
+	uint8_t dst_precision;
+	int16_t lut_index;
+
+	struct emu_cvt_param out_cvt;
+	// int16_t out_cvt_scale;
+	// uint8_t out_cvt_truncate;
+	// uint8_t out_cvt_enable;
+	// int32_t out_cvt_offset;
+
+	/* Performance parameters */
+	/* dla_conv_mode */
+	uint8_t conv_mode;
+	uint8_t batch_num;
+	uint16_t reserved0;
+
+	uint32_t batch_stride;	/* will be used when batch_num > 1 */
+
+	/* Algorithm parameters */
+	struct emu_sdp_op x1_op;
+	struct emu_sdp_op x2_op;
+	struct emu_sdp_op y_op;
+} __attribute__((packed)) __attribute__((aligned(4)));
+
 union emu_operation_container
 {
     struct emu_power_op_desc power_op;
     struct emu_softmax_op_desc softmax_op;
     struct emu_conv_op_desc conv_op;
     struct emu_pool_op_desc pool_op;
+	struct emu_sdp_op_desc sdp_op;
 };
 
 struct emu_buffer_desc
@@ -371,12 +432,23 @@ struct emu_pool_buffer_descs
     struct emu_buffer_desc dst_data;
 } __attribute__ ((packed, aligned(4)));
 
+struct emu_sdp_buffer_descs
+{
+    /* Avg Pool Buffer Descriptors */
+    struct emu_buffer_desc src_data;
+    struct emu_buffer_desc x1_data;
+    struct emu_buffer_desc x2_data;
+    struct emu_buffer_desc y_data;
+    struct emu_buffer_desc dst_data;
+} __attribute__ ((packed, aligned(4)));
+
 union emu_operation_buffer_container
 {
     struct emu_power_buffer_descs power_buffers;
     struct emu_softmax_buffer_descs softmax_buffers;
     struct emu_conv_buffer_descs  conv_buffers;
     struct emu_pool_buffer_descs  pool_buffers;
+    struct emu_sdp_buffer_descs  sdp_buffers;
 };
 
 

@@ -321,6 +321,36 @@ protected:
 };
 static EMUPoolOpDescA g_emu_pool_op_desc;
 
+//
+// struct emu_sdp_op_desc
+//
+class EMUSdpOpDescA : public EMUSdpOpDesc
+{
+public:
+    virtual ~EMUSdpOpDescA() { }
+
+    virtual size_t struct_size()  const { return sizeof(emu_sdp_op_desc);    }
+    virtual size_t struct_align() const { return 4; }
+
+    virtual EMUCommonOpDescAccessor commonOpDescAccessor(NvU8 *base) const { return EMUCommonOpDescAccessor(cir(&(ric(base)->common)), g_emu_common_op_desc); }
+    virtual uint8_t * src_precision(NvU8 *base) const { return &ric(base)->src_precision; }
+	virtual uint8_t * dst_precision(NvU8 *base) const { return &ric(base)->dst_precision; }
+	virtual int16_t * lut_index(NvU8 *base) const { return &ric(base)->lut_index; }
+	virtual struct emu_cvt_param * out_cvt(NvU8 *base) const { return &ric(base)->out_cvt; }
+	virtual uint8_t * conv_mode(NvU8 *base) const { return &ric(base)->conv_mode; }
+	virtual uint8_t * batch_num(NvU8 *base) const { return &ric(base)->batch_num; }
+	virtual uint16_t * reserved0(NvU8 *base) const { return &ric(base)->reserved0; }
+	virtual uint32_t * batch_stride(NvU8 *base) const { return &ric(base)->batch_stride; }
+	virtual struct emu_sdp_op * x1_op(NvU8 *base) const { return &ric(base)->x1_op; }
+	virtual struct emu_sdp_op * x2_op(NvU8 *base) const { return &ric(base)->x2_op; }
+	virtual struct emu_sdp_op * y_op(NvU8 *base) const { return &ric(base)->y_op; }
+
+protected:
+    static inline NvU8          *cir(emu_common_op_desc *c)     { return reinterpret_cast<NvU8 *>(c);             }
+    static inline emu_sdp_op_desc *ric(NvU8 *base) { return reinterpret_cast<emu_sdp_op_desc *>(base); }
+};
+static EMUSdpOpDescA g_emu_sdp_op_desc;
+
 
 //
 // struct emu_operation_container
@@ -337,12 +367,14 @@ public:
     virtual EMUSoftmaxOpDescAccessor softmaxOpDescAccessor(NvU8 *base, size_t c) const { return EMUSoftmaxOpDescAccessor(sir(&(ric(base)[c].softmax_op)), g_emu_softmax_op_desc); }
     virtual EMUConvOpDescAccessor convOpDescAccessor(NvU8 *base, size_t c) const { return EMUConvOpDescAccessor(sir(&(ric(base)[c].conv_op)), g_emu_conv_op_desc); }
     virtual EMUPoolOpDescAccessor poolOpDescAccessor(NvU8 *base, size_t c) const { return EMUPoolOpDescAccessor(sir(&(ric(base)[c].pool_op)), g_emu_pool_op_desc); }
+    virtual EMUSdpOpDescAccessor sdpOpDescAccessor(NvU8 *base, size_t c) const { return EMUSdpOpDescAccessor(sir(&(ric(base)[c].sdp_op)), g_emu_sdp_op_desc); }
 
 protected:
     static inline NvU8          *sir(emu_power_op_desc *c)       { return reinterpret_cast<NvU8 *>(c);             }
     static inline NvU8          *sir(emu_softmax_op_desc *c)     { return reinterpret_cast<NvU8 *>(c);             }
     static inline NvU8          *sir(emu_conv_op_desc *c)        { return reinterpret_cast<NvU8 *>(c);             }
     static inline NvU8          *sir(emu_pool_op_desc *c)        { return reinterpret_cast<NvU8 *>(c);             }
+    static inline NvU8          *sir(emu_sdp_op_desc *c)         { return reinterpret_cast<NvU8 *>(c);             }
     static inline emu_operation_container *ric(NvU8 *base)       { return reinterpret_cast<emu_operation_container *>(base); }
 };
 static EMUOperationContainerA g_emu_operation_container;
@@ -474,6 +506,30 @@ protected:
 };
 static EMUPoolBufferDescsA g_emu_pool_buffer_descs;
 
+//
+// struct emu_sdp_buffer_descs
+//
+
+class EMUSdpBufferDescsA : public EMUSdpBufferDescs
+{
+public:
+    virtual ~EMUSdpBufferDescsA() { }
+
+    virtual size_t struct_size()  const { return sizeof(emu_sdp_buffer_descs);    }
+    virtual size_t struct_align() const { return 4; }
+
+    virtual EMUBufferDescAccessor srcDataAccessor(NvU8 *base) const { return EMUBufferDescAccessor(dir(&ric(base)->src_data), g_emu_buffer_desc); }
+    virtual EMUBufferDescAccessor x1DataAccessor(NvU8 *base) const { return EMUBufferDescAccessor(dir(&ric(base)->x1_data), g_emu_buffer_desc); }
+    virtual EMUBufferDescAccessor x2DataAccessor(NvU8 *base) const { return EMUBufferDescAccessor(dir(&ric(base)->x2_data), g_emu_buffer_desc); }
+    virtual EMUBufferDescAccessor yDataAccessor(NvU8 *base) const { return EMUBufferDescAccessor(dir(&ric(base)->y_data), g_emu_buffer_desc); }
+    virtual EMUBufferDescAccessor dstDataAccessor(NvU8 *base) const { return EMUBufferDescAccessor(dir(&ric(base)->dst_data), g_emu_buffer_desc); }
+
+protected:
+    static inline NvU8          *dir(emu_buffer_desc *d)       { return reinterpret_cast<NvU8 *>(d);             }
+    static inline emu_sdp_buffer_descs *ric(NvU8 *base)    { return reinterpret_cast<emu_sdp_buffer_descs *>(base); }
+};
+static EMUSdpBufferDescsA g_emu_sdp_buffer_descs;
+
 
 //
 // struct emu_operation_buffer_container
@@ -505,11 +561,17 @@ public:
     {
         return EMUPoolBufferDescsAccessor(sir( &(ric(base)[c]).pool_buffers), g_emu_pool_buffer_descs);
     }
+
+    virtual EMUSdpBufferDescsAccessor sdpBufferDescsAccessor(NvU8 *base, size_t c) const
+    {
+        return EMUSdpBufferDescsAccessor(sir( &(ric(base)[c]).sdp_buffers), g_emu_sdp_buffer_descs);
+    }
 protected:
     static inline NvU8 *sir(emu_power_buffer_descs *c) { return reinterpret_cast<NvU8 *>(c); }
     static inline NvU8 *sir(emu_softmax_buffer_descs *c) { return reinterpret_cast<NvU8 *>(c); }
     static inline NvU8 *sir(emu_conv_buffer_descs *c) { return reinterpret_cast<NvU8 *>(c); }
     static inline NvU8 *sir(emu_pool_buffer_descs *c) { return reinterpret_cast<NvU8 *>(c); }
+    static inline NvU8 *sir(emu_sdp_buffer_descs *c) { return reinterpret_cast<NvU8 *>(c); }
     static inline emu_operation_buffer_container *ric(NvU8 *base)  { return reinterpret_cast<emu_operation_buffer_container *>(base); }
 };
 static EMUOperationBufferContainerA g_emu_operation_buffer_container;
