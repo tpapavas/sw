@@ -41,6 +41,7 @@
 #define NVDLA_EMU_OP_CONV     2
 #define NVDLA_EMU_OP_POOL     3
 #define NVDLA_EMU_OP_SDP      4
+#define NVDLA_EMU_OP_RUBIK    5
 /** @} */
 
 struct emu_cvt_param {
@@ -356,6 +357,16 @@ struct emu_sdp_op_desc {
 	struct emu_sdp_op y_op;
 } __attribute__((packed)) __attribute__((aligned(4)));
 
+struct emu_rubik_op_desc {
+    emu_common_op_desc common;
+
+	/* Precision parameters */
+	uint8_t mode;
+	uint8_t precision;
+	uint8_t stride_x;
+	uint8_t stride_y;
+} __attribute__((packed)) __attribute__((aligned(4)));
+
 union emu_operation_container
 {
     struct emu_power_op_desc power_op;
@@ -363,6 +374,7 @@ union emu_operation_container
     struct emu_conv_op_desc conv_op;
     struct emu_pool_op_desc pool_op;
 	struct emu_sdp_op_desc sdp_op;
+	struct emu_rubik_op_desc rubik_op;
 };
 
 struct emu_buffer_desc
@@ -442,6 +454,12 @@ struct emu_sdp_buffer_descs
     struct emu_buffer_desc dst_data;
 } __attribute__ ((packed, aligned(4)));
 
+struct emu_rubik_buffer_descs {
+	/* Data cube */
+	struct emu_buffer_desc src_data;
+	struct emu_buffer_desc dst_data;
+} __attribute__((packed)) __attribute__((aligned(4)));
+
 union emu_operation_buffer_container
 {
     struct emu_power_buffer_descs power_buffers;
@@ -449,6 +467,7 @@ union emu_operation_buffer_container
     struct emu_conv_buffer_descs  conv_buffers;
     struct emu_pool_buffer_descs  pool_buffers;
     struct emu_sdp_buffer_descs  sdp_buffers;
+    struct emu_rubik_buffer_descs  rubik_buffers;
 };
 
 

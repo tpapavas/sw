@@ -702,6 +702,45 @@ protected:
     const EMUSdpOpDesc &_n;
 };
 
+//
+// struct emu_rubik_op_desc
+//
+class EMURubikOpDesc
+{
+public:
+    virtual size_t struct_size()  const = 0;
+    virtual size_t struct_align() const = 0;
+
+    virtual EMUCommonOpDescAccessor commonOpDescAccessor(NvU8 *base) const = 0;
+	virtual uint8_t * mode(NvU8 *base) const = 0;
+	virtual uint8_t * precision(NvU8 *base) const = 0;
+	virtual uint8_t * stride_x(NvU8 *base) const = 0;
+	virtual uint8_t * stride_y(NvU8 *base) const = 0;
+
+protected:
+    EMURubikOpDesc()          { }
+    virtual ~EMURubikOpDesc() { }
+};
+
+class EMURubikOpDescAccessor
+{
+public:
+    NvU8 * struct_base()  const;
+    size_t struct_size()  const;
+    size_t struct_align() const;
+
+    EMUCommonOpDescAccessor commonOpDescAccessor() const;
+	uint8_t * mode() const;
+	uint8_t * precision() const;
+	uint8_t * stride_x() const;
+	uint8_t * stride_y() const;
+
+    EMURubikOpDescAccessor(NvU8 *base, const EMURubikOpDesc &);
+
+protected:
+    NvU8 *_base;
+    const EMURubikOpDesc &_n;
+};
 
 //
 // union emu_operation_container
@@ -717,6 +756,7 @@ public:
     virtual EMUConvOpDescAccessor convOpDescAccessor(NvU8 *base, size_t c) const = 0;
     virtual EMUPoolOpDescAccessor poolOpDescAccessor(NvU8 *base, size_t c) const = 0;
     virtual EMUSdpOpDescAccessor sdpOpDescAccessor(NvU8 *base, size_t c) const = 0;
+    virtual EMURubikOpDescAccessor rubikOpDescAccessor(NvU8 *base, size_t c) const = 0;
 
 protected:
     EMUOperationContainer()          { }
@@ -735,6 +775,7 @@ public:
     EMUConvOpDescAccessor convOpDescAccessor(size_t c) const;
     EMUPoolOpDescAccessor poolOpDescAccessor(size_t c) const;
     EMUSdpOpDescAccessor sdpOpDescAccessor(size_t c) const;
+    EMURubikOpDescAccessor rubikOpDescAccessor(size_t c) const;
 
     EMUOperationContainerAccessor(NvU8 *base, const EMUOperationContainer &);
 
@@ -996,6 +1037,40 @@ protected:
 
 
 //
+// struct emu_rubik_buffer_descs
+//
+class EMURubikBufferDescs
+{
+public:
+    virtual size_t struct_size()  const = 0;
+    virtual size_t struct_align() const = 0;
+
+    virtual EMUBufferDescAccessor srcDataAccessor(NvU8 *base) const = 0;
+    virtual EMUBufferDescAccessor dstDataAccessor(NvU8 *base) const = 0;
+
+protected:
+    EMURubikBufferDescs()          { }
+    virtual ~EMURubikBufferDescs() { }
+};
+
+class EMURubikBufferDescsAccessor
+{
+public:
+    NvU8 * struct_base()  const;
+    size_t struct_size()  const;
+    size_t struct_align() const;
+
+    EMUBufferDescAccessor srcDataAccessor() const;
+    EMUBufferDescAccessor dstDataAccessor() const;
+
+    EMURubikBufferDescsAccessor(NvU8 *base, const EMURubikBufferDescs &);
+
+protected:
+    NvU8 *_base;
+    const EMURubikBufferDescs &_n;
+};
+
+//
 // union emu_operation_buffer_container
 //
 class EMUOperationBufferContainer
@@ -1009,6 +1084,7 @@ public:
     virtual EMUConvBufferDescsAccessor convBufferDescsAccessor(NvU8 *base, size_t c) const = 0;
     virtual EMUPoolBufferDescsAccessor poolBufferDescsAccessor(NvU8 *base, size_t c) const = 0;
     virtual EMUSdpBufferDescsAccessor sdpBufferDescsAccessor(NvU8 *base, size_t c) const = 0;
+    virtual EMURubikBufferDescsAccessor rubikBufferDescsAccessor(NvU8 *base, size_t c) const = 0;
 
 protected:
     EMUOperationBufferContainer()          { }
@@ -1027,6 +1103,7 @@ public:
     EMUConvBufferDescsAccessor convBufferDescsAccessor(size_t c) const;
     EMUPoolBufferDescsAccessor poolBufferDescsAccessor(size_t c) const;
     EMUSdpBufferDescsAccessor sdpBufferDescsAccessor(size_t c) const;
+    EMURubikBufferDescsAccessor rubikBufferDescsAccessor(size_t c) const;
 
     EMUOperationBufferContainerAccessor(NvU8 *base, const EMUOperationBufferContainer &);
 

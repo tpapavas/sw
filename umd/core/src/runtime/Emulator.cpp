@@ -262,6 +262,11 @@ NvDlaError Emulator::processTask(NvU8* task_mem, std::vector<NvU8*> addressList)
             EMUSdpBufferDescsAccessor sdp_op_buffer_descs = operation_buffer_container.sdpBufferDescsAccessor(op);
 
             PROPAGATE_ERROR_FAIL(executeSdp(sdp_op_desc, common_op_desc, sdp_op_buffer_descs, addressList));
+        } else if (*common_op_desc.op_type() == NVDLA_EMU_OP_RUBIK /* RUBIK */) {
+            EMURubikOpDescAccessor rubik_op_desc = operation_container.rubikOpDescAccessor(op);
+            EMURubikBufferDescsAccessor rubik_op_buffer_descs = operation_buffer_container.rubikBufferDescsAccessor(op);
+
+            PROPAGATE_ERROR_FAIL(executeRubik(rubik_op_desc, common_op_desc, rubik_op_buffer_descs, addressList));
         } else {
             NvDlaDebugPrintf("Unknown op type %u\n", *common_op_desc.op_type());
         }
@@ -1824,6 +1829,130 @@ fail:
     return e;
 }
 
+NvDlaError Emulator::executeRubik
+(
+    EMURubikOpDescAccessor opDesc,
+    EMUCommonOpDescAccessor commonOpDesc,
+    EMURubikBufferDescsAccessor bufDescs,
+    std::vector<NvU8*> addressList
+)
+{
+    NvDlaError e = NvDlaSuccess;
+
+    EMUBufferDescAccessor src = bufDescs.srcDataAccessor();
+    EMUBufferDescAccessor dst = bufDescs.dstDataAccessor();
+
+    fp16_t *in = reinterpret_cast<half*>( addressList[*src.addressIndex()] + *src.addressIndexOffset());
+    fp16_t *out = reinterpret_cast<half*>( addressList[*dst.addressIndex()] + *dst.addressIndexOffset());
+
+    if ( debugOps() )
+    {
+        NvDlaDebugPrintf("Processing rubik (%s)\n", *opDesc.mode() == RUBIK_MODE_SPLIT ? "split" : "merge");
+        // NvDlaDebugPrintf("precision %u\n", *opDesc.precision());
+        NvDlaDebugPrintf("\taddress[%u][%u] 0x%llx (%ux%ux%u) %uB\n", *src.addressIndex(), *src.addressIndexOffset(),
+                addressList[*src.addressIndex()], *src.width(), *src.height(), *src.channel(), *src.size());
+        NvDlaDebugPrintf("\tline_stride %uB surface_stride %uB plane_stride %uB\n", *src.lineStride(), *src.surfStride(), *src.planeStride());
+        NvDlaDebugPrintf("\tinput scale factor: %f, output scale factor: %f\n", *commonOpDesc.input_scale_factor(), *commonOpDesc.output_scale_factor());
+
+        NvDlaDebugPrintf("\taddress[%u][%u] 0x%llx (%ux%ux%u) %uB\n", *dst.addressIndex(),  *dst.addressIndexOffset(),
+                addressList[*dst.addressIndex()], *dst.width(), *dst.height(), *dst.channel(), *dst.size());
+        NvDlaDebugPrintf("\tline_stride %uB surface_stride %uB plane_stride %uB\n", *dst.lineStride(), *dst.surfStride(), *dst.planeStride());
+        NvDlaDebugPrintf("\tprecision: %d\n", *opDesc.precision());
+    }
+
+    // input
+    int Ci = *src.channel(), Hi = *src.height(), Wi = *src.width();
+    // output
+    int Co = *dst.channel(), Ho = *dst.height(), Wo = *dst.width();
+
+    ////////////////////////////////////////////////
+    //////////////     TESTING      ////////////////
+    ////////////////////////////////////////////////
+
+    if ( *src.format() != *dst.format() )
+    {
+        ORIGINATE_ERROR_FAIL(NvDlaError_NotSupported, "Don't support EMU sdp operation with different "
+            " src (%d) and dst (%d) formats\n", static_cast<NvU32>(*src.format()),
+            static_cast<NvU32>(*dst.format()));
+    }
+
+    uint16_t line_elements_count;
+
+    // Execute
+    if (*opDesc.precision() == EMU_FORMAT_FF16)
+    {
+        half *out_unpacked_half = new half[Co * Ho * Wo];
+
+        if (*opDesc.mode() == RUBIK_MODE_SPLIT) {
+            uint8_t *in_bytes = reinterpret_cast<uint8_t*>( addressList[*src.addressIndex()] + *src.addressIndexOffset());
+            uint8_t *out_bytes = reinterpret_cast<uint8_t*>( addressList[*dst.addressIndex()] + *dst.addressIndexOffset());
+            // unpack_nvdla_feature_map(in_bytes, out_bytes, Ci, Hi, Wi, 32, (*dst.lineStride()/(Wo*ELEMENT_SIZE)));
+            unpack_nvdla_feature_map(in_bytes, out_bytes, Ci, Hi, Wi,
+                Wi, *dst.lineStride()/ELEMENT_SIZE, 32);
+
+            // print rubik result
+            // line_elements_count = 1;
+            NvDlaDebugPrintf("=== Rubik RESULT ===\n");
+            for (int c0 = 0; c0 < Co; c0++) {
+                for (int y0 = 0; y0 < Ho; y0++) {
+                    for (int x0 = 0; x0 < Wo; x0++) {
+                        NvDlaDebugPrintf("%02x %02x ", out_bytes[((c0 * Ho + y0) * Wo + x0)*2], out_bytes[((c0 * Ho + y0) * Wo + x0)*2+1]);
+                        // if (++line_elements_count > 8) {
+                        //     NvDlaDebugPrintf("\n");
+                        //     line_elements_count = 1;
+                        // }
+                    }
+                    NvDlaDebugPrintf("\n");
+                }
+                break;
+            }
+            // NvDlaDebugPrintf("\n");
+            NvDlaDebugPrintf("=== EOF Rubik RESULT ===\n");
+        } else if (*opDesc.mode() == RUBIK_MODE_MERGE) {
+            uint8_t *in_bytes = reinterpret_cast<uint8_t*>( addressList[*src.addressIndex()] + *src.addressIndexOffset());
+            uint8_t *out_bytes = reinterpret_cast<uint8_t*>( addressList[*dst.addressIndex()] + *dst.addressIndexOffset());
+            // pack_nvdla_feature_map(in_bytes, out_bytes, Co, Ho, Wo, 32, (*src.lineStride()/(Wi*ELEMENT_SIZE)));
+            pack_nvdla_feature_map(in_bytes, out_bytes, Co, Ho, Wo,
+                *src.lineStride()/ELEMENT_SIZE, Wo, 32);
+
+            // print rubik result
+            // line_elements_count = 1;
+            NvDlaDebugPrintf("=== Rubik RESULT ===\n");
+            for (int c0 = 0; c0 < Co; c0++) {
+                for (int y0 = 0; y0 < Ho; y0++) {
+                    for (int x0 = 0; x0 < Wo; x0++) {
+                        NvDlaDebugPrintf("%02x %02x ", out_bytes[((c0 * Ho + y0) * Wo + x0)*2], out_bytes[((c0 * Ho + y0) * Wo + x0)*2+1]);
+                        // if (++line_elements_count > 8) {
+                        //     NvDlaDebugPrintf("\n");
+                        //     line_elements_count = 1;
+                        // }
+                    }
+                    NvDlaDebugPrintf("\n");
+                }
+                break;
+            }
+            // NvDlaDebugPrintf("\n");
+            NvDlaDebugPrintf("=== EOF Rubik RESULT ===\n");
+        }
+
+    }
+    else if ((*opDesc.precision() == EMU_FORMAT_INT8) || (*opDesc.precision() == EMU_FORMAT_INT8_8))
+    {
+        NvS8* pSrc = reinterpret_cast<NvS8*>( addressList[*src.addressIndex()] + *src.addressIndexOffset() );
+        NvS8* pDst = reinterpret_cast<NvS8*>( addressList[*dst.addressIndex()] + *dst.addressIndexOffset() );
+
+        half* pHalfSrc = reinterpret_cast<half*>(malloc(*src.channel() * sizeof(half)));
+        half* pHalfDst = reinterpret_cast<half*>(malloc(*dst.channel() * sizeof(half)));
+    }
+    else
+    {
+        ORIGINATE_ERROR_FAIL(NvDlaError_NotSupported, "Don't support EMU sdp operation for format: %d\n",
+            static_cast<NvU32>(*src.format()));
+    }
+
+fail:
+    return e;
+}
 
 
 } // nvdla::priv

@@ -78,6 +78,8 @@ protected:
                            EMUPoolBufferDescsAccessor bufDescs, std::vector<NvU8*> addressList);
     NvDlaError executeSdp(EMUSdpOpDescAccessor opDesc, EMUCommonOpDescAccessor commonOpDesc,
                            EMUSdpBufferDescsAccessor bufDescs, std::vector<NvU8*> addressList);
+    NvDlaError executeRubik(EMURubikOpDescAccessor opDesc, EMUCommonOpDescAccessor commonOpDesc,
+                           EMURubikBufferDescsAccessor bufDescs, std::vector<NvU8*> addressList);
 
 private:
     std::queue<NvU8*> m_taskQueue;
