@@ -70,6 +70,10 @@ protected:
                          EMUPowerBufferDescsAccessor bufDescs, std::vector<NvU8*> addressList);
     NvDlaError executeSoftmax(EMUSoftmaxOpDescAccessor opDesc, EMUCommonOpDescAccessor commonOpDesc,
                            EMUSoftmaxBufferDescsAccessor bufDescs, std::vector<NvU8*> addressList);
+    NvDlaError executeConvolution(EMUConvOpDescAccessor opDesc, EMUCommonOpDescAccessor commonOpDesc,
+                           EMUConvBufferDescsAccessor bufDescs, std::vector<NvU8*> addressList);
+    NvDlaError executeConvolutionNaive(EMUConvOpDescAccessor opDesc, EMUCommonOpDescAccessor commonOpDesc,
+                           EMUConvBufferDescsAccessor bufDescs, std::vector<NvU8*> addressList);
 
 private:
     std::queue<NvU8*> m_taskQueue;

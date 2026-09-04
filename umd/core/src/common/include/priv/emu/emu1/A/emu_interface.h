@@ -38,6 +38,7 @@
  */
 #define NVDLA_EMU_OP_POWER    0
 #define NVDLA_EMU_OP_SOFTMAX  1
+#define NVDLA_EMU_OP_CONV     2
 /** @} */
 
 /**
@@ -93,10 +94,160 @@ struct emu_softmax_op_desc
     NvU8 axis;
 } __attribute__ ((packed, aligned(4)));
 
+struct emu_conv_op_desc
+{
+    emu_common_op_desc common;
+	/* Performance parameters */
+
+	/* dla_conv_mode */
+	uint8_t conv_mode;
+	uint8_t data_reuse;
+	uint8_t weight_reuse;
+	uint8_t skip_data_rls;
+
+	uint8_t skip_weight_rls;
+	uint8_t reserved0;
+	uint16_t entry_per_slice;
+
+	/* dla_data_format */
+	uint8_t data_format;
+	/* dla_pixel_mapping */
+	uint8_t pixel_mapping;
+	/* number of free slices before fetch */
+	uint16_t fetch_grain;
+
+	uint8_t reserved_b[8];
+
+	/* batch_num */
+	uint8_t batch;
+	/* dla_weight_format */
+	uint8_t weight_format;
+	uint8_t data_bank;
+	uint8_t weight_bank;
+
+	/* the offset in bytes of each data cube in a batch */
+	uint32_t batch_stride;
+
+	uint8_t post_extension;
+	uint8_t pixel_override;
+	/* number of slices need to be released */
+	uint16_t release;
+
+	 /* The input cube dimension for CSC */
+	uint16_t input_width_csc;
+	uint16_t input_height_csc;
+
+	uint16_t input_channel_csc;
+	uint16_t kernel_width_csc;
+
+	uint16_t kernel_height_csc;
+	uint16_t kernel_channel_csc;
+
+	/* The input cube dimension for CMAC */
+	uint16_t input_width_cmac;
+	uint16_t input_height_cmac;
+
+	/* actual size in bytes */
+	uint32_t bytes_per_kernel;
+
+	/* Algorithm parameters */
+
+	int16_t mean_ry; /* mean value for red in RGB or Y in YUV */
+	int16_t mean_gu; /* mean value for green in RGB or U in YUV */
+
+	int16_t mean_bv; /* mean value for blue in RGB or V in YUV */
+	int16_t mean_ax;
+
+	uint8_t mean_format; /* dla_mean_format */
+	uint8_t conv_stride_x;
+	uint8_t conv_stride_y;
+	uint8_t pad_x_left;
+
+	uint8_t pad_x_right;
+	uint8_t pad_y_top;
+	uint8_t pad_y_bottom;
+	uint8_t dilation_x;
+
+	uint8_t dilation_y;
+	uint8_t reserved2[2];
+
+	/* Precision parameters */
+	uint8_t pra_truncate;
+
+	uint8_t in_precision;
+	/* The output precision from CONV, it's the MAC processing precison */
+	uint8_t out_precision;
+	int16_t pad_val;
+
+	/* input converter parameters */
+	// struct dla_cvt_param in_cvt;
+	int16_t in_cvt_scale;
+	uint8_t in_cvt_truncate;
+	uint8_t in_cvt_enable;
+	int32_t in_cvt_offset;
+	/* output converter parameters, support truncate only */
+	// struct dla_cvt_param out_cvt;
+	int16_t out_cvt_scale;
+	uint8_t out_cvt_truncate;
+	uint8_t out_cvt_enable;
+	int32_t out_cvt_offset;
+
+
+	//////////////////////
+	/* BIAS paramteters */
+	//////////////////////
+	/* dla_precision */
+	uint8_t src_precision;
+	uint8_t dst_precision;
+	int16_t lut_index;
+
+	// struct dla_cvt_param out_cvt;
+
+	/* Performance parameters */
+	/* dla_conv_mode */
+	// uint8_t conv_mode;
+	uint8_t batch_num;
+	// uint16_t reserved0;
+
+	// uint32_t batch_stride;	/* will be used when batch_num > 1 */
+	// int16_t out_cvt_scale;
+	// uint8_t out_cvt_truncate;
+	// uint8_t out_cvt_enable;
+	// int32_t out_cvt_offset;
+
+	// x1 params
+	uint8_t x1_op_enable;
+	uint8_t x1_op_alu_type;
+	uint8_t x1_op_type;
+	uint8_t x1_op_mode;
+
+	uint8_t x1_op_act;
+	uint8_t x1_op_shift_value;
+	uint8_t x1_op_truncate;
+	uint8_t x1_op_precision;
+
+	int32_t x1_op_alu_operand;
+	int32_t x1_op_mul_operand;
+
+	// struct dla_sdp_cvt x1_op_cvt;
+	int16_t x1_op_cvt_alu_cvt_scale;
+	uint8_t x1_op_cvt_alu_cvt_truncate;
+	uint8_t x1_op_cvt_alu_cvt_enable;
+	int32_t x1_op_cvt_alu_cvt_offset;
+
+	int16_t x1_op_cvt_mul_cvt_scale;
+	uint8_t x1_op_cvt_mul_cvt_truncate;
+	uint8_t x1_op_cvt_mul_cvt_enable;
+	int32_t x1_op_cvt_mul_cvt_offset;
+
+	uint8_t has_relu;
+} __attribute__ ((packed, aligned(4)));
+
 union emu_operation_container
 {
     struct emu_power_op_desc power_op;
     struct emu_softmax_op_desc softmax_op;
+    struct emu_conv_op_desc conv_op;
 };
 
 struct emu_buffer_desc
@@ -137,10 +288,33 @@ struct emu_softmax_buffer_descs
     struct emu_buffer_desc dst_data;
 } __attribute__ ((packed, aligned(4)));
 
+struct emu_conv_buffer_descs
+{
+    /* Buffer Descriptors */
+    struct emu_buffer_desc weight_data;
+    struct emu_buffer_desc wmb_data;
+    struct emu_buffer_desc wgs_data;
+	struct emu_buffer_desc bias_data;
+    struct emu_buffer_desc src_data;
+    struct emu_buffer_desc dst_data;
+
+    // these were in dla_conv_surface_desc
+    // /**
+	//  * u_addr = input_data.source_addr + offset_u
+	//  * this field should be set when YUV is not interleave format
+	//  *
+	//  */
+	// int64_t offset_u;
+
+	// /* line stride for 2nd plane, must be 32bytes aligned */
+	// uint32_t in_line_uv_stride;
+} __attribute__ ((packed, aligned(4)));
+
 union emu_operation_buffer_container
 {
     struct emu_power_buffer_descs power_buffers;
     struct emu_softmax_buffer_descs softmax_buffers;
+    struct emu_conv_buffer_descs  conv_buffers;
 };
 
 
