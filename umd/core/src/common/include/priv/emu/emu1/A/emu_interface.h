@@ -39,6 +39,7 @@
 #define NVDLA_EMU_OP_POWER    0
 #define NVDLA_EMU_OP_SOFTMAX  1
 #define NVDLA_EMU_OP_CONV     2
+#define NVDLA_EMU_OP_POOL     3
 /** @} */
 
 /**
@@ -232,15 +233,67 @@ struct emu_conv_op_desc
 	// struct dla_sdp_cvt x1_op_cvt;
 	int16_t x1_op_cvt_alu_cvt_scale;
 	uint8_t x1_op_cvt_alu_cvt_truncate;
-	uint8_t x1_op_cvt_alu_cvt_enable;
+	uint8_t x1_op_cvt_alu_cvt_enable; 
 	int32_t x1_op_cvt_alu_cvt_offset;
 
 	int16_t x1_op_cvt_mul_cvt_scale;
 	uint8_t x1_op_cvt_mul_cvt_truncate;
-	uint8_t x1_op_cvt_mul_cvt_enable;
+	uint8_t x1_op_cvt_mul_cvt_enable; 
 	int32_t x1_op_cvt_mul_cvt_offset;
 
 	uint8_t has_relu;
+} __attribute__ ((packed, aligned(4)));
+
+struct emu_pool_op_desc
+{
+    emu_common_op_desc common;
+	
+	/* Performance parameters */
+	uint16_t  partial_in_width_first;
+	uint16_t  partial_in_width_mid;
+
+	uint16_t  partial_in_width_last;
+	uint16_t  partial_width_first;
+
+	uint16_t  partial_width_mid;
+	uint16_t  partial_width_last;
+
+	uint8_t   split_num;
+
+	/* Algorithm parameters */
+	uint8_t  pool_mode; /* dla_pool_mode */
+	uint8_t  pool_width; /* dla_pool_width */
+	uint8_t  pool_height; /* dla_pool_height */
+
+	uint8_t  stride_x;
+	uint8_t  stride_y;
+
+	/**
+	 * The left/right padding size,
+	 * pad_right might be less than pad_left
+	 */
+	uint8_t  pad_left;
+	uint8_t  pad_right;
+
+	/* The top/bottom padding size */
+	uint8_t  pad_top;
+	uint8_t  pad_bottom;
+
+	/* Precision parameters */
+	uint8_t  precision; /* dla_precision */
+	uint8_t  reserved0;
+	/**
+	 * if input has non-zero "offset", this value should be set
+	 * There'll be 7 different paddding values, the relationship between
+	 * those versions are:
+	 * padding_value[0] = -offset*scaling;
+	 * padding_value[1] = 2*padding_value[0]
+	 * padding_value[2] = 3*padding_value[0]
+	 * ...
+	 * The purpose is to avoid ucode implement FP16
+	 * multiplier(for FP16 mode)
+	 */
+	int32_t  padding_value[7];
 } __attribute__ ((packed, aligned(4)));
 
 union emu_operation_container
@@ -248,6 +301,7 @@ union emu_operation_container
     struct emu_power_op_desc power_op;
     struct emu_softmax_op_desc softmax_op;
     struct emu_conv_op_desc conv_op;
+    struct emu_pool_op_desc pool_op;
 };
 
 struct emu_buffer_desc
@@ -310,11 +364,19 @@ struct emu_conv_buffer_descs
 	// uint32_t in_line_uv_stride;
 } __attribute__ ((packed, aligned(4)));
 
+struct emu_pool_buffer_descs
+{
+    /* Avg Pool Buffer Descriptors */
+    struct emu_buffer_desc src_data;
+    struct emu_buffer_desc dst_data;
+} __attribute__ ((packed, aligned(4)));
+
 union emu_operation_buffer_container
 {
     struct emu_power_buffer_descs power_buffers;
     struct emu_softmax_buffer_descs softmax_buffers;
     struct emu_conv_buffer_descs  conv_buffers;
+    struct emu_pool_buffer_descs  pool_buffers;
 };
 
 

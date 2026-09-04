@@ -74,6 +74,8 @@ protected:
                            EMUConvBufferDescsAccessor bufDescs, std::vector<NvU8*> addressList);
     NvDlaError executeConvolutionNaive(EMUConvOpDescAccessor opDesc, EMUCommonOpDescAccessor commonOpDesc,
                            EMUConvBufferDescsAccessor bufDescs, std::vector<NvU8*> addressList);
+    NvDlaError executePool(EMUPoolOpDescAccessor opDesc, EMUCommonOpDescAccessor commonOpDesc,
+                           EMUPoolBufferDescsAccessor bufDescs, std::vector<NvU8*> addressList);
 
 private:
     std::queue<NvU8*> m_taskQueue;

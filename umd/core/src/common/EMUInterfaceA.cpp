@@ -283,6 +283,44 @@ protected:
 };
 static EMUConvOpDescA g_emu_conv_op_desc;
 
+//
+// struct emu_pool_op_desc
+//
+class EMUPoolOpDescA : public EMUPoolOpDesc
+{
+public:
+    virtual ~EMUPoolOpDescA() { }
+
+    virtual size_t struct_size()  const { return sizeof(emu_pool_op_desc);    }
+    virtual size_t struct_align() const { return 4; }
+
+    virtual EMUCommonOpDescAccessor commonOpDescAccessor(NvU8 *base) const { return EMUCommonOpDescAccessor(cir(&(ric(base)->common)), g_emu_common_op_desc); }
+    virtual NvU16 * partial_in_width_first(NvU8 *base) const { return &ric(base)->partial_in_width_first; }
+	virtual NvU16 * partial_in_width_mid(NvU8 *base) const { return &ric(base)->partial_in_width_mid; }
+	virtual NvU16 * partial_in_width_last(NvU8 *base) const { return &ric(base)->partial_in_width_last; }
+	virtual NvU16 * partial_width_first(NvU8 *base) const { return &ric(base)->partial_width_first; }
+	virtual NvU16 * partial_width_mid(NvU8 *base) const { return &ric(base)->partial_width_mid; }
+	virtual NvU16 * partial_width_last(NvU8 *base) const { return &ric(base)->partial_width_last; }
+	virtual NvU8 * split_num(NvU8 *base) const { return &ric(base)->split_num; }
+	virtual NvU8 * pool_mode(NvU8 *base) const { return &ric(base)->pool_mode; }
+	virtual NvU8 * pool_width(NvU8 *base) const { return &ric(base)->pool_width; }
+	virtual NvU8 * pool_height(NvU8 *base) const { return &ric(base)->pool_height; }
+	virtual NvU8 * stride_x(NvU8 *base) const { return &ric(base)->stride_x; }
+	virtual NvU8 * stride_y(NvU8 *base) const { return &ric(base)->stride_y; }
+	virtual NvU8 * pad_left(NvU8 *base) const { return &ric(base)->pad_left; }
+	virtual NvU8 * pad_right(NvU8 *base) const { return &ric(base)->pad_right; }
+	virtual NvU8 * pad_top(NvU8 *base) const { return &ric(base)->pad_top; }
+	virtual NvU8 * pad_bottom(NvU8 *base) const { return &ric(base)->pad_bottom; }
+	virtual NvU8 * precision(NvU8 *base) const { return &ric(base)->precision; }
+	virtual NvU8 * reserved0(NvU8 *base) const { return &ric(base)->reserved0; }
+	virtual NvS32 * padding_value(NvU8 *base) const { return &ric(base)->padding_value[0]; }
+
+protected:
+    static inline NvU8          *cir(emu_common_op_desc *c)     { return reinterpret_cast<NvU8 *>(c);             }
+    static inline emu_pool_op_desc *ric(NvU8 *base) { return reinterpret_cast<emu_pool_op_desc *>(base); }
+};
+static EMUPoolOpDescA g_emu_pool_op_desc;
+
 
 //
 // struct emu_operation_container
@@ -298,11 +336,13 @@ public:
     virtual EMUPowerOpDescAccessor powerOpDescAccessor(NvU8 *base, size_t c) const { return EMUPowerOpDescAccessor(sir(&(ric(base)[c].power_op)), g_emu_power_op_desc); }
     virtual EMUSoftmaxOpDescAccessor softmaxOpDescAccessor(NvU8 *base, size_t c) const { return EMUSoftmaxOpDescAccessor(sir(&(ric(base)[c].softmax_op)), g_emu_softmax_op_desc); }
     virtual EMUConvOpDescAccessor convOpDescAccessor(NvU8 *base, size_t c) const { return EMUConvOpDescAccessor(sir(&(ric(base)[c].conv_op)), g_emu_conv_op_desc); }
+    virtual EMUPoolOpDescAccessor poolOpDescAccessor(NvU8 *base, size_t c) const { return EMUPoolOpDescAccessor(sir(&(ric(base)[c].pool_op)), g_emu_pool_op_desc); }
 
 protected:
     static inline NvU8          *sir(emu_power_op_desc *c)       { return reinterpret_cast<NvU8 *>(c);             }
     static inline NvU8          *sir(emu_softmax_op_desc *c)     { return reinterpret_cast<NvU8 *>(c);             }
     static inline NvU8          *sir(emu_conv_op_desc *c)        { return reinterpret_cast<NvU8 *>(c);             }
+    static inline NvU8          *sir(emu_pool_op_desc *c)        { return reinterpret_cast<NvU8 *>(c);             }
     static inline emu_operation_container *ric(NvU8 *base)       { return reinterpret_cast<emu_operation_container *>(base); }
 };
 static EMUOperationContainerA g_emu_operation_container;
@@ -413,6 +453,27 @@ protected:
 };
 static EMUConvBufferDescsA g_emu_conv_buffer_descs;
 
+//
+// struct emu_pool_buffer_descs
+//
+
+class EMUPoolBufferDescsA : public EMUPoolBufferDescs
+{
+public:
+    virtual ~EMUPoolBufferDescsA() { }
+
+    virtual size_t struct_size()  const { return sizeof(emu_pool_buffer_descs);    }
+    virtual size_t struct_align() const { return 4; }
+
+    virtual EMUBufferDescAccessor srcDataAccessor(NvU8 *base) const { return EMUBufferDescAccessor(dir(&ric(base)->src_data), g_emu_buffer_desc); }
+    virtual EMUBufferDescAccessor dstDataAccessor(NvU8 *base) const { return EMUBufferDescAccessor(dir(&ric(base)->dst_data), g_emu_buffer_desc); }
+
+protected:
+    static inline NvU8          *dir(emu_buffer_desc *d)       { return reinterpret_cast<NvU8 *>(d);             }
+    static inline emu_pool_buffer_descs *ric(NvU8 *base)    { return reinterpret_cast<emu_pool_buffer_descs *>(base); }
+};
+static EMUPoolBufferDescsA g_emu_pool_buffer_descs;
+
 
 //
 // struct emu_operation_buffer_container
@@ -440,10 +501,15 @@ public:
         return EMUConvBufferDescsAccessor(sir( &(ric(base)[c]).conv_buffers), g_emu_conv_buffer_descs);
     }
 
+    virtual EMUPoolBufferDescsAccessor poolBufferDescsAccessor(NvU8 *base, size_t c) const
+    {
+        return EMUPoolBufferDescsAccessor(sir( &(ric(base)[c]).pool_buffers), g_emu_pool_buffer_descs);
+    }
 protected:
     static inline NvU8 *sir(emu_power_buffer_descs *c) { return reinterpret_cast<NvU8 *>(c); }
     static inline NvU8 *sir(emu_softmax_buffer_descs *c) { return reinterpret_cast<NvU8 *>(c); }
     static inline NvU8 *sir(emu_conv_buffer_descs *c) { return reinterpret_cast<NvU8 *>(c); }
+    static inline NvU8 *sir(emu_pool_buffer_descs *c) { return reinterpret_cast<NvU8 *>(c); }
     static inline emu_operation_buffer_container *ric(NvU8 *base)  { return reinterpret_cast<emu_operation_buffer_container *>(base); }
 };
 static EMUOperationBufferContainerA g_emu_operation_buffer_container;

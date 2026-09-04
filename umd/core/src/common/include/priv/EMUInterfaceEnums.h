@@ -43,6 +43,7 @@
 #define EMU_OP_TYPE_ENUMS(op)               \
     op(POWER, 0U)                           \
     op(SOFTMAX, 1U)                         \
-    op(CONV, 2U)
+    op(CONV, 2U)                            \
+    op(POOL, 3U)
 
 #endif // NVDLA_PRIV_EMU_INTERFACE_ENUMS_H

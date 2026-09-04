@@ -399,12 +399,12 @@ public:
 	// struct dla_sdp_cvt x1_op_cvt;
 	virtual NvS16 * x1_op_cvt_alu_cvt_scale(NvU8 *base) const = 0;
 	virtual NvU8 * x1_op_cvt_alu_cvt_truncate(NvU8 *base) const = 0;
-	virtual NvU8 * x1_op_cvt_alu_cvt_enable(NvU8 *base) const = 0;
+	virtual NvU8 * x1_op_cvt_alu_cvt_enable(NvU8 *base) const = 0; 
 	virtual NvS32 * x1_op_cvt_alu_cvt_offset(NvU8 *base) const = 0;
 
 	virtual NvS16 * x1_op_cvt_mul_cvt_scale(NvU8 *base) const = 0;
 	virtual NvU8 * x1_op_cvt_mul_cvt_truncate(NvU8 *base) const = 0;
-	virtual NvU8 * x1_op_cvt_mul_cvt_enable(NvU8 *base) const = 0;
+	virtual NvU8 * x1_op_cvt_mul_cvt_enable(NvU8 *base) const = 0; 
 	virtual NvS32 * x1_op_cvt_mul_cvt_offset(NvU8 *base) const = 0;
 
     virtual NvU8 * has_relu(NvU8 *base) const = 0;
@@ -542,12 +542,12 @@ public:
 	// struct dla_sdp_cvt x1_op_cvt;
 	NvS16 * x1_op_cvt_alu_cvt_scale() const;
 	NvU8 * x1_op_cvt_alu_cvt_truncate() const;
-	NvU8 * x1_op_cvt_alu_cvt_enable() const;
+	NvU8 * x1_op_cvt_alu_cvt_enable() const; 
 	NvS32 * x1_op_cvt_alu_cvt_offset() const;
 
 	NvS16 * x1_op_cvt_mul_cvt_scale() const;
 	NvU8 * x1_op_cvt_mul_cvt_truncate() const;
-	NvU8 * x1_op_cvt_mul_cvt_enable() const;
+	NvU8 * x1_op_cvt_mul_cvt_enable() const; 
 	NvS32 * x1_op_cvt_mul_cvt_offset() const;
 
 	NvU8 * has_relu() const;
@@ -557,6 +557,77 @@ public:
 protected:
     NvU8 *_base;
     const EMUConvOpDesc &_n;
+};
+
+
+//
+// struct emu_softmax_op_desc
+//
+class EMUPoolOpDesc
+{
+public:
+    virtual size_t struct_size()  const = 0;
+    virtual size_t struct_align() const = 0;
+
+    virtual EMUCommonOpDescAccessor commonOpDescAccessor(NvU8 *base) const = 0;
+	virtual NvU16 * partial_in_width_first(NvU8 *base) const = 0;
+	virtual NvU16 * partial_in_width_mid(NvU8 *base) const = 0;
+	virtual NvU16 * partial_in_width_last(NvU8 *base) const = 0;
+	virtual NvU16 * partial_width_first(NvU8 *base) const = 0;
+	virtual NvU16 * partial_width_mid(NvU8 *base) const = 0;
+	virtual NvU16 * partial_width_last(NvU8 *base) const = 0;
+	virtual NvU8 * split_num(NvU8 *base) const = 0;
+	virtual NvU8 * pool_mode(NvU8 *base) const = 0;
+	virtual NvU8 * pool_width(NvU8 *base) const = 0;
+	virtual NvU8 * pool_height(NvU8 *base) const = 0;
+	virtual NvU8 * stride_x(NvU8 *base) const = 0;
+	virtual NvU8 * stride_y(NvU8 *base) const = 0;
+	virtual NvU8 * pad_left(NvU8 *base) const = 0;
+	virtual NvU8 * pad_right(NvU8 *base) const = 0;
+	virtual NvU8 * pad_top(NvU8 *base) const = 0;
+	virtual NvU8 * pad_bottom(NvU8 *base) const = 0;
+	virtual NvU8 * precision(NvU8 *base) const = 0;
+	virtual NvU8 * reserved0(NvU8 *base) const = 0;
+	virtual NvS32 * padding_value(NvU8 *base) const = 0;
+
+protected:
+    EMUPoolOpDesc()          { }
+    virtual ~EMUPoolOpDesc() { }
+};
+
+class EMUPoolOpDescAccessor
+{
+public:
+    NvU8 * struct_base()  const;
+    size_t struct_size()  const;
+    size_t struct_align() const;
+
+    EMUCommonOpDescAccessor commonOpDescAccessor() const;    
+	NvU16 * partial_in_width_first() const;
+	NvU16 * partial_in_width_mid() const;
+	NvU16 * partial_in_width_last() const;
+	NvU16 * partial_width_first() const;
+	NvU16 * partial_width_mid() const;
+	NvU16 * partial_width_last() const;
+	NvU8 * split_num() const;
+	NvU8 * pool_mode() const;
+	NvU8 * pool_width() const;
+	NvU8 * pool_height() const;
+	NvU8 * stride_x() const;
+	NvU8 * stride_y() const;
+	NvU8 * pad_left() const;
+	NvU8 * pad_right() const;
+	NvU8 * pad_top() const;
+	NvU8 * pad_bottom() const;
+	NvU8 * precision() const;
+	NvU8 * reserved0() const;
+	NvS32 * padding_value() const;
+
+    EMUPoolOpDescAccessor(NvU8 *base, const EMUPoolOpDesc &);
+
+protected:
+    NvU8 *_base;
+    const EMUPoolOpDesc &_n;
 };
 
 
@@ -572,6 +643,7 @@ public:
     virtual EMUPowerOpDescAccessor powerOpDescAccessor(NvU8 *base, size_t c) const = 0;
     virtual EMUSoftmaxOpDescAccessor softmaxOpDescAccessor(NvU8 *base, size_t c) const = 0;
     virtual EMUConvOpDescAccessor convOpDescAccessor(NvU8 *base, size_t c) const = 0;
+    virtual EMUPoolOpDescAccessor poolOpDescAccessor(NvU8 *base, size_t c) const = 0;
 
 protected:
     EMUOperationContainer()          { }
@@ -588,6 +660,7 @@ public:
     EMUPowerOpDescAccessor powerOpDescAccessor(size_t c) const;
     EMUSoftmaxOpDescAccessor softmaxOpDescAccessor(size_t c) const;
     EMUConvOpDescAccessor convOpDescAccessor(size_t c) const;
+    EMUPoolOpDescAccessor poolOpDescAccessor(size_t c) const;
 
     EMUOperationContainerAccessor(NvU8 *base, const EMUOperationContainer &);
 
@@ -774,6 +847,41 @@ protected:
 
 
 //
+// struct emu_pool_buffer_descs
+//
+class EMUPoolBufferDescs
+{
+public:
+    virtual size_t struct_size()  const = 0;
+    virtual size_t struct_align() const = 0;
+
+    virtual EMUBufferDescAccessor srcDataAccessor(NvU8 *base) const = 0;
+    virtual EMUBufferDescAccessor dstDataAccessor(NvU8 *base) const = 0;
+
+protected:
+    EMUPoolBufferDescs()          { }
+    virtual ~EMUPoolBufferDescs() { }
+};
+
+class EMUPoolBufferDescsAccessor
+{
+public:
+    NvU8 * struct_base()  const;
+    size_t struct_size()  const;
+    size_t struct_align() const;
+
+    EMUBufferDescAccessor srcDataAccessor() const;
+    EMUBufferDescAccessor dstDataAccessor() const;
+
+    EMUPoolBufferDescsAccessor(NvU8 *base, const EMUPoolBufferDescs &);
+
+protected:
+    NvU8 *_base;
+    const EMUPoolBufferDescs &_n;
+};
+
+
+//
 // union emu_operation_buffer_container
 //
 class EMUOperationBufferContainer
@@ -785,6 +893,7 @@ public:
     virtual EMUPowerBufferDescsAccessor powerBufferDescsAccessor(NvU8 *base, size_t c) const = 0;
     virtual EMUSoftmaxBufferDescsAccessor softmaxBufferDescsAccessor(NvU8 *base, size_t c) const = 0;
     virtual EMUConvBufferDescsAccessor convBufferDescsAccessor(NvU8 *base, size_t c) const = 0;
+    virtual EMUPoolBufferDescsAccessor poolBufferDescsAccessor(NvU8 *base, size_t c) const = 0;
 
 protected:
     EMUOperationBufferContainer()          { }
@@ -801,6 +910,7 @@ public:
     EMUPowerBufferDescsAccessor powerBufferDescsAccessor(size_t c) const;
     EMUSoftmaxBufferDescsAccessor softmaxBufferDescsAccessor(size_t c) const;
     EMUConvBufferDescsAccessor convBufferDescsAccessor(size_t c) const;
+    EMUPoolBufferDescsAccessor poolBufferDescsAccessor(size_t c) const;
 
     EMUOperationBufferContainerAccessor(NvU8 *base, const EMUOperationBufferContainer &);
 

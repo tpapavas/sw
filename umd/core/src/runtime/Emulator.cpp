@@ -251,6 +251,12 @@ NvDlaError Emulator::processTask(NvU8* task_mem, std::vector<NvU8*> addressList)
             // PROPAGATE_ERROR_FAIL(executeConvolution(conv_op_desc, common_op_desc, conv_op_buffer_descs, addressList));
             PROPAGATE_ERROR_FAIL(executeConvolutionNaive(conv_op_desc, common_op_desc, conv_op_buffer_descs, addressList));
 
+        } else if (*common_op_desc.op_type() == NVDLA_EMU_OP_POOL /* POOL */) {
+            EMUPoolOpDescAccessor pool_op_desc = operation_container.poolOpDescAccessor(op);
+            EMUPoolBufferDescsAccessor pool_op_buffer_descs = operation_buffer_container.poolBufferDescsAccessor(op);
+
+            PROPAGATE_ERROR_FAIL(executePool(pool_op_desc, common_op_desc, pool_op_buffer_descs, addressList));
+
         } else {
             NvDlaDebugPrintf("Unknown op type %u\n", *common_op_desc.op_type());
         }
@@ -1351,6 +1357,275 @@ fail:
     return e;
 }
 
+
+NvDlaError Emulator::executePool
+(
+    EMUPoolOpDescAccessor opDesc,
+    EMUCommonOpDescAccessor commonOpDesc,
+    EMUPoolBufferDescsAccessor bufDescs,
+    std::vector<NvU8*> addressList
+)
+{
+    NvDlaError e = NvDlaSuccess;
+
+    EMUBufferDescAccessor src = bufDescs.srcDataAccessor();
+    EMUBufferDescAccessor dst = bufDescs.dstDataAccessor();
+
+    fp16_t *in = reinterpret_cast<half*>( addressList[*src.addressIndex()] + *src.addressIndexOffset());
+    fp16_t *out = reinterpret_cast<half*>( addressList[*dst.addressIndex()] + *dst.addressIndexOffset());
+
+    if ( debugOps() )
+    {
+        NvDlaDebugPrintf("Processing %s pool\n", *opDesc.pool_mode() == POOL_MODE_AVG ? "avg" : *opDesc.pool_mode() == POOL_MODE_MAX ? "max" : "min");
+        NvDlaDebugPrintf("precision %u\n", *opDesc.precision());
+        NvDlaDebugPrintf("\taddress[%u][%u] 0x%llx (%ux%ux%u) %uB\n", *src.addressIndex(), *src.addressIndexOffset(),
+                addressList[*src.addressIndex()], *src.width(), *src.height(), *src.channel(), *src.size());
+        NvDlaDebugPrintf("\tline_stride %uB surface_stride %uB\n", *src.lineStride(), *src.surfStride());
+        NvDlaDebugPrintf("\tinput scale factor: %f, output scale factor: %f\n", *commonOpDesc.input_scale_factor(), *commonOpDesc.output_scale_factor());
+
+        NvDlaDebugPrintf("\taddress[%u][%u] 0x%llx (%ux%ux%u) %uB\n", *dst.addressIndex(),  *dst.addressIndexOffset(),
+                addressList[*dst.addressIndex()], *dst.width(), *dst.height(), *dst.channel(), *dst.size());
+        NvDlaDebugPrintf("\tline_stride %uB surface_stride %uB\n", *dst.lineStride(), *dst.surfStride());
+    }
+    
+    // general
+    // int S = 1;
+    // int pad = 0;
+
+    // Query the opDesc for padding parameters
+    // The exact field names depend on EMUConvOpDescAccessor interface
+    // Common naming patterns:
+    int pad_top    = *opDesc.pad_top();      // or similar field
+    int pad_bottom = *opDesc.pad_bottom();
+    int pad_left   = *opDesc.pad_left();
+    int pad_right  = *opDesc.pad_right();
+
+    int sw         = *opDesc.stride_x();
+    int sh         = *opDesc.stride_y();
+    int kh         = *opDesc.pool_height()+1;
+    int kw         = *opDesc.pool_width()+1;
+
+    // input
+    int Ci = *src.channel(), Hi = *src.height(), Wi = *src.width();
+    // output
+    int Co = *dst.channel(), Ho = *dst.height(), Wo = *dst.width();
+
+    ////////////////////////////////////////////////
+    //////////////     TESTING      ////////////////
+    ////////////////////////////////////////////////
+    uint8_t *in_bytes = reinterpret_cast<uint8_t*>( addressList[*src.addressIndex()] + *src.addressIndexOffset());
+    uint8_t * in_unpacked = new uint8_t[Ci*Hi*Wi*ELEMENT_SIZE];
+    unpack_nvdla_feature_map(in_bytes, in_unpacked, Ci, Hi, Wi, Wi, Wi, 32);
+    half *in_unpacked_half = reinterpret_cast<half*>(in_unpacked);
+    // return e;
+    uint32_t in_ind;
+    
+    // for (int c0 = 0; c0 < Ci; c0++) {
+    //     for (int y0 = 0; y0 < Hi; y0++) {
+    //         for (int x0 = 0; x0 < Wi; x0++) {
+    //             in_ind = (c0 * Hi + y0) * Wi + x0;
+    //             // NvDlaDebugPrintf("0x%08x (%f) (%f) ", in_unpacked[in_ind*2], (half)in_unpacked[in_ind*2]);
+    //             // NvDlaDebugPrintf("%3.0f ", (float)in_unpacked_half[in_ind]*255.0);
+    //             NvDlaDebugPrintf("%f ", (float)in_unpacked_half[in_ind]);
+    //             // NvDlaDebugPrintf("0x%08x (%f) ", in[in_ind], (float)in[in_ind]);
+    //         }
+    //         NvDlaDebugPrintf("\n");
+    //     }
+    // }
+
+    // return e;
+    ///////////////////////////////////////////////
+
+    in = in_unpacked_half;
+
+    if ( *src.format() != *dst.format() )
+    {
+        ORIGINATE_ERROR_FAIL(NvDlaError_NotSupported, "Don't support EMU Scale operation with different "
+            " src (%d) and dst (%d) formats\n", static_cast<NvU32>(*src.format()),
+            static_cast<NvU32>(*dst.format()));
+    }
+
+    // Execute
+    if (*opDesc.precision() == EMU_FORMAT_FF16)
+    {
+        half *out_unpacked_half = new half[Co * Ho * Wo];
+
+        if (*opDesc.pool_mode() == POOL_MODE_AVG) {
+            // int Ho = so.h;
+            // int Wo = so.w;
+            if (Ho <= 0) Ho = 1;
+            if (Wo <= 0) Wo = 1;
+
+            /**
+             * TODO: Check this padding calculation method
+             */
+            // int pad_top = 0, pad_left = 0;
+            // if (pad != 0) {
+            //     int total_pad_h = ((Ho - 1) * sh + kh - Hi);
+            //     int total_pad_w = ((Wo - 1) * sw + kw - Wi);
+            //     if (total_pad_h < 0) total_pad_h = 0;
+            //     if (total_pad_w < 0) total_pad_w = 0;
+            //     pad_top = total_pad_h / 2;
+            //     pad_left = total_pad_w / 2;
+            // }
+
+            for (int c = 0; c < Ci; c++) {
+                for (int oh = 0; oh < Ho; oh++) {
+                    for (int ow = 0; ow < Wo; ow++) {
+                        float sum = 0.f; int cnt = 0;
+                        for (int r = 0; r < kh; r++) {
+                            int ih = oh * sh - pad_top + r;
+                            if (ih < 0 || ih >= Hi) continue;
+                            for (int s = 0; s < kw; s++) {
+                                int iw = ow * sw - pad_left + s;
+                                if (iw < 0 || iw >= Wi) continue;
+                                // sum += float(in[((ih * Wi + iw) * Ci) + c]);
+                                sum += float(in[((c * Hi + ih) * Wi) + iw]);
+                                cnt++;
+                            }
+                        }
+                        // out[((oh * Wo + ow) * Ci) + c] = (cnt > 0) ? (sum / (float)cnt) : 0.f;
+                        out_unpacked_half[(c * Ho + oh) * Wo + ow] = (cnt > 0) ? (sum / (float)cnt) : 0.f;
+                    }
+                }
+            }
+        } else if (*opDesc.pool_mode() == POOL_MODE_MAX) {
+            if (kh <= 0) kh = 1;
+            if (kw <= 0) kw = 1;
+            if (sh <= 0) sh = kh;
+            if (sw <= 0) sw = kw;
+
+            // int H = si.h, W = si.w, C = si.c;
+            // int Ho = so.h;
+            // int Wo = so.w;
+            if (Ho <= 0) Ho = 1;
+            if (Wo <= 0) Wo = 1;
+
+            // int pad_top = 0, pad_left = 0;
+            // if (pad != 0) {
+            //     int total_pad_h = ((Ho - 1) * sh + kh - H);
+            //     int total_pad_w = ((Wo - 1) * sw + kw - W);
+            //     if (total_pad_h < 0) total_pad_h = 0;
+            //     if (total_pad_w < 0) total_pad_w = 0;
+            //     pad_top = total_pad_h / 2;
+            //     pad_left = total_pad_w / 2;
+            // }
+
+            for (int c = 0; c < Ci; c++) {
+                for (int oh = 0; oh < Ho; oh++) {
+                    for (int ow = 0; ow < Wo; ow++) {
+                        float m = -FLT_MAX;
+                        bool seen = false;
+                        for (int r = 0; r < kh; r++) {
+                            int ih = oh * sh - pad_top + r;
+                            if (ih < 0 || ih >= Hi) continue;
+                            for (int s = 0; s < kw; s++) {
+                                int iw = ow * sw - pad_left + s;
+                                if (iw < 0 || iw >= Wi) continue;
+                                // float v = in[((ih * Wi + iw) * Ci) + c];
+                                float v = float(in[((c * Hi + ih) * Wi) + iw]);
+                                if (!seen || v > m) m = v;
+                                seen = true;
+                            }
+                        }
+                        // out[((oh * Wo + ow) * Ci) + c] = seen ? m : 0.f;
+                        out_unpacked_half[(c * Ho + oh) * Wo + ow] = seen ? m : 0.f;
+                    }
+                }
+            }
+        }
+
+        // print Pool result
+        // NvDlaDebugPrintf("=== Pool RESULT ===\n");
+        // for (int c0 = 0; c0 < Co; c0++) {
+        //     for (int y0 = 0; y0 < Ho; y0++) {
+        //         for (int x0 = 0; x0 < Wo; x0++) {
+        //             NvDlaDebugPrintf("%f ", float(out_unpacked_half[(c0 * Ho + y0) * Wo + x0]));
+        //         }
+        //         NvDlaDebugPrintf("\n");
+        //     }
+        // }
+        // NvDlaDebugPrintf("=== EOF Pool RESULT ===\n");
+
+        uint8_t *dst_bytes = reinterpret_cast<uint8_t*>( addressList[*dst.addressIndex()] + *dst.addressIndexOffset());
+        uint8_t *out_unpacked_bytes = reinterpret_cast<uint8_t*>(out_unpacked_half);
+        pack_nvdla_feature_map(out_unpacked_bytes, dst_bytes, Co, Ho, Wo, Wo, Wo, 32);
+
+        delete[] in_unpacked;
+        delete[] out_unpacked_half;
+    }
+    else if ((*opDesc.precision() == EMU_FORMAT_INT8) || (*opDesc.precision() == EMU_FORMAT_INT8_8))
+    {
+        NvS8* pSrc = reinterpret_cast<NvS8*>( addressList[*src.addressIndex()] + *src.addressIndexOffset() );
+        NvS8* pDst = reinterpret_cast<NvS8*>( addressList[*dst.addressIndex()] + *dst.addressIndexOffset() );
+
+        half* pHalfSrc = reinterpret_cast<half*>(malloc(*src.channel() * sizeof(half)));
+        half* pHalfDst = reinterpret_cast<half*>(malloc(*dst.channel() * sizeof(half)));
+
+        // scale input for processing in FLOAT land
+        for (NvU32 ii = 0; ii < *src.channel(); ii++)
+        {
+            pHalfSrc[ii] = pSrc[ii] * (*commonOpDesc.input_scale_factor());
+        }
+
+        NvF32 maxval = -INFINITY;
+        for (NvU32 ii=0; ii<*src.channel(); ii++)
+        {
+            if (float(pHalfSrc[ii]) > maxval)
+            {
+                maxval = float(pHalfSrc[ii]);
+            }
+        }
+
+        NvF32 sumexp = 0.0f;
+        for (NvU32 ii=0; ii<*src.channel(); ii++)
+        {
+            sumexp += expf(float(pHalfSrc[ii])-maxval);
+        }
+        for (NvU32 ii=0; ii<*src.channel(); ii++)
+        {
+            pHalfDst[ii] = static_cast<half>(expf(float(pHalfSrc[ii])-maxval) / sumexp);
+        }
+
+        // rescale output to write out in INT8 land
+        for (NvU32 ii = 0; ii < *dst.channel(); ii++)
+        {
+            pDst[ii] = saturate<NvF32, NvS8>(pHalfDst[ii] / (*commonOpDesc.output_scale_factor()));
+        }
+
+        if (debugPrint())
+        {
+            NvF32 maxHalfDst = -INFINITY;
+            NvU32 maxHalfIndex = -1;
+            NvF32 maxIntDst = std::numeric_limits<NvS8>::lowest();
+            NvU32 maxIntIndex = -1;
+
+            for (NvU32 ii = 0; ii < *dst.channel(); ii++) {
+                if (pHalfDst[ii] > maxHalfDst) {
+                    maxHalfDst = pHalfDst[ii];
+                    maxHalfIndex = ii;
+                }
+                if (pDst[ii] > maxIntDst) {
+                    maxIntDst = pDst[ii];
+                    maxIntIndex = ii;
+                }
+            }
+
+            NvDlaDebugPrintf("Post-softmax max value: (half) %f, (int) %f\n", maxHalfDst, maxIntDst);
+            NvDlaDebugPrintf("at indices (half) %d, (int) %d\n", maxHalfIndex, maxIntIndex);
+        }
+
+
+    }
+    else
+    {
+        ORIGINATE_ERROR_FAIL(NvDlaError_NotSupported, "Don't support EMU softmax operation for format: %d\n",
+            static_cast<NvU32>(*src.format()));
+    }
+
+fail:
+    return e;
+}
 
 
 } // nvdla::priv
