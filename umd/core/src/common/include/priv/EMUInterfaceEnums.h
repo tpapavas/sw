@@ -42,6 +42,10 @@
 // for class EMUOpType::SOFTMAX, ...
 #define EMU_OP_TYPE_ENUMS(op)               \
     op(POWER, 0U)                           \
-    op(SOFTMAX, 1U)
+    op(SOFTMAX, 1U)                         \
+    op(CONV, 2U)                            \
+    op(POOL, 3U)                            \
+    op(SDP, 3U)                             \
+    op(RUBIK, 4U)
 
 #endif // NVDLA_PRIV_EMU_INTERFACE_ENUMS_H

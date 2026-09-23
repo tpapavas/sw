@@ -33,6 +33,7 @@
 
 #include "priv/Type.h"
 #include "priv/EMUInterfaceEnums.h"
+#include "priv/emu/emu1/A/emu_interface.h"
 
 #include "dlaerror.h"
 #include "dlatypes.h"
@@ -267,6 +268,479 @@ protected:
     const EMUSoftmaxOpDesc &_n;
 };
 
+//
+// struct emu_conv_op_desc
+//
+class EMUConvOpDesc
+{
+public:
+    virtual size_t struct_size()  const = 0;
+    virtual size_t struct_align() const = 0;
+
+    virtual EMUCommonOpDescAccessor commonOpDescAccessor(NvU8 *base) const = 0;
+
+    virtual	NvU8 * conv_mode(NvU8 *base) const = 0;
+    virtual	NvU8 * data_reuse(NvU8 *base) const = 0;
+    virtual	NvU8 * weight_reuse(NvU8 *base) const = 0;
+    virtual	NvU8 * skip_data_rls(NvU8 *base) const = 0;
+
+	virtual NvU8 * skip_weight_rls(NvU8 *base) const = 0;
+	virtual NvU8 * reserved0(NvU8 *base) const = 0;
+	virtual NvU16 * entry_per_slice(NvU8 *base) const = 0;
+
+	/* dla_data_format */
+	virtual NvU8 * data_format(NvU8 *base) const = 0;
+	/* dla_pixel_mapping */
+	virtual NvU8 * pixel_mapping(NvU8 *base) const = 0;
+	/* number of free slices before fetch */
+	virtual NvU16 * fetch_grain(NvU8 *base) const = 0;
+
+    // reserved_b[8]
+	virtual NvU8 * reserved_b(NvU8 *base) const = 0;
+
+	/* batch_num */
+	virtual NvU8 * batch(NvU8 *base) const = 0;
+	/* dla_weight_format */
+	virtual NvU8 * weight_format(NvU8 *base) const = 0;
+	virtual NvU8 * data_bank(NvU8 *base) const = 0;
+	virtual NvU8 * weight_bank(NvU8 *base) const = 0;
+
+	/* the offset in bytes of each data cube in a batch */
+	virtual NvU32 * batch_stride(NvU8 *base) const = 0;
+
+	virtual NvU8 * post_extension(NvU8 *base) const = 0;
+	virtual NvU8 * pixel_override(NvU8 *base) const = 0;
+	/* number of slices need to be released */
+	virtual NvU16 * release(NvU8 *base) const = 0;
+
+	 /* The input cube dimension for CSC */
+	virtual NvU16 * input_width_csc(NvU8 *base) const = 0;
+	virtual NvU16 * input_height_csc(NvU8 *base) const = 0;
+
+	virtual NvU16 * input_channel_csc(NvU8 *base) const = 0;
+	virtual NvU16 * kernel_width_csc(NvU8 *base) const = 0;
+
+	virtual NvU16 * kernel_height_csc(NvU8 *base) const = 0;
+	virtual NvU16 * kernel_channel_csc(NvU8 *base) const = 0;
+
+	/* The input cube dimension for CMAC */
+	virtual NvU16 * input_width_cmac(NvU8 *base) const = 0;
+	virtual NvU16 * input_height_cmac(NvU8 *base) const = 0;
+
+	/* actual size in bytes */
+	virtual NvU32 * bytes_per_kernel(NvU8 *base) const = 0;
+
+	/* Algorithm parameters */
+	virtual NvS16 * mean_ry(NvU8 *base) const = 0; /* mean value for red in RGB or Y in YUV */
+	virtual NvS16 * mean_gu(NvU8 *base) const = 0; /* mean value for green in RGB or U in YUV */
+
+	virtual NvS16 * mean_bv(NvU8 *base) const = 0; /* mean value for blue in RGB or V in YUV */
+	virtual NvS16 * mean_ax(NvU8 *base) const = 0;
+
+	virtual NvU8 * mean_format(NvU8 *base) const = 0; /* dla_mean_format */
+	virtual NvU8 * conv_stride_x(NvU8 *base) const = 0;
+	virtual NvU8 * conv_stride_y(NvU8 *base) const = 0;
+	virtual NvU8 * pad_x_left(NvU8 *base) const = 0;
+
+	virtual NvU8 * pad_x_right(NvU8 *base) const = 0;
+	virtual NvU8 * pad_y_top(NvU8 *base) const = 0;
+	virtual NvU8 * pad_y_bottom(NvU8 *base) const = 0;
+	virtual NvU8 * dilation_x(NvU8 *base) const = 0;
+
+	virtual NvU8 * dilation_y(NvU8 *base) const = 0;
+	// reserved2[2]
+    virtual NvU8 * reserved2(NvU8 *base) const = 0;
+
+	/* Precision parameters */
+	virtual NvU8 * pra_truncate(NvU8 *base) const = 0;
+
+	virtual NvU8 * in_precision(NvU8 *base) const = 0;
+	/* The output precision from CONV, it's the MAC processing precison */
+	virtual NvU8 * out_precision(NvU8 *base) const = 0;
+	virtual NvS16 * pad_val(NvU8 *base) const = 0;
+
+	/* input converter parameters */
+	virtual NvS16 * in_cvt_scale(NvU8 *base) const = 0;
+	virtual NvU8 * in_cvt_truncate(NvU8 *base) const = 0;
+	virtual NvU8 * in_cvt_enable(NvU8 *base) const = 0;
+	virtual NvS32 * in_cvt_offset(NvU8 *base) const = 0;
+	/* output converter parameters, support truncate only */
+	virtual NvS16 * out_cvt_scale(NvU8 *base) const = 0;
+	virtual NvU8 * out_cvt_truncate(NvU8 *base) const = 0;
+	virtual NvU8 * out_cvt_enable(NvU8 *base) const = 0;
+	virtual NvS32 * out_cvt_offset(NvU8 *base) const = 0;
+
+
+	//////////////////////
+	/* BIAS paramteters */
+	//////////////////////
+	/* dla_precision */
+	virtual NvU8 * src_precision(NvU8 *base) const = 0;
+	virtual NvU8 * dst_precision(NvU8 *base) const = 0;
+	virtual NvS16 * lut_index(NvU8 *base) const = 0;
+
+	/* Performance parameters */
+	virtual NvU8 * batch_num(NvU8 *base) const = 0;
+
+	// x1 params
+	virtual NvU8 * x1_op_enable(NvU8 *base) const = 0;
+	virtual NvU8 * x1_op_alu_type(NvU8 *base) const = 0;
+	virtual NvU8 * x1_op_type(NvU8 *base) const = 0;
+	virtual NvU8 * x1_op_mode(NvU8 *base) const = 0;
+
+	virtual NvU8 * x1_op_act(NvU8 *base) const = 0;
+	virtual NvU8 * x1_op_shift_value(NvU8 *base) const = 0;
+	virtual NvU8 * x1_op_truncate(NvU8 *base) const = 0;
+	virtual NvU8 * x1_op_precision(NvU8 *base) const = 0;
+
+	virtual NvS32 * x1_op_alu_operand(NvU8 *base) const = 0;
+	virtual NvS32 * x1_op_mul_operand(NvU8 *base) const = 0;
+
+	// struct dla_sdp_cvt x1_op_cvt;
+	virtual NvS16 * x1_op_cvt_alu_cvt_scale(NvU8 *base) const = 0;
+	virtual NvU8 * x1_op_cvt_alu_cvt_truncate(NvU8 *base) const = 0;
+	virtual NvU8 * x1_op_cvt_alu_cvt_enable(NvU8 *base) const = 0; 
+	virtual NvS32 * x1_op_cvt_alu_cvt_offset(NvU8 *base) const = 0;
+
+	virtual NvS16 * x1_op_cvt_mul_cvt_scale(NvU8 *base) const = 0;
+	virtual NvU8 * x1_op_cvt_mul_cvt_truncate(NvU8 *base) const = 0;
+	virtual NvU8 * x1_op_cvt_mul_cvt_enable(NvU8 *base) const = 0; 
+	virtual NvS32 * x1_op_cvt_mul_cvt_offset(NvU8 *base) const = 0;
+
+    virtual NvU8 * has_relu(NvU8 *base) const = 0;
+protected:
+    EMUConvOpDesc()          { }
+    virtual ~EMUConvOpDesc() { }
+};
+
+class EMUConvOpDescAccessor
+{
+public:
+    NvU8 * struct_base()  const;
+    size_t struct_size()  const;
+    size_t struct_align() const;
+
+    EMUCommonOpDescAccessor commonOpDescAccessor() const;
+
+    NvU8 * conv_mode() const;
+    NvU8 * data_reuse() const;
+    NvU8 * weight_reuse() const;
+    NvU8 * skip_data_rls() const;
+
+	NvU8 * skip_weight_rls() const;
+	NvU8 * reserved0() const;
+	NvU16 * entry_per_slice() const;
+
+	/* dla_data_format */
+	NvU8 * data_format() const;
+	/* dla_pixel_mapping */
+	NvU8 * pixel_mapping() const;
+	/* number of free slices before fetch */
+	NvU16 * fetch_grain() const;
+
+    // reserved_b[8]
+	NvU8 * reserved_b() const;
+
+	/* batch_num */
+	NvU8 * batch() const;
+	/* dla_weight_format */
+	NvU8 * weight_format() const;
+	NvU8 * data_bank() const;
+	NvU8 * weight_bank() const;
+
+	/* the offset in bytes of each data cube in a batch */
+	NvU32 * batch_stride() const;
+
+	NvU8 * post_extension() const;
+	NvU8 * pixel_override() const;
+	/* number of slices need to be released */
+	NvU16 * release() const;
+
+	 /* The input cube dimension for CSC */
+	NvU16 * input_width_csc() const;
+	NvU16 * input_height_csc() const;
+
+	NvU16 * input_channel_csc() const;
+	NvU16 * kernel_width_csc() const;
+
+	NvU16 * kernel_height_csc() const;
+	NvU16 * kernel_channel_csc() const;
+
+	/* The input cube dimension for CMAC */
+	NvU16 * input_width_cmac() const;
+	NvU16 * input_height_cmac() const;
+
+	/* actual size in bytes */
+	NvU32 * bytes_per_kernel() const;
+
+	/* Algorithm parameters */
+	NvS16 * mean_ry() const; /* mean value for red in RGB or Y in YUV */
+	NvS16 * mean_gu() const; /* mean value for green in RGB or U in YUV */
+
+	NvS16 * mean_bv() const; /* mean value for blue in RGB or V in YUV */
+	NvS16 * mean_ax() const;
+
+	NvU8 * mean_format() const; /* dla_mean_format */
+	NvU8 * conv_stride_x() const;
+	NvU8 * conv_stride_y() const;
+	NvU8 * pad_x_left() const;
+
+	NvU8 * pad_x_right() const;
+	NvU8 * pad_y_top() const;
+	NvU8 * pad_y_bottom() const;
+	NvU8 * dilation_x() const;
+
+	NvU8 * dilation_y() const;
+	// reserved2[2]
+    NvU8 * reserved2() const;
+
+	/* Precision parameters */
+	NvU8 * pra_truncate() const;
+
+	NvU8 * in_precision() const;
+	/* The output precision from CONV, it's the MAC processing precison */
+	NvU8 * out_precision() const;
+	NvS16 * pad_val() const;
+
+	/* input converter parameters */
+	NvS16 * in_cvt_scale() const;
+	NvU8 * in_cvt_truncate() const;
+	NvU8 * in_cvt_enable() const;
+	NvS32 * in_cvt_offset() const;
+	/* output converter parameters, support truncate only */
+	NvS16 * out_cvt_scale() const;
+	NvU8 * out_cvt_truncate() const;
+	NvU8 * out_cvt_enable() const;
+	NvS32 * out_cvt_offset() const;
+
+
+	//////////////////////
+	/* BIAS paramteters */
+	//////////////////////
+	/* dla_precision */
+	NvU8 * src_precision() const;
+	NvU8 * dst_precision() const;
+	NvS16 * lut_index() const;
+
+	/* Performance parameters */
+	NvU8 * batch_num() const;
+
+	// x1 params
+	NvU8 * x1_op_enable() const;
+	NvU8 * x1_op_alu_type() const;
+	NvU8 * x1_op_type() const;
+	NvU8 * x1_op_mode() const;
+
+	NvU8 * x1_op_act() const;
+	NvU8 * x1_op_shift_value() const;
+	NvU8 * x1_op_truncate() const;
+	NvU8 * x1_op_precision() const;
+
+	NvS32 * x1_op_alu_operand() const;
+	NvS32 * x1_op_mul_operand() const;
+
+	// struct dla_sdp_cvt x1_op_cvt;
+	NvS16 * x1_op_cvt_alu_cvt_scale() const;
+	NvU8 * x1_op_cvt_alu_cvt_truncate() const;
+	NvU8 * x1_op_cvt_alu_cvt_enable() const; 
+	NvS32 * x1_op_cvt_alu_cvt_offset() const;
+
+	NvS16 * x1_op_cvt_mul_cvt_scale() const;
+	NvU8 * x1_op_cvt_mul_cvt_truncate() const;
+	NvU8 * x1_op_cvt_mul_cvt_enable() const; 
+	NvS32 * x1_op_cvt_mul_cvt_offset() const;
+
+	NvU8 * has_relu() const;
+
+    EMUConvOpDescAccessor(NvU8 *base, const EMUConvOpDesc &);
+
+protected:
+    NvU8 *_base;
+    const EMUConvOpDesc &_n;
+};
+
+
+//
+// struct emu_softmax_op_desc
+//
+class EMUPoolOpDesc
+{
+public:
+    virtual size_t struct_size()  const = 0;
+    virtual size_t struct_align() const = 0;
+
+    virtual EMUCommonOpDescAccessor commonOpDescAccessor(NvU8 *base) const = 0;
+	virtual NvU16 * partial_in_width_first(NvU8 *base) const = 0;
+	virtual NvU16 * partial_in_width_mid(NvU8 *base) const = 0;
+	virtual NvU16 * partial_in_width_last(NvU8 *base) const = 0;
+	virtual NvU16 * partial_width_first(NvU8 *base) const = 0;
+	virtual NvU16 * partial_width_mid(NvU8 *base) const = 0;
+	virtual NvU16 * partial_width_last(NvU8 *base) const = 0;
+	virtual NvU8 * split_num(NvU8 *base) const = 0;
+	virtual NvU8 * pool_mode(NvU8 *base) const = 0;
+	virtual NvU8 * pool_width(NvU8 *base) const = 0;
+	virtual NvU8 * pool_height(NvU8 *base) const = 0;
+	virtual NvU8 * stride_x(NvU8 *base) const = 0;
+	virtual NvU8 * stride_y(NvU8 *base) const = 0;
+	virtual NvU8 * pad_left(NvU8 *base) const = 0;
+	virtual NvU8 * pad_right(NvU8 *base) const = 0;
+	virtual NvU8 * pad_top(NvU8 *base) const = 0;
+	virtual NvU8 * pad_bottom(NvU8 *base) const = 0;
+	virtual NvU8 * precision(NvU8 *base) const = 0;
+	virtual NvU8 * reserved0(NvU8 *base) const = 0;
+	virtual NvS32 * padding_value(NvU8 *base) const = 0;
+
+protected:
+    EMUPoolOpDesc()          { }
+    virtual ~EMUPoolOpDesc() { }
+};
+
+class EMUPoolOpDescAccessor
+{
+public:
+    NvU8 * struct_base()  const;
+    size_t struct_size()  const;
+    size_t struct_align() const;
+
+    EMUCommonOpDescAccessor commonOpDescAccessor() const;    
+	NvU16 * partial_in_width_first() const;
+	NvU16 * partial_in_width_mid() const;
+	NvU16 * partial_in_width_last() const;
+	NvU16 * partial_width_first() const;
+	NvU16 * partial_width_mid() const;
+	NvU16 * partial_width_last() const;
+	NvU8 * split_num() const;
+	NvU8 * pool_mode() const;
+	NvU8 * pool_width() const;
+	NvU8 * pool_height() const;
+	NvU8 * stride_x() const;
+	NvU8 * stride_y() const;
+	NvU8 * pad_left() const;
+	NvU8 * pad_right() const;
+	NvU8 * pad_top() const;
+	NvU8 * pad_bottom() const;
+	NvU8 * precision() const;
+	NvU8 * reserved0() const;
+	NvS32 * padding_value() const;
+
+    EMUPoolOpDescAccessor(NvU8 *base, const EMUPoolOpDesc &);
+
+protected:
+    NvU8 *_base;
+    const EMUPoolOpDesc &_n;
+};
+
+//
+// struct emu_sdp_op_desc
+//
+class EMUSdpOpDesc
+{
+public:
+    virtual size_t struct_size()  const = 0;
+    virtual size_t struct_align() const = 0;
+
+    virtual EMUCommonOpDescAccessor commonOpDescAccessor(NvU8 *base) const = 0;
+	/* Precision parameters */
+	/* dla_precision */
+	virtual uint8_t * src_precision(NvU8 *base) const = 0;
+	virtual uint8_t * dst_precision(NvU8 *base) const = 0;
+	virtual int16_t * lut_index(NvU8 *base) const = 0;
+
+	virtual struct emu_cvt_param * out_cvt(NvU8 *base) const = 0;
+
+	/* Performance parameters */
+	/* dla_conv_mode */
+	virtual uint8_t * conv_mode(NvU8 *base) const = 0;
+	virtual uint8_t * batch_num(NvU8 *base) const = 0;
+	virtual uint16_t * reserved0(NvU8 *base) const = 0;
+
+	virtual uint32_t * batch_stride(NvU8 *base) const = 0;	/* will be used when batch_num > 1 */
+
+	/* Algorithm parameters */
+	virtual struct emu_sdp_op * x1_op(NvU8 *base) const = 0;
+	virtual struct emu_sdp_op * x2_op(NvU8 *base) const = 0;
+	virtual struct emu_sdp_op * y_op(NvU8 *base) const = 0;
+
+protected:
+    EMUSdpOpDesc()          { }
+    virtual ~EMUSdpOpDesc() { }
+};
+
+class EMUSdpOpDescAccessor
+{
+public:
+    NvU8 * struct_base()  const;
+    size_t struct_size()  const;
+    size_t struct_align() const;
+
+    EMUCommonOpDescAccessor commonOpDescAccessor() const;
+	/* Precision parameters */
+	/* dla_precision */
+	uint8_t * src_precision() const;
+	uint8_t * dst_precision() const;
+	int16_t * lut_index() const;
+
+	struct emu_cvt_param * out_cvt() const;
+
+	/* Performance parameters */
+	/* dla_conv_mode */
+	uint8_t * conv_mode() const;
+	uint8_t * batch_num() const;
+	uint16_t * reserved0() const;
+
+	uint32_t * batch_stride() const;	/* will be used when batch_num > 1 */
+
+	/* Algorithm parameters */
+	struct emu_sdp_op * x1_op() const;
+	struct emu_sdp_op * x2_op() const;
+	struct emu_sdp_op * y_op() const;
+
+    EMUSdpOpDescAccessor(NvU8 *base, const EMUSdpOpDesc &);
+
+protected:
+    NvU8 *_base;
+    const EMUSdpOpDesc &_n;
+};
+
+//
+// struct emu_rubik_op_desc
+//
+class EMURubikOpDesc
+{
+public:
+    virtual size_t struct_size()  const = 0;
+    virtual size_t struct_align() const = 0;
+
+    virtual EMUCommonOpDescAccessor commonOpDescAccessor(NvU8 *base) const = 0;
+	virtual uint8_t * mode(NvU8 *base) const = 0;
+	virtual uint8_t * precision(NvU8 *base) const = 0;
+	virtual uint8_t * stride_x(NvU8 *base) const = 0;
+	virtual uint8_t * stride_y(NvU8 *base) const = 0;
+
+protected:
+    EMURubikOpDesc()          { }
+    virtual ~EMURubikOpDesc() { }
+};
+
+class EMURubikOpDescAccessor
+{
+public:
+    NvU8 * struct_base()  const;
+    size_t struct_size()  const;
+    size_t struct_align() const;
+
+    EMUCommonOpDescAccessor commonOpDescAccessor() const;
+	uint8_t * mode() const;
+	uint8_t * precision() const;
+	uint8_t * stride_x() const;
+	uint8_t * stride_y() const;
+
+    EMURubikOpDescAccessor(NvU8 *base, const EMURubikOpDesc &);
+
+protected:
+    NvU8 *_base;
+    const EMURubikOpDesc &_n;
+};
 
 //
 // union emu_operation_container
@@ -279,6 +753,10 @@ public:
 
     virtual EMUPowerOpDescAccessor powerOpDescAccessor(NvU8 *base, size_t c) const = 0;
     virtual EMUSoftmaxOpDescAccessor softmaxOpDescAccessor(NvU8 *base, size_t c) const = 0;
+    virtual EMUConvOpDescAccessor convOpDescAccessor(NvU8 *base, size_t c) const = 0;
+    virtual EMUPoolOpDescAccessor poolOpDescAccessor(NvU8 *base, size_t c) const = 0;
+    virtual EMUSdpOpDescAccessor sdpOpDescAccessor(NvU8 *base, size_t c) const = 0;
+    virtual EMURubikOpDescAccessor rubikOpDescAccessor(NvU8 *base, size_t c) const = 0;
 
 protected:
     EMUOperationContainer()          { }
@@ -294,6 +772,10 @@ public:
 
     EMUPowerOpDescAccessor powerOpDescAccessor(size_t c) const;
     EMUSoftmaxOpDescAccessor softmaxOpDescAccessor(size_t c) const;
+    EMUConvOpDescAccessor convOpDescAccessor(size_t c) const;
+    EMUPoolOpDescAccessor poolOpDescAccessor(size_t c) const;
+    EMUSdpOpDescAccessor sdpOpDescAccessor(size_t c) const;
+    EMURubikOpDescAccessor rubikOpDescAccessor(size_t c) const;
 
     EMUOperationContainerAccessor(NvU8 *base, const EMUOperationContainer &);
 
@@ -327,6 +809,7 @@ public:
     virtual NvU16 * channel(NvU8 *base)    const = 0;
     virtual NvU32 * lineStride(NvU8 *base) const = 0;
     virtual NvU32 * surfStride(NvU8 *base) const = 0;
+    virtual NvU32 * planeStride(NvU8 *base) const = 0;
 
 protected:
     EMUBufferDesc()          { }
@@ -355,6 +838,7 @@ public:
     NvU16 * channel()    const;
     NvU32 * lineStride() const;
     NvU32 * surfStride() const;
+    NvU32 * planeStride() const;
 
     EMUBufferDescAccessor(NvU8 *base, const EMUBufferDesc &);
 
@@ -435,6 +919,158 @@ protected:
 
 
 //
+// struct emu_conv_buffer_descs
+//
+class EMUConvBufferDescs
+{
+public:
+    virtual size_t struct_size()  const = 0;
+    virtual size_t struct_align() const = 0;
+
+    virtual EMUBufferDescAccessor weightDataAccessor(NvU8 *base) const = 0;
+    virtual EMUBufferDescAccessor wmbDataAccessor(NvU8 *base) const = 0;
+    virtual EMUBufferDescAccessor wgsDataAccessor(NvU8 *base) const = 0;
+    virtual EMUBufferDescAccessor biasDataAccessor(NvU8 *base) const = 0;
+    virtual EMUBufferDescAccessor srcDataAccessor(NvU8 *base) const = 0;
+    virtual EMUBufferDescAccessor dstDataAccessor(NvU8 *base) const = 0;
+
+protected:
+    EMUConvBufferDescs()          { }
+    virtual ~EMUConvBufferDescs() { }
+};
+
+class EMUConvBufferDescsAccessor
+{
+public:
+    NvU8 * struct_base()  const;
+    size_t struct_size()  const;
+    size_t struct_align() const;
+
+    EMUBufferDescAccessor weightDataAccessor() const;
+    EMUBufferDescAccessor wmbDataAccessor() const;
+    EMUBufferDescAccessor wgsDataAccessor() const;
+    EMUBufferDescAccessor biasDataAccessor() const;
+    EMUBufferDescAccessor srcDataAccessor() const;
+    EMUBufferDescAccessor dstDataAccessor() const;
+
+    EMUConvBufferDescsAccessor(NvU8 *base, const EMUConvBufferDescs &);
+
+protected:
+    NvU8 *_base;
+    const EMUConvBufferDescs &_n;
+};
+
+
+//
+// struct emu_pool_buffer_descs
+//
+class EMUPoolBufferDescs
+{
+public:
+    virtual size_t struct_size()  const = 0;
+    virtual size_t struct_align() const = 0;
+
+    virtual EMUBufferDescAccessor srcDataAccessor(NvU8 *base) const = 0;
+    virtual EMUBufferDescAccessor dstDataAccessor(NvU8 *base) const = 0;
+
+protected:
+    EMUPoolBufferDescs()          { }
+    virtual ~EMUPoolBufferDescs() { }
+};
+
+class EMUPoolBufferDescsAccessor
+{
+public:
+    NvU8 * struct_base()  const;
+    size_t struct_size()  const;
+    size_t struct_align() const;
+
+    EMUBufferDescAccessor srcDataAccessor() const;
+    EMUBufferDescAccessor dstDataAccessor() const;
+
+    EMUPoolBufferDescsAccessor(NvU8 *base, const EMUPoolBufferDescs &);
+
+protected:
+    NvU8 *_base;
+    const EMUPoolBufferDescs &_n;
+};
+
+//
+// struct emu_sdp_buffer_descs
+//
+class EMUSdpBufferDescs
+{
+public:
+    virtual size_t struct_size()  const = 0;
+    virtual size_t struct_align() const = 0;
+
+    virtual EMUBufferDescAccessor srcDataAccessor(NvU8 *base) const = 0;
+    virtual EMUBufferDescAccessor x1DataAccessor(NvU8 *base) const = 0;
+    virtual EMUBufferDescAccessor x2DataAccessor(NvU8 *base) const = 0;
+    virtual EMUBufferDescAccessor yDataAccessor(NvU8 *base) const = 0;
+    virtual EMUBufferDescAccessor dstDataAccessor(NvU8 *base) const = 0;
+
+protected:
+    EMUSdpBufferDescs()          { }
+    virtual ~EMUSdpBufferDescs() { }
+};
+
+class EMUSdpBufferDescsAccessor
+{
+public:
+    NvU8 * struct_base()  const;
+    size_t struct_size()  const;
+    size_t struct_align() const;
+
+    EMUBufferDescAccessor srcDataAccessor() const;
+    EMUBufferDescAccessor x1DataAccessor() const;
+    EMUBufferDescAccessor x2DataAccessor() const;
+    EMUBufferDescAccessor yDataAccessor() const;
+    EMUBufferDescAccessor dstDataAccessor() const;
+
+    EMUSdpBufferDescsAccessor(NvU8 *base, const EMUSdpBufferDescs &);
+
+protected:
+    NvU8 *_base;
+    const EMUSdpBufferDescs &_n;
+};
+
+
+//
+// struct emu_rubik_buffer_descs
+//
+class EMURubikBufferDescs
+{
+public:
+    virtual size_t struct_size()  const = 0;
+    virtual size_t struct_align() const = 0;
+
+    virtual EMUBufferDescAccessor srcDataAccessor(NvU8 *base) const = 0;
+    virtual EMUBufferDescAccessor dstDataAccessor(NvU8 *base) const = 0;
+
+protected:
+    EMURubikBufferDescs()          { }
+    virtual ~EMURubikBufferDescs() { }
+};
+
+class EMURubikBufferDescsAccessor
+{
+public:
+    NvU8 * struct_base()  const;
+    size_t struct_size()  const;
+    size_t struct_align() const;
+
+    EMUBufferDescAccessor srcDataAccessor() const;
+    EMUBufferDescAccessor dstDataAccessor() const;
+
+    EMURubikBufferDescsAccessor(NvU8 *base, const EMURubikBufferDescs &);
+
+protected:
+    NvU8 *_base;
+    const EMURubikBufferDescs &_n;
+};
+
+//
 // union emu_operation_buffer_container
 //
 class EMUOperationBufferContainer
@@ -445,6 +1081,10 @@ public:
 
     virtual EMUPowerBufferDescsAccessor powerBufferDescsAccessor(NvU8 *base, size_t c) const = 0;
     virtual EMUSoftmaxBufferDescsAccessor softmaxBufferDescsAccessor(NvU8 *base, size_t c) const = 0;
+    virtual EMUConvBufferDescsAccessor convBufferDescsAccessor(NvU8 *base, size_t c) const = 0;
+    virtual EMUPoolBufferDescsAccessor poolBufferDescsAccessor(NvU8 *base, size_t c) const = 0;
+    virtual EMUSdpBufferDescsAccessor sdpBufferDescsAccessor(NvU8 *base, size_t c) const = 0;
+    virtual EMURubikBufferDescsAccessor rubikBufferDescsAccessor(NvU8 *base, size_t c) const = 0;
 
 protected:
     EMUOperationBufferContainer()          { }
@@ -460,6 +1100,10 @@ public:
 
     EMUPowerBufferDescsAccessor powerBufferDescsAccessor(size_t c) const;
     EMUSoftmaxBufferDescsAccessor softmaxBufferDescsAccessor(size_t c) const;
+    EMUConvBufferDescsAccessor convBufferDescsAccessor(size_t c) const;
+    EMUPoolBufferDescsAccessor poolBufferDescsAccessor(size_t c) const;
+    EMUSdpBufferDescsAccessor sdpBufferDescsAccessor(size_t c) const;
+    EMURubikBufferDescsAccessor rubikBufferDescsAccessor(size_t c) const;
 
     EMUOperationBufferContainerAccessor(NvU8 *base, const EMUOperationBufferContainer &);
 
