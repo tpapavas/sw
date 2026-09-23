@@ -152,10 +152,14 @@ NvDlaError createImageCopy(const TestAppArgs* appArgs, const NvDlaImage* in, con
     out->m_meta.height = outTensorDesc->dims.h;
     out->m_meta.channel = outTensorDesc->dims.c;
 
+    const unsigned int batchSize = (outTensorDesc->dims.n == 255) ? 1u : static_cast<unsigned int>(outTensorDesc->dims.n);
+
+    const unsigned int expectedHeight = out->m_meta.height * batchSize;
+
     if (in->m_meta.width != out->m_meta.width )
         ORIGINATE_ERROR(NvDlaError_BadParameter, "Mismatched width: %u != %u", in->m_meta.width, out->m_meta.width);
-    if (in->m_meta.height != out->m_meta.height*outTensorDesc->dims.n )
-        ORIGINATE_ERROR(NvDlaError_BadParameter, "Mismatched height: %u != %u", in->m_meta.height, out->m_meta.height);
+    if (in->m_meta.height != expectedHeight)
+        ORIGINATE_ERROR(NvDlaError_BadParameter, "Mismatched height: %u != %u", in->m_meta.height, expectedHeight);
     if (in->m_meta.channel != out->m_meta.channel )
         REPORT_ERROR(NvDlaError_BadParameter, "Mismatched channel: %u != %u", in->m_meta.channel, out->m_meta.channel);
 
