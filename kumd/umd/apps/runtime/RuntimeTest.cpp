@@ -1,4 +1,3 @@
-#include <stdio.h>
 /*
  * Copyright (c) 2017-2019, NVIDIA CORPORATION. All rights reserved.
  *
@@ -146,6 +145,8 @@ NvDlaError setupInputBuffer
     NvS32 numInputTensors = 0;
     nvdla::IRuntime::NvDlaTensor tDesc;
 
+    unsigned int batchSize;
+
     nvdla::IRuntime* runtime = i->runtime;
     if (!runtime)
         ORIGINATE_ERROR_FAIL(NvDlaError_BadParameter, "getRuntime() failed");
@@ -159,8 +160,7 @@ NvDlaError setupInputBuffer
 
     PROPAGATE_ERROR_FAIL(runtime->getInputTensorDesc(0, &tDesc));
 
-    const unsigned int batchSize =(tDesc.dims.n == 255) ? 1u : static_cast<unsigned int>(tDesc.dims.n);
-
+    batchSize = (tDesc.dims.n == 255) ? 1u : static_cast<unsigned int>(tDesc.dims.n);
     PROPAGATE_ERROR_FAIL(runtime->setNumBatches(batchSize));
     
     PROPAGATE_ERROR_FAIL(runtime->allocateSystemMemory(&hMem, tDesc.bufferSize, pInputBuffer));
@@ -438,28 +438,15 @@ NvDlaError run(const TestAppArgs* appArgs, TestInfo* i)
 
     /* Create runtime instance */
     NvDlaDebugPrintf("creating new runtime context...\n");
-    fprintf(stderr, "TRACE: before createRuntime\n");
-    fflush(stderr);
     i->runtime = nvdla::createRuntime();
-    fprintf(stderr, "TRACE: after createRuntime\n");
-    fflush(stderr);
     if (i->runtime == NULL)
         ORIGINATE_ERROR_FAIL(NvDlaError_BadParameter, "createRuntime() failed");
 
-    if (!i->dlaServerRunning) {
-        fprintf(stderr, "TRACE: before readLoadable\n");
-        fflush(stderr);
+    if (!i->dlaServerRunning)
         PROPAGATE_ERROR_FAIL(readLoadable(appArgs, i));
-        fprintf(stderr, "TRACE: after readLoadable\n");
-        fflush(stderr);
-    }
 
     /* Load loadable */
-    fprintf(stderr, "TRACE: before loadLoadable\n");
-    fflush(stderr);
     PROPAGATE_ERROR_FAIL(loadLoadable(appArgs, i));
-    fprintf(stderr, "TRACE: after loadLoadable\n");
-    fflush(stderr);
 
     /* Start emulator */
     if (!i->runtime->initEMU())
