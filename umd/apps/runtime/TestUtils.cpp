@@ -152,10 +152,15 @@ NvDlaError createImageCopy(const TestAppArgs* appArgs, const NvDlaImage* in, con
     out->m_meta.height = outTensorDesc->dims.h;
     out->m_meta.channel = outTensorDesc->dims.c;
 
+    const unsigned int batchSize = (outTensorDesc->dims.n == 255) ? 1u : static_cast<unsigned int>(outTensorDesc->dims.n);
+
+    const unsigned int expectedHeight = out->m_meta.height * batchSize;
+
     if (in->m_meta.width != out->m_meta.width )
         ORIGINATE_ERROR(NvDlaError_BadParameter, "Mismatched width: %u != %u", in->m_meta.width, out->m_meta.width);
-    if (in->m_meta.height != out->m_meta.height )
-        ORIGINATE_ERROR(NvDlaError_BadParameter, "Mismatched height: %u != %u", in->m_meta.height, out->m_meta.height);
+    if (in->m_meta.height != expectedHeight )
+        // ORIGINATE_ERROR(NvDlaError_BadParameter, "Mismatched height: %u != %u", in->m_meta.height, out->m_meta.height);
+        ORIGINATE_ERROR(NvDlaError_BadParameter, "Mismatched height: %u != %u", in->m_meta.height, expectedHeight);
     if (in->m_meta.channel != out->m_meta.channel )
         REPORT_ERROR(NvDlaError_BadParameter, "Mismatched channel: %u != %u", in->m_meta.channel, out->m_meta.channel);
 
@@ -237,6 +242,9 @@ NvDlaError createImageCopy(const TestAppArgs* appArgs, const NvDlaImage* in, con
     ibuf = static_cast<NvU8*>(in->m_pData);
     obuf = static_cast<NvU8*>(out->m_pData);
 
+    NvS32 num_of_imgs = outTensorDesc->dims.n;
+    NvS32 single_img_height = in->m_meta.height / num_of_imgs;
+    NvS32 single_img_size = in->m_meta.size / num_of_imgs;
     for (NvU32 y=0; y < in->m_meta.height; y++)
     {
         for (NvU32 x=0; x < in->m_meta.width; x++)
@@ -244,7 +252,9 @@ NvDlaError createImageCopy(const TestAppArgs* appArgs, const NvDlaImage* in, con
             for (NvU32 z=0; z < in->m_meta.channel; z++)
             {
                 NvS32 ioffset = in->getAddrOffset(x, y, z);
-                NvS32 ooffset = out->getAddrOffset(x, y, z);
+                // NvS32 ooffset = out->getAddrOffset(x, y, z);
+                NvS32 ooffset = out->getAddrOffset(x, y%single_img_height, z)
+                  + single_img_size*(y/single_img_height);
 
                 if (ioffset < 0)
                     ORIGINATE_ERROR(NvDlaError_BadParameter);

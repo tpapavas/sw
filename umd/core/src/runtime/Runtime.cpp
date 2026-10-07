@@ -1390,6 +1390,41 @@ Runtime::TensorDesc::TensorDesc(const ILoadable::TensorDescListEntry &e)
     stride[7] = e.stride[7];
 }
 
+NvDlaError Runtime::setNumDLAs(NvU8 dlas)
+{
+    NvDlaError e = NvDlaSuccess;
+
+    if (dlas > MAX_NUM_DLAS) {
+        ORIGINATE_ERROR_FAIL(NvDlaError_InvalidSize,
+            "number of dlas %d is not supported (max: %d)",
+            dlas, MAX_NUM_DLAS);
+    }
+    num_dlas = dlas;
+
+fail:
+    return e;
+}
+
+NvU8 Runtime::getNumDLAs()
+{
+    return num_dlas;
+}
+
+NvDlaError Runtime::setNumBatches(NvU8 batches)
+{
+    NvDlaError e = NvDlaSuccess;
+
+    if (batches > MAX_NUM_BATCHES) {
+        ORIGINATE_ERROR_FAIL(NvDlaError_InvalidSize,
+            "number of batches %d is not supported (max: %d)",
+            batches, MAX_NUM_BATCHES);
+    }
+    num_batches = batches;
+
+fail:
+    return e;
+}
+
 } // nvdla::priv
 
 } // nvdla

@@ -114,6 +114,9 @@ public:
 #define NVDLA_RUNTIME_TENSOR_DESC_NHWC_WC_STRIDE  2U /* line      */
 #define NVDLA_RUNTIME_TENSOR_DESC_NHWC_HWC_STRIDE 3U /* tensor    */
 
+#define MAX_NUM_DLAS 2U /* max gem5 dla instances */
+#define MAX_NUM_BATCHES 4U /* max gem5 net batches */
+
     struct NvDlaTensor
     {
         char name[NVDLA_RUNTIME_TENSOR_DESC_NAME_MAX_LEN + 1];
@@ -152,6 +155,10 @@ public:
     virtual NvDlaError getNumOutputTensors(int *) = 0;
     virtual NvDlaError getOutputTensorDesc(int id, NvDlaTensor *) = 0;
     virtual NvDlaError setOutputTensorDesc(int id, const NvDlaTensor *) = 0;
+
+    virtual NvDlaError setNumDLAs(NvU8) = 0;
+    virtual NvU8 getNumDLAs() = 0;
+    virtual NvDlaError setNumBatches(NvU8) = 0;
 
     virtual bool submit() = 0;
 

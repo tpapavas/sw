@@ -193,6 +193,28 @@ int main(int argc, char* argv[])
         {
             testAppArgs.rawOutputDump = true;
         }
+        else if (std::strcmp(arg, "--dlas") == 0)
+        {
+            if (ii+1 >= argc)
+            {
+                // Expecting another parameter
+                showHelp = true;
+                break;
+            }
+
+            testAppArgs.numDlas = atoi(argv[++ii]);
+        }
+        else if (std::strcmp(arg, "--batches") == 0)
+        {
+            if (ii+1 >= argc)
+            {
+                // Expecting another parameter
+                showHelp = true;
+                break;
+            }
+
+            testAppArgs.numBatches = atoi(argv[++ii]);
+        }
         else // unknown
         {
             // Unknown argument
@@ -220,6 +242,8 @@ int main(int argc, char* argv[])
         NvDlaDebugPrintf("    --normalize <value>   normalize value for input image\n");
         NvDlaDebugPrintf("    --mean <value>        comma separated mean value for input image\n");
         NvDlaDebugPrintf("    --rawdump             dump raw dimg data\n");
+        NvDlaDebugPrintf("    --dlas                number of dla devices (not supported yet)\n");
+        NvDlaDebugPrintf("    --batches             number of model batches (inputs)\n");
 
         if (unknownArg || missingArg)
             return EXIT_FAILURE;
