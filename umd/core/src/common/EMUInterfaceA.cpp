@@ -276,6 +276,8 @@ public:
 	virtual NvU8 * x1_op_cvt_mul_cvt_enable(NvU8 *base) const { return &ric(base)->x1_op_cvt_mul_cvt_enable; }
 	virtual NvS32 * x1_op_cvt_mul_cvt_offset(NvU8 *base) const { return &ric(base)->x1_op_cvt_mul_cvt_offset; }
 	virtual NvU8 * has_relu(NvU8 *base) const { return &ric(base)->has_relu; }
+	// virtual NvS16 * relu_op_cvt_scale(NvU8 *base) const { return &ric(base)->relu_op_cvt_scale; }
+	// virtual NvS16 * relu_op_cvt_truncate(NvU8 *base) const { return &ric(base)->relu_op_cvt_truncate; }
 
 protected:
     static inline NvU8          *cir(emu_common_op_desc *c)     { return reinterpret_cast<NvU8 *>(c);             }
@@ -501,6 +503,7 @@ public:
     virtual EMUBufferDescAccessor wmbDataAccessor(NvU8 *base) const { return EMUBufferDescAccessor(dir(&ric(base)->wmb_data), g_emu_buffer_desc); }
     virtual EMUBufferDescAccessor wgsDataAccessor(NvU8 *base) const { return EMUBufferDescAccessor(dir(&ric(base)->wgs_data), g_emu_buffer_desc); }
     virtual EMUBufferDescAccessor biasDataAccessor(NvU8 *base) const { return EMUBufferDescAccessor(dir(&ric(base)->bias_data), g_emu_buffer_desc); }
+    virtual EMUBufferDescAccessor requantDataAccessor(NvU8 *base) const { return EMUBufferDescAccessor(dir(&ric(base)->requant_data), g_emu_buffer_desc); }
     virtual EMUBufferDescAccessor srcDataAccessor(NvU8 *base) const { return EMUBufferDescAccessor(dir(&ric(base)->src_data), g_emu_buffer_desc); }
     virtual EMUBufferDescAccessor dstDataAccessor(NvU8 *base) const { return EMUBufferDescAccessor(dir(&ric(base)->dst_data), g_emu_buffer_desc); }
 

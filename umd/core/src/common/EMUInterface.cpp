@@ -219,6 +219,8 @@ NvU8 * EMUConvOpDescAccessor::x1_op_cvt_mul_cvt_truncate() const { return _n.x1_
 NvU8 * EMUConvOpDescAccessor::x1_op_cvt_mul_cvt_enable() const { return _n.x1_op_cvt_mul_cvt_enable(_base); }
 NvS32 * EMUConvOpDescAccessor::x1_op_cvt_mul_cvt_offset() const { return _n.x1_op_cvt_mul_cvt_offset(_base); }
 NvU8 * EMUConvOpDescAccessor::has_relu() const { return _n.has_relu(_base); }
+// NvS16 * EMUConvOpDescAccessor::relu_op_cvt_scale() const { return _n.relu_op_cvt_scale(_base); }
+// NvS16 * EMUConvOpDescAccessor::relu_op_cvt_truncate() const { return _n.relu_op_cvt_truncate(_base); }
 
 
 //
@@ -372,6 +374,7 @@ EMUBufferDescAccessor EMUConvBufferDescsAccessor::weightDataAccessor() const { r
 EMUBufferDescAccessor EMUConvBufferDescsAccessor::wmbDataAccessor() const { return _n.wmbDataAccessor(_base); }
 EMUBufferDescAccessor EMUConvBufferDescsAccessor::wgsDataAccessor() const { return _n.wgsDataAccessor(_base); }
 EMUBufferDescAccessor EMUConvBufferDescsAccessor::biasDataAccessor() const { return _n.biasDataAccessor(_base); }
+EMUBufferDescAccessor EMUConvBufferDescsAccessor::requantDataAccessor() const { return _n.requantDataAccessor(_base); }
 EMUBufferDescAccessor EMUConvBufferDescsAccessor::srcDataAccessor() const { return _n.srcDataAccessor(_base); }
 EMUBufferDescAccessor EMUConvBufferDescsAccessor::dstDataAccessor() const { return _n.dstDataAccessor(_base); }
 

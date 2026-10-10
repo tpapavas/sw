@@ -65,6 +65,7 @@ protected:
 
     NvS8 getBpe(EMUBufferDescAccessor buffer);
     NvDlaError getAddrOffset(EMUBufferDescAccessor in, NvU32 x, NvU32 y, NvU32 c, NvU32* offset);
+    NvS32 getMacAtomicK(EMUBufferDescAccessor buffer);
 
     NvDlaError executePower(EMUPowerOpDescAccessor opDesc, EMUCommonOpDescAccessor commonOpDesc,
                          EMUPowerBufferDescsAccessor bufDescs, std::vector<NvU8*> addressList);

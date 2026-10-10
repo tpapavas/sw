@@ -274,6 +274,15 @@ struct emu_conv_op_desc
 	int32_t x1_op_cvt_mul_cvt_offset;
 
 	uint8_t has_relu;
+
+    /**
+     * TODO: for int8
+     * pass relu sf params in conv op
+     * to execute relu ad hoc
+     * left for future work
+     */
+    // int16_t relu_op_cvt_scale;
+    // int16_t relu_op_cvt_truncate;
 } __attribute__ ((packed, aligned(4)));
 
 struct emu_pool_op_desc
@@ -422,6 +431,7 @@ struct emu_conv_buffer_descs
     struct emu_buffer_desc wmb_data;
     struct emu_buffer_desc wgs_data;
 	struct emu_buffer_desc bias_data;
+    struct emu_buffer_desc requant_data;
     struct emu_buffer_desc src_data;
     struct emu_buffer_desc dst_data;
 
