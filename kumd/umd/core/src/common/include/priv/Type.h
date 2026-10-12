@@ -34,6 +34,7 @@
 #include <map>
 #include <algorithm>
 #include <exception>
+#include <limits>
 
 #include "nvdla/IType.h"
 #include "priv/Check.h"
