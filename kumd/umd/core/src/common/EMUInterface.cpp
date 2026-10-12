@@ -156,6 +156,7 @@ NvU16 * EMUBufferDescAccessor::height()     const { return _n.height(_base); }
 NvU16 * EMUBufferDescAccessor::channel()    const { return _n.channel(_base); }
 NvU32 * EMUBufferDescAccessor::lineStride() const { return _n.lineStride(_base); }
 NvU32 * EMUBufferDescAccessor::surfStride() const { return _n.surfStride(_base); }
+NvU32 * EMUBufferDescAccessor::planeStride() const { return _n.planeStride(_base); }
 
 
 //

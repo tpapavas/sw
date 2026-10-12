@@ -216,6 +216,7 @@ public:
     virtual NvU16 * channel(NvU8 *base)    const { return &ric(base)->channel; }
     virtual NvU32 * lineStride(NvU8 *base) const { return &ric(base)->line_stride; }
     virtual NvU32 * surfStride(NvU8 *base) const { return &ric(base)->surf_stride; }
+    virtual NvU32 * planeStride(NvU8 *base) const { return &ric(base)->plane_stride; }
 
 protected:
     static inline emu_buffer_desc *ric(NvU8 *base)       { return reinterpret_cast<emu_buffer_desc *>(base); }

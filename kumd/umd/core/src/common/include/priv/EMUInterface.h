@@ -327,6 +327,7 @@ public:
     virtual NvU16 * channel(NvU8 *base)    const = 0;
     virtual NvU32 * lineStride(NvU8 *base) const = 0;
     virtual NvU32 * surfStride(NvU8 *base) const = 0;
+    virtual NvU32 * planeStride(NvU8 *base) const = 0;
 
 protected:
     EMUBufferDesc()          { }
@@ -355,6 +356,7 @@ public:
     NvU16 * channel()    const;
     NvU32 * lineStride() const;
     NvU32 * surfStride() const;
+    NvU32 * planeStride() const;
 
     EMUBufferDescAccessor(NvU8 *base, const EMUBufferDesc &);
 
