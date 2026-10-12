@@ -1,4 +1,5 @@
 *.o
+!**/m5ops*.o
 *.symvers
 *.o.d
 *.order
