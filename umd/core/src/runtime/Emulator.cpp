@@ -535,6 +535,7 @@ NvDlaError Emulator::executeSoftmax
     }
     else if ((*src.format() == EMU_FORMAT_INT8) || (*src.format() == EMU_FORMAT_INT8_8))
     {
+        NvDlaDebugPrintf("[GEM5 LOG] DLA OUTPUT\n");
         NvS8* pSrc = reinterpret_cast<NvS8*>( addressList[*src.addressIndex()] + *src.addressIndexOffset() );
         NvS8* pDst = reinterpret_cast<NvS8*>( addressList[*dst.addressIndex()] + *dst.addressIndexOffset() );
 
@@ -544,8 +545,10 @@ NvDlaError Emulator::executeSoftmax
         // scale input for processing in FLOAT land
         for (NvU32 ii = 0; ii < *src.channel(); ii++)
         {
+            NvDlaDebugPrintf("#%u: 0x%08x (%3d)\n", ii, pSrc[ii], pSrc[ii]);
             pHalfSrc[ii] = pSrc[ii] * (*commonOpDesc.input_scale_factor());
         }
+        NvDlaDebugPrintf("\n");
 
         NvF32 maxval = -INFINITY;
         for (NvU32 ii=0; ii<*src.channel(); ii++)
@@ -566,10 +569,12 @@ NvDlaError Emulator::executeSoftmax
             pHalfDst[ii] = static_cast<half>(expf(float(pHalfSrc[ii])-maxval) / sumexp);
         }
 
+        NvDlaDebugPrintf("[GEM5 LOG] NET OUTPUT\n");
         // rescale output to write out in INT8 land
         for (NvU32 ii = 0; ii < *dst.channel(); ii++)
         {
             pDst[ii] = saturate<NvF32, NvS8>(pHalfDst[ii] / (*commonOpDesc.output_scale_factor()));
+            NvDlaDebugPrintf("#%u: %d\n", ii, NvS8(pDst[ii]));
         }
 
         if (debugPrint())
@@ -2376,7 +2381,16 @@ NvDlaError Emulator::executeSdp
                             out_unpacked_int8[ind] = 0;
                         }
                         else {
-                            out_unpacked_int8[ind] = in_unpacked_int8[ind];
+                            // out_unpacked_int8[ind] = in_unpacked_int8[ind];
+
+                            int64_t in_i64 = in_unpacked_int8[ind];
+                            double in_d = (in_i64 * (int64_t)(*opDesc.out_cvt()).scale) / pow(2,(*opDesc.out_cvt()).truncate);
+                            in_i64 = in_d < 0 ? (-1) * (int64_t) floor(-in_d + 0.5) : floor(in_d + 0.5);
+
+                            int64_t lower = -128;
+                            int64_t upper = 127;
+
+                            out_unpacked_int8[ind] = std::max(lower, std::min(in_i64, upper));
                         } 
                     }
                 }
