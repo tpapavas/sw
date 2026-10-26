@@ -514,7 +514,7 @@ NvDlaError Emulator::executeSoftmax
         NvDlaDebugPrintf("[GEM5 LOG] DLA OUTPUT\n");
         for (NvU32 ii=0; ii<*src.channel(); ii++)
         {
-            NvDlaDebugPrintf("#%u: 0x%08x\n", ii, pSrc[ii]);
+            NvDlaDebugPrintf("#%u: 0x%08x (%f)\n", ii, pSrc[ii], float(pSrc[ii]));
             if (float(pSrc[ii]) > maxval)
             {
                 maxval = float(pSrc[ii]);
@@ -2539,7 +2539,7 @@ NvDlaError Emulator::executeRubik
             //     break;
             // }
             // NvDlaDebugPrintf("\n");
-            NvDlaDebugPrintf("=== EOF Rubik RESULT ===\n");
+            // NvDlaDebugPrintf("=== EOF Rubik RESULT ===\n");
         } else if (*opDesc.mode() == RUBIK_MODE_MERGE) {
             uint8_t *in_bytes = reinterpret_cast<uint8_t*>( addressList[*src.addressIndex()] + *src.addressIndexOffset());
             uint8_t *out_bytes = reinterpret_cast<uint8_t*>( addressList[*dst.addressIndex()] + *dst.addressIndexOffset());
