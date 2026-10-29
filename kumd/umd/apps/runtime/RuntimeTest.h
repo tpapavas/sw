@@ -48,7 +48,8 @@ struct TestAppArgs
     NvU8 normalize_value;
     float mean[4];
     bool rawOutputDump;
-    NvU8 num_dlas;
+    NvU8 numDlas;
+    NvU8 numBatches;
 
     TestAppArgs() :
         inputPath("./"),
@@ -58,7 +59,8 @@ struct TestAppArgs
         normalize_value(1),
         mean{0.0, 0.0, 0.0, 0.0},
         rawOutputDump(false),
-        num_dlas(1)
+        numDlas(1),
+        numBatches(1)
     {}
 };
 

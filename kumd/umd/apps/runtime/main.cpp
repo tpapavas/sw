@@ -202,7 +202,18 @@ int main(int argc, char* argv[])
                 break;
             }
 
-            testAppArgs.num_dlas = atoi(argv[++ii]);
+            testAppArgs.numDlas = atoi(argv[++ii]);
+        }
+        else if (std::strcmp(arg, "--batches") == 0)
+        {
+            if (ii+1 >= argc)
+            {
+                // Expecting another parameter
+                showHelp = true;
+                break;
+            }
+
+            testAppArgs.numBatches = atoi(argv[++ii]);
         }
         else // unknown
         {
@@ -232,6 +243,7 @@ int main(int argc, char* argv[])
         NvDlaDebugPrintf("    --mean <value>        comma separated mean value for input image\n");
         NvDlaDebugPrintf("    --rawdump             dump raw dimg data\n");
         NvDlaDebugPrintf("    --dlas                number of dla devices\n");
+        NvDlaDebugPrintf("    --batches             number of model batches (inputs)\n");
 
         if (unknownArg || missingArg)
             return EXIT_FAILURE;

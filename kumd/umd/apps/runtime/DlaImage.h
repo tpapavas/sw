@@ -114,6 +114,8 @@ public:
         NvU32 lineStride;
         NvU32 surfaceStride;
         NvU32 size;
+
+        NvU32 num;
     } m_meta;
 
     void* m_pData;

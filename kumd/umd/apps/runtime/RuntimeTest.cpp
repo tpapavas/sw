@@ -98,6 +98,8 @@ static NvDlaError copyImageToInputTensor
     }
 
     tensorImage = i->inputImage;
+    tensorImage->m_meta.num = appArgs->numBatches;
+    R8Image->m_meta.num = appArgs->numBatches;
     if (tensorImage == NULL)
         ORIGINATE_ERROR_FAIL(NvDlaError_BadParameter, "NULL input Image");
 
@@ -161,8 +163,13 @@ NvDlaError setupInputBuffer
     PROPAGATE_ERROR_FAIL(runtime->getInputTensorDesc(0, &tDesc));
 
     batchSize = (tDesc.dims.n == 255) ? 1u : static_cast<unsigned int>(tDesc.dims.n);
-    PROPAGATE_ERROR_FAIL(runtime->setNumBatches(batchSize));
-    
+    if (batchSize > 1)
+        tDesc.dims.n = batchSize;
+    else
+        tDesc.dims.n = appArgs->numBatches;
+    PROPAGATE_ERROR_FAIL(runtime->setNumBatches(tDesc.dims.n));
+    // PROPAGATE_ERROR_FAIL(runtime->setNumBatches(1));
+
     PROPAGATE_ERROR_FAIL(runtime->allocateSystemMemory(&hMem, tDesc.bufferSize, pInputBuffer));
     i->inputHandle = (NvU8 *)hMem;
     PROPAGATE_ERROR_FAIL(copyImageToInputTensor(appArgs, i, pInputBuffer, &tDesc));
@@ -225,6 +232,8 @@ NvDlaError setupOutputBuffer
     nvdla::IRuntime::NvDlaTensor tDesc;
     NvDlaImage *pOutputImage = NULL;
 
+    unsigned int batchSize;
+
     nvdla::IRuntime* runtime = i->runtime;
     if (!runtime)
         ORIGINATE_ERROR_FAIL(NvDlaError_BadParameter, "getRuntime() failed");
@@ -237,10 +246,19 @@ NvDlaError setupOutputBuffer
         ORIGINATE_ERROR_FAIL(NvDlaError_BadParameter, "Expected number of output tensors of %u, found %u", 1, numOutputTensors);
 
     PROPAGATE_ERROR_FAIL(runtime->getOutputTensorDesc(0, &tDesc));
+
+    batchSize = (tDesc.dims.n == 255) ? 1u : static_cast<unsigned int>(tDesc.dims.n);
+    if (batchSize > 1)
+        tDesc.dims.n = batchSize;
+    else
+        tDesc.dims.n = appArgs->numBatches;
+    PROPAGATE_ERROR_FAIL(runtime->setNumBatches(tDesc.dims.n));
+
     PROPAGATE_ERROR_FAIL(runtime->allocateSystemMemory(&hMem, tDesc.bufferSize, pOutputBuffer));
     i->outputHandle = (NvU8 *)hMem;
 
     pOutputImage = i->outputImage;
+    pOutputImage->m_meta.num = appArgs->numBatches;
     if (i->outputImage == NULL)
         ORIGINATE_ERROR_FAIL(NvDlaError_BadParameter, "NULL Output image");
     PROPAGATE_ERROR_FAIL(prepareOutputTensor(&tDesc, pOutputImage, pOutputBuffer, appArgs));
@@ -387,7 +405,7 @@ NvDlaError runTest(const TestAppArgs* appArgs, TestInfo* i)
     struct timespec before, after;
 
     nvdla::IRuntime* runtime = i->runtime;
-    PROPAGATE_ERROR_FAIL(runtime->setNumDLAs(appArgs->num_dlas));
+    PROPAGATE_ERROR_FAIL(runtime->setNumDLAs(appArgs->numDlas));
     if (!runtime)
         ORIGINATE_ERROR_FAIL(NvDlaError_BadParameter, "getRuntime() failed");
 
