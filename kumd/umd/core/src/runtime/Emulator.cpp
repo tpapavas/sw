@@ -73,7 +73,24 @@ namespace priv
 #define RUBIK_MODE_SPLIT	1
 #define RUBIK_MODE_MERGE	2
 
+/**
+ * TODO: Extract nvdla configs from buffer info
+ *
+ * We shouldn't expect from the user to rebuild
+ * nvdla_runtime only to modify nvdla configs
+ * for nv_full/nv_small configuration.
+ *
+ * We could extract this info from buffers,
+ * provided that onnc produces the corresponding info.
+ */
+// nv_small
+// #define DLA_2_CONFIG
+
+#ifndef DLA_2_CONFIG
+// nv_full
 uint32_t WEIGHT_ATOM_CUBE_SIZE = 128;
+uint32_t FEATURE_ATOM_CUBE_SIZE = 32;
+uint32_t MAC_ATOMIC_C = 64;
 
 // NV_FULL FP16
 // uint32_t ELEMENT_SIZE = 2;
@@ -82,8 +99,12 @@ uint32_t WEIGHT_ATOM_CUBE_SIZE = 128;
 // NV_FULL INT8
 // uint32_t ELEMENT_SIZE = 1;
 // uint32_t MAC_ATOMIC_K = 32;
-
-uint32_t MAC_ATOMIC_C = 64;
+#else
+// nv_small
+uint32_t WEIGHT_ATOM_CUBE_SIZE = 8;
+uint32_t FEATURE_ATOM_CUBE_SIZE = 8;
+uint32_t MAC_ATOMIC_C = 8;
+#endif
 
 Emulator::Emulator() :
         m_thread(),
@@ -326,7 +347,8 @@ NvS32 Emulator::getMacAtomicK(EMUBufferDescAccessor buffer)
         case EMU_FORMAT_INT8:
         case EMU_FORMAT_INT8_8:
         case EMU_FORMAT_UINT8:
-            mac_atomic_k = 32; break;
+            // mac_atomic_k = 32; break;
+            mac_atomic_k = FEATURE_ATOM_CUBE_SIZE == 8 ? 8 : 32; break;
         default:
             mac_atomic_k = -1;
     }
@@ -514,7 +536,7 @@ NvDlaError Emulator::executeSoftmax
         NvDlaDebugPrintf("[GEM5 LOG] DLA OUTPUT\n");
         for (NvU32 ii=0; ii<*src.channel(); ii++)
         {
-            NvDlaDebugPrintf("#%u: 0x%08x\n", ii, pSrc[ii]);
+            NvDlaDebugPrintf("#%u: 0x%08x (%f)\n", ii, pSrc[ii], float(pSrc[ii]));
             if (float(pSrc[ii]) > maxval)
             {
                 maxval = float(pSrc[ii]);
@@ -567,7 +589,6 @@ NvDlaError Emulator::executeSoftmax
         for (NvU32 ii=0; ii<*src.channel(); ii++)
         {
             pHalfDst[ii] = static_cast<half>(expf(float(pHalfSrc[ii])-maxval) / sumexp);
-            NvDlaDebugPrintf("#%u: %f\n", ii, float(pDst[ii]));
         }
 
         NvDlaDebugPrintf("[GEM5 LOG] NET OUTPUT\n");
@@ -714,6 +735,7 @@ void unpack_nvdla_feature_map(uint8_t *src,
                                int Wp, int Wu,
                                int ATOM_C, int32_t ELEMENT_SIZE)
 {
+    ATOM_C = FEATURE_ATOM_CUBE_SIZE;
     int groups = (C + ATOM_C - 1) / ATOM_C;
 
 if (ELEMENT_SIZE == 2) {
@@ -774,6 +796,7 @@ void pack_nvdla_feature_map(uint8_t *src,
                             int Wu, int Wp,
                             int ATOM_C, int32_t ELEMENT_SIZE)
 {
+    ATOM_C = FEATURE_ATOM_CUBE_SIZE;
 if (ELEMENT_SIZE == 2) {
     for (int c = 0; c < C; c++) {
         // int g = c / ATOM_C;
