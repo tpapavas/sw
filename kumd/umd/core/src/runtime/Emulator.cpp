@@ -114,6 +114,26 @@ Emulator::Emulator() :
 
 }
 
+Emulator::Emulator(std::string dla_arch) :
+        m_thread(),
+        m_threadActive(false),
+        m_signalShutdown(false),
+        m_dlaArch(dla_arch)
+{
+    if (m_dlaArch == "nv_full") {
+        NvDlaDebugPrintf("[Setup] Setting nv_full dla config params\n");
+        WEIGHT_ATOM_CUBE_SIZE = 128;
+        FEATURE_ATOM_CUBE_SIZE = 32;
+        MAC_ATOMIC_C = 64;
+    } else if (m_dlaArch == "nv_small") {
+        NvDlaDebugPrintf("[Setup] Setting nv_small dla config params\n");
+        WEIGHT_ATOM_CUBE_SIZE = 8;
+        FEATURE_ATOM_CUBE_SIZE = 8;
+        MAC_ATOMIC_C = 8;
+    }
+
+}
+
 Emulator::~Emulator()
 {
 

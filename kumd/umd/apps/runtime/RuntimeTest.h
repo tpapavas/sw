@@ -50,6 +50,7 @@ struct TestAppArgs
     bool rawOutputDump;
     NvU8 numDlas;
     NvU8 numBatches;
+    std::string dlaArch;
 
     TestAppArgs() :
         inputPath("./"),
@@ -60,7 +61,8 @@ struct TestAppArgs
         mean{0.0, 0.0, 0.0, 0.0},
         rawOutputDump(false),
         numDlas(1),
-        numBatches(1)
+        numBatches(1),
+        dlaArch("nv_full")
     {}
 };
 

@@ -215,6 +215,23 @@ int main(int argc, char* argv[])
 
             testAppArgs.numBatches = atoi(argv[++ii]);
         }
+        else if (std::strcmp(arg, "--arch") == 0)
+        {
+            if (ii+1 >= argc)
+            {
+                // Expecting another parameter
+                showHelp = true;
+                break;
+            }
+
+            testAppArgs.dlaArch = std::string(argv[++ii]);
+
+            if (testAppArgs.dlaArch != "nv_full" && testAppArgs.dlaArch != "nv_small") {
+                NvDlaDebugPrintf("Value of 'arch' should be nv_full or nv_small\n");
+                showHelp = true;
+                break;
+            }
+        }
         else // unknown
         {
             // Unknown argument
@@ -244,6 +261,7 @@ int main(int argc, char* argv[])
         NvDlaDebugPrintf("    --rawdump             dump raw dimg data\n");
         NvDlaDebugPrintf("    --dlas                number of dla devices\n");
         NvDlaDebugPrintf("    --batches             number of model batches (inputs)\n");
+        NvDlaDebugPrintf("    --arch                dla architecture (nv_full/nv_small)\n");
 
         if (unknownArg || missingArg)
             return EXIT_FAILURE;

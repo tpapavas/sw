@@ -190,7 +190,7 @@ bool Runtime::initEMU(void)
     // Ping EMU device
     if (!m_emu_engine)
     {
-        m_emu_engine = new Emulator();
+        m_emu_engine = new Emulator(dla_arch);
         m_emu_engine->start();
 
         // Wait for emulator engine to warm up
@@ -2389,6 +2389,15 @@ NvDlaError Runtime::setNumBatches(NvU8 batches)
     num_batches = batches;
 
 fail:
+    return e;
+}
+
+NvDlaError Runtime::setDlaArch(std::string arch)
+{
+    NvDlaError e = NvDlaSuccess;
+
+    dla_arch = arch;
+
     return e;
 }
 

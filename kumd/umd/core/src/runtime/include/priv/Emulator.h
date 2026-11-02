@@ -46,6 +46,7 @@ class Emulator
 {
 public: // externally facing
     Emulator();
+    Emulator(std::string dla_arch);
     virtual ~Emulator();
 
     bool ping();
@@ -90,6 +91,8 @@ private:
     bool m_threadActive;
 
     bool m_signalShutdown;
+
+    std::string m_dlaArch;
 };
 
 } // nvdla::priv
