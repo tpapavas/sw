@@ -2375,6 +2375,26 @@ NvDlaError Emulator::executeSdp
                     }
                 }
                 delete[] x1_unpacked;
+            } else if ((*opDesc.x1_op()).mode == SDP_OP_PER_LAYER) {
+                NvDlaDebugPrintf("\t op: per-layer add\n");
+                int32_t const_operand = (*opDesc.x1_op()).alu_operand;
+
+                for (int c = 0; c < Ci; c++) {
+                    for (int ih = 0; ih < Hi; ih++) {
+                        for (int iw = 0; iw < Wi; iw++) {
+                            int8_t in_c_h_w = int8_t(in[((c * Hi + ih) * Wi) + iw]);
+
+                            int64_t sum = in_c_h_w + const_operand;
+                            double sum_d = (sum * (int64_t)(*opDesc.out_cvt()).scale) / pow(2,(*opDesc.out_cvt()).truncate);
+                            sum = sum_d < 0 ? (-1) * (int64_t) floor(-sum_d + 0.5) : floor(sum_d+0.5);
+
+                            int64_t lower = -128;
+                            int64_t upper = 127;
+
+                            out_unpacked_int8[(c * Hi + ih) * Wi + iw] = std::max(lower, std::min(sum, upper));
+                        }
+                    }
+                }
             }
         } else if ((*opDesc.x1_op()).type == SDP_OP_NONE & (*opDesc.x1_op()).act == ACTIVATION_RELU) {
             // relu
