@@ -646,13 +646,12 @@ int32_t u__nvdla_task_submit(struct nvdla_device *nvdla_dev, struct nvdla_task *
 
 		err = dla_process_events(nvdla_dev->engine_context, &task_complete);
 
-		/**
-		 * TODO: Replace CURRENT_DLA_DEV_NUM with actual dla number
-		 */
-		for (dla_id = 0; dla_id < CURRENT_DLA_DEV_NUM; dla_id++) {
+		for (dla_id = 0; dla_id < nvdla_dev->num_dlas; dla_id++) {
+			nvdla_dev->current_dla_id = dla_id;
 			//if (m5_nvdla_read_reg(dla_id, 0x20000) == 1) {
 			// uint32_t dla_reg_read(void *driver_context, uint32_t addr)
-			if (dla_reg_read( nvdla_dev->engine_context ,0x20000) == 1) {
+			// if (dla_reg_read( nvdla_dev->engine_context ,0x20000) == 1) {
+			if (dla_reg_read(nvdla_dev, 0x20000) == 1) {
 				fprintf(stderr, "OP COMPLETED ...\n");
 				dla_isr_handler(nvdla_dev->engine_context, dla_id);
 				
@@ -676,9 +675,11 @@ int32_t u__nvdla_task_submit(struct nvdla_device *nvdla_dev, struct nvdla_task *
 			 * TODO: make sure dma (cache flush) is finished before
 			 * EMU reads operation's input
 			 */
-			for (dla_id = 0; dla_id < CURRENT_DLA_DEV_NUM; dla_id++){
+			for (dla_id = 0; dla_id < nvdla_dev->num_dlas; dla_id++){
+				nvdla_dev->current_dla_id = dla_id;
 				//m5_nvdla_read_reg(dla_id, 0x20004);
-				dla_reg_read(nvdla_dev->engine_context,0x20004 );
+				// dla_reg_read(nvdla_dev->engine_context,0x20004 );
+				dla_reg_read(nvdla_dev, 0x20004);
 			}
 			// m5_nvdla_read_reg(1, 0x20004);
 			break;
