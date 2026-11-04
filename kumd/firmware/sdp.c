@@ -327,6 +327,7 @@ processor_sdp_program(struct dla_processor_group *group)
 					(void *)&dst_addr,
 					DESTINATION_DMA);
 		dst_addr = task->address_list[sdp_surface->dst_data.address].v_addr
+			+ task->address_list[sdp_surface->dst_data.address].offset
 			+ sdp_surface->dst_data.offset;
 		dla_trace("[KUMD] sdp: dst_addr: 0x%08x", dst_addr);
 		CHECK_ALIGN(dst_addr, atom_size);
@@ -351,6 +352,7 @@ processor_sdp_program(struct dla_processor_group *group)
 					(void *)&x1_addr,
 					DESTINATION_DMA);
 		x1_addr = task->address_list[sdp_surface->x1_data.address].v_addr
+			+ task->address_list[sdp_surface->x1_data.address].offset
 			+ sdp_surface->x1_data.offset;
 		dla_debug("[KUMD] sdp: x1_addr: 0x%08x", x1_addr);
 		CHECK_ALIGN(x1_addr, atom_size);
@@ -363,6 +365,7 @@ processor_sdp_program(struct dla_processor_group *group)
 					(void *)&x2_addr,
 					DESTINATION_DMA);
 		x2_addr = task->address_list[sdp_surface->x2_data.address].v_addr
+			+ task->address_list[sdp_surface->x2_data.address].offset
 			+ sdp_surface->x2_data.offset;
 		dla_debug("[KUMD] sdp: x2_addr: 0x%08x", x2_addr);
 		CHECK_ALIGN(x2_addr, atom_size);
@@ -375,6 +378,7 @@ processor_sdp_program(struct dla_processor_group *group)
 					(void *)&y_addr,
 					DESTINATION_DMA);
 		y_addr = task->address_list[sdp_surface->y_data.address].v_addr
+			+ task->address_list[sdp_surface->y_data.address].offset
 			+ sdp_surface->y_data.offset;
 		CHECK_ALIGN(y_addr, atom_size);
 	}

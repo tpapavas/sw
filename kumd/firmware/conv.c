@@ -341,6 +341,7 @@ processor_conv_program(struct dla_processor_group *group)
 		CHECK_ALIGN(conv_surface->weight_data.size, 128);
 
 		weight_address = task->address_list[conv_surface->weight_data.address].v_addr
+			+ task->address_list[conv_surface->weight_data.address].offset
 			+ conv_surface->weight_data.offset;
 
 		dla_trace("[KUMD] conv: weight_address: 0x%08x", weight_address);
@@ -354,6 +355,7 @@ processor_conv_program(struct dla_processor_group *group)
 					(void *)&output_address,
 					DESTINATION_DMA);
 		output_address = task->address_list[conv_surface->dst_data.address].v_addr
+			+ task->address_list[conv_surface->dst_data.address].offset
 			+ conv_surface->dst_data.offset;
 		dla_trace("[KUMD] conv: output_address: 0x%08x", output_address);
 		CHECK_ALIGN(output_address, atom_size);

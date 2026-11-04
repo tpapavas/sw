@@ -315,6 +315,7 @@ processor_pdp_program(struct dla_processor_group *group)
 					(void *)&output_address,
 					DESTINATION_DMA);
 		output_address = task->address_list[pdp_surface->dst_data.address].v_addr
+			+ task->address_list[pdp_surface->dst_data.address].offset
 			+ pdp_surface->dst_data.offset;
 		dla_debug("[KUMD] pdp: output_address: 0x%08x", output_address);
 
