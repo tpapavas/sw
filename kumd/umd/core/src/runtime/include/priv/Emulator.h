@@ -30,6 +30,8 @@
 #define NVDLA_PRIV_EMULATOR_H
 
 #include <queue>
+#include <pthread.h>
+#include <stdint.h>
 
 #include "priv/EMUInterface.h"
 
@@ -86,6 +88,11 @@ protected:
 
 private:
     std::queue<NvU8*> m_taskQueue;
+    // All queue accesses, completion counters and shutdown state use this lock.
+    pthread_mutex_t m_queueLock;
+    pthread_cond_t m_queueCond;
+    uint64_t m_tasksSubmitted;
+    uint64_t m_tasksCompleted;
 
     NvDlaThreadHandle m_thread;
     bool m_threadActive;

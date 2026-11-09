@@ -107,19 +107,26 @@ uint32_t MAC_ATOMIC_C = 8;
 #endif
 
 Emulator::Emulator() :
+        m_tasksSubmitted(0),
+        m_tasksCompleted(0),
         m_thread(),
         m_threadActive(false),
         m_signalShutdown(false)
 {
-
+    pthread_mutex_init(&m_queueLock, NULL);
+    pthread_cond_init(&m_queueCond, NULL);
 }
 
 Emulator::Emulator(std::string dla_arch) :
+        m_tasksSubmitted(0),
+        m_tasksCompleted(0),
         m_thread(),
         m_threadActive(false),
         m_signalShutdown(false),
         m_dlaArch(dla_arch)
 {
+    pthread_mutex_init(&m_queueLock, NULL);
+    pthread_cond_init(&m_queueCond, NULL);
     if (m_dlaArch == "nv_full") {
         NvDlaDebugPrintf("[Setup] Setting nv_full dla config params\n");
         WEIGHT_ATOM_CUBE_SIZE = 128;
@@ -136,24 +143,36 @@ Emulator::Emulator(std::string dla_arch) :
 
 Emulator::~Emulator()
 {
-
+    stop();
+    pthread_cond_destroy(&m_queueCond);
+    pthread_mutex_destroy(&m_queueLock);
 }
 
 bool Emulator::ping()
 {
-    return m_threadActive;
+    pthread_mutex_lock(&m_queueLock);
+    bool active = m_threadActive;
+    pthread_mutex_unlock(&m_queueLock);
+    return active;
 }
 
 NvDlaError Emulator::submit(NvU8* task_mem, bool blocking)
 {
+    pthread_mutex_lock(&m_queueLock);
     m_taskQueue.push(task_mem);
+    const uint64_t ticket = ++m_tasksSubmitted;
+
+    // Wake the emulator thread if it is waiting for work.
+    pthread_cond_broadcast(&m_queueCond);
 
     if (blocking) {
-        // wait until queue becomes empty
-        while (!m_taskQueue.empty()) {
-            NvDlaThreadYield();
+        // Wait for THIS task, not for unrelated later submissions.
+        // pthread_cond_wait atomically unlocks m_queueLock while sleeping.
+        while (m_tasksCompleted < ticket) {
+            pthread_cond_wait(&m_queueCond, &m_queueLock);
         }
     }
+    pthread_mutex_unlock(&m_queueLock);
 
     return NvDlaSuccess;
 }
@@ -182,7 +201,12 @@ bool Emulator::stop()
 
     if (m_thread)
     {
+        pthread_mutex_lock(&m_queueLock);
         m_signalShutdown = true;
+        pthread_cond_broadcast(&m_queueCond);
+        pthread_mutex_unlock(&m_queueLock);
+
+        // Worker drains already queued tasks before leaving.
         NvDlaThreadJoin(m_thread);
         m_thread = NULL;
     }
@@ -193,7 +217,9 @@ bool Emulator::stop()
 bool Emulator::run()
 {
     bool ok = true;
+    pthread_mutex_lock(&m_queueLock);
     m_threadActive = true;
+    pthread_mutex_unlock(&m_queueLock);
 
     EMUInterface* emu_if = new EMUInterfaceA();
 
@@ -201,9 +227,21 @@ bool Emulator::run()
 
     while (true)
     {
-        if (!m_taskQueue.empty())
+        pthread_mutex_lock(&m_queueLock);
+        while (m_taskQueue.empty() && !m_signalShutdown) {
+            pthread_cond_wait(&m_queueCond, &m_queueLock);
+        }
+
+        if (m_taskQueue.empty() && m_signalShutdown) {
+            pthread_mutex_unlock(&m_queueLock);
+            NvDlaDebugPrintf("Shutdown signal received, exiting\n");
+            break;
+        }
+
+        NvU8* task_mem = m_taskQueue.front();
+        pthread_mutex_unlock(&m_queueLock);
+
         {
-            NvU8* task_mem = m_taskQueue.front();
             NvDlaDebugPrintf("Work Found!\n");
 
             EMUTaskDescAccessor task_desc = emu_if->taskDescAccessor(task_mem);
@@ -230,31 +268,20 @@ bool Emulator::run()
             processTask(task_mem, mappedAddressList);
             NvDlaDebugPrintf("Work Done\n");
 
+            pthread_mutex_lock(&m_queueLock);
             m_taskQueue.pop();
-            continue;
+            ++m_tasksCompleted;
+            pthread_cond_broadcast(&m_queueCond);
+            pthread_mutex_unlock(&m_queueLock);
         }
-
-        if (m_signalShutdown)
-        {
-            NvDlaDebugPrintf("Shutdown signal received, exiting\n");
-            break;
-        }
-
-        if (m_taskQueue.empty())
-        {
-            NvDlaSleepMS(500);
-        }
-    }
-
-    // Cleanup
-    while (!m_taskQueue.empty())
-    {
-        m_taskQueue.pop();
     }
 
     delete emu_if;
+    pthread_mutex_lock(&m_queueLock);
     m_threadActive = false;
     m_signalShutdown = false;
+    pthread_cond_broadcast(&m_queueCond);
+    pthread_mutex_unlock(&m_queueLock);
 
     return ok;
 }
@@ -1255,47 +1282,43 @@ if (*opDesc.in_precision() == EMU_FORMAT_FF16) {
 
     out_unpacked_half = new half[Co * Ho * Wo];
 
-    for (int c0 = 0; c0 < Co; c0++) {
-        for (int y0 = 0; y0 < Ho; y0++) {
-            for (int x0 = 0; x0 < Wo; x0++) {
+    //  fixE: convert input and weights from half to float once (not twice per MAC) and
+    // compute the valid kernel window once per output (no bounds check per MAC). Same summation
+    // order as before (ci, fh, fw); the skipped taps were 0*w, which do not change the sum.
+    {
+        const int nIn = Ci * Hi * Wi, nW = Co * Ci * Fh * Fw;
+        float *in_f = new float[nIn];
+        float *w_f = new float[nW];
+        for (int i = 0; i < nIn; i++) in_f[i] = (float)in[i];
+        for (int i = 0; i < nW; i++) w_f[i] = (float)w_hwim[i];
 
-                float sum = (float)bias[c0];
-
-                for (int ci = 0; ci < Ci; ci++) {
-                    for (int fh = 0; fh < Fh; fh++) {
-                        for (int fw = 0; fw < Fw; fw++) {
-
-                            int in_y = y0 * Sy + fh - pad_top;
-                            int in_x = x0 * Sx + fw - pad_left;
-
-                            float input_val = 0.0f;
-                            if (in_y >= 0 && in_y < Hi && in_x >= 0 && in_x < Wi) {
-                                input_val = in[(ci * Hi + in_y) * Wi + in_x];
-                            }
-
-                            uint32_t w_ind = ((c0 * Ci + ci) * Fh + fh) * Fw + fw;
-                            float weight_val = (float)w_hwim[((c0 * Ci + ci) * Fh + fh) * Fw + fw];
-                            // uint32_t w_ind = ((ci * Fh + fh) * Fw + fw) * Co
-                            // NvDlaDebugPrintf("in[%d][%d]*w[%d][%d][%d] (%0.2f*%0.2f) ",
-                            //     in_y, in_x, c0,fh,fw, float(in[(ci * Hi + in_y) * Wi + in_x]),
-                            //     float(w_hwim[((c0 * Ci + ci) * Fh + fh) * Fw + fw]));
-                            // NvDlaDebugPrintf("0x%08x (%f) ", w_hwim[w_ind], float(w_hwim[w_ind]));
-
-                            // sum += (float)in[(ci * Hi + in_y) * Wi + in_x] *
-                            //     (float)w_hwim[((c0 * Ci + ci) * Fh + fh) * Fw + fw];
-                            sum += input_val*weight_val;
+        for (int c0 = 0; c0 < Co; c0++) {
+            const float *w_c0 = w_f + (size_t)c0 * Ci * Fh * Fw;
+            const float b = (float)bias[c0];
+            for (int y0 = 0; y0 < Ho; y0++) {
+                const int iy0 = y0 * Sy - pad_top;
+                const int fh0 = iy0 < 0 ? -iy0 : 0;
+                const int fh1 = (Hi - iy0) < Fh ? (Hi - iy0) : Fh;
+                for (int x0 = 0; x0 < Wo; x0++) {
+                    const int ix0 = x0 * Sx - pad_left;
+                    const int fw0 = ix0 < 0 ? -ix0 : 0;
+                    const int fw1 = (Wi - ix0) < Fw ? (Wi - ix0) : Fw;
+                    const int nk = fw1 - fw0;
+                    float sum = b;
+                    for (int ci = 0; ci < Ci; ci++) {
+                        for (int fh = fh0; fh < fh1; fh++) {
+                            const float *ip = in_f + ((size_t)(ci * Hi + iy0 + fh) * Wi + ix0 + fw0);
+                            const float *wp = w_c0 + ((size_t)(ci * Fh + fh) * Fw + fw0);
+                            for (int k = 0; k < nk; k++)
+                                sum += ip[k] * wp[k];
                         }
                     }
-                    // NvDlaDebugPrintf("%f\n", sum);
+                    out_unpacked_half[(c0 * Ho + y0) * Wo + x0] = sum;
                 }
-                // NvDlaDebugPrintf("\n");
-
-                // out index: [Co][H_out][W_out]
-                // out[(c0 * Ho + y0) * Wo + x0] = sum;
-
-                out_unpacked_half[(c0 * Ho + y0) * Wo + x0] = sum;
             }
         }
+        delete[] in_f;
+        delete[] w_f;
     }
 
     // ReLU
@@ -1400,34 +1423,27 @@ if (*opDesc.in_precision() == EMU_FORMAT_FF16) {
             for (int x0 = 0; x0 < Wo; x0++) {
 
                 // float sum = (float)bias[c0];
-                int64_t sum = 0;
-
-                for (int ci = 0; ci < Ci; ci++) {
-                    for (int fh = 0; fh < Fh; fh++) {
-                        for (int fw = 0; fw < Fw; fw++) {
-
-                            int in_y = y0 * Sy + fh - pad_top;
-                            int in_x = x0 * Sx + fw - pad_left;
-
-                            int64_t input_val = 0;
-                            if (in_y >= 0 && in_y < Hi && in_x >= 0 && in_x < Wi) {
-                                input_val = static_cast<int64_t>(in[(ci * Hi + in_y) * Wi + in_x]);
-                            }
-
-                            int64_t w_ind = ((c0 * Ci + ci) * Fh + fh) * Fw + fw;
-                            int64_t weight_val = static_cast<int64_t>(w_hwim[((c0 * Ci + ci) * Fh + fh) * Fw + fw]);
-                            // uint32_t w_ind = ((ci * Fh + fh) * Fw + fw) * Co
-                            // NvDlaDebugPrintf("in[%d][%d]*w[%d][%d][%d] (%0.2f*%0.2f) ",
-                            //     in_y, in_x, c0,fh,fw, float(in[(ci * Hi + in_y) * Wi + in_x]),
-                            //     float(w_hwim[((c0 * Ci + ci) * Fh + fh) * Fw + fw]));
-                            // NvDlaDebugPrintf("0x%08x (%f) ", w_hwim[w_ind], float(w_hwim[w_ind]));
-
-                            // sum += (float)in[(ci * Hi + in_y) * Wi + in_x] *
-                            //     (float)w_hwim[((c0 * Ci + ci) * Fh + fh) * Fw + fw];
-                            sum += input_val*weight_val;
+                //  fixE: valid kernel window once per output, int32 accumulation
+                // (|in*w| <= 2^14, so the sum fits for Ci*Fh*Fw < 2^17), same order as before
+                int32_t acc = 0;
+                {
+                    const int iy0 = y0 * Sy - pad_top;
+                    const int fh0 = iy0 < 0 ? -iy0 : 0;
+                    const int fh1 = (Hi - iy0) < Fh ? (Hi - iy0) : Fh;
+                    const int ix0 = x0 * Sx - pad_left;
+                    const int fw0 = ix0 < 0 ? -ix0 : 0;
+                    const int fw1 = (Wi - ix0) < Fw ? (Wi - ix0) : Fw;
+                    const int nk = fw1 - fw0;
+                    for (int ci = 0; ci < Ci; ci++) {
+                        for (int fh = fh0; fh < fh1; fh++) {
+                            const int8_t *ip = in + ((size_t)(ci * Hi + iy0 + fh) * Wi + ix0 + fw0);
+                            const int8_t *wp = w_hwim + ((size_t)((c0 * Ci + ci) * Fh + fh) * Fw + fw0);
+                            for (int k = 0; k < nk; k++)
+                                acc += (int32_t)ip[k] * (int32_t)wp[k];
                         }
                     }
                 }
+                int64_t sum = acc;
 
                 // out index: [Co][H_out][W_out]
                 // out[(c0 * Ho + y0) * Wo + x0] = sum;
