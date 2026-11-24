@@ -70,7 +70,10 @@
 
 #include "gem5/m5ops.h"
 
-#define NVDLA_VERILATED
+/* SystemC (CMOD) NVDLA: register reads are split-phase (read_reg,
+ * then poll got_response, then get_data). Define this only for the
+ * Verilated NVDLA, where read_reg returns the data directly. */
+// #define NVDLA_VERILATED
 
 static struct nvdla_config nvdla_config_os_initial = {
 	.atom_size = 32,
@@ -427,10 +430,9 @@ uint32_t dla_reg_read(void *driver_context, uint32_t addr)
 #else
 	m5_nvdla_read_reg(nvdla_dev->current_dla_id, addr);
 
-	uint32_t data;
-	while (m5_nvdla_got_response()) {}
+	while (m5_nvdla_got_response(nvdla_dev->current_dla_id)) {}
 		// do nothing
-	return m5_nvdla_get_data();
+	return m5_nvdla_get_data(nvdla_dev->current_dla_id);
 #endif
 
 

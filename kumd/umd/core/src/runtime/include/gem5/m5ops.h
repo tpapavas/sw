@@ -113,8 +113,8 @@ void m5_nvdla_end_count_cdma_wt_1(int accel_id);
 
 
 
-bool m5_nvdla_got_response(void);
-uint32_t m5_nvdla_get_data(void);
+bool m5_nvdla_got_response(int accel_id);
+uint32_t m5_nvdla_get_data(int accel_id);
 /*
  * Send a very generic poke to the workload so it can do something. It's up to
  * the workload to know what information to look for to interpret an event,
