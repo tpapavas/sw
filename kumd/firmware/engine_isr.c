@@ -188,7 +188,7 @@ int32_t dla_isr_handler(void *engine_data, uint8_t dla_id)
 
     }
 
-    busy_delay(50);
+    //busy_delay(50);
 
     if (reg & MASK(GLB_S_INTR_STATUS_0, CACC_DONE_STATUS1)) {
         dla_trace("[ISR] CACC_DONE_STATUS1\n");
