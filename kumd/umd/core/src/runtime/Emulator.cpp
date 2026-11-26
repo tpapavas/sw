@@ -2564,7 +2564,9 @@ NvDlaError Emulator::executeRubik
      * else if (elementSize == 2) in_precison = 1;
      * else in_precison = -1;
      */
-    uint32_t ELEMENT_SIZE = *opDesc.precision() == 1 ? 2 : 1;
+    const uint8_t RUBIK_PRECISION_INT8 = 0;
+    const uint8_t RUBIK_PRECISION_FP16 = 1;
+    uint32_t ELEMENT_SIZE = *opDesc.precision() == RUBIK_PRECISION_FP16 ? 2 : 1;
 
     if ( debugOps() )
     {
@@ -2600,7 +2602,7 @@ NvDlaError Emulator::executeRubik
     uint16_t line_elements_count;
 
     // Execute
-    if (*opDesc.precision() == EMU_FORMAT_FF16 || (*opDesc.precision() == EMU_FORMAT_INT8) || (*opDesc.precision() == EMU_FORMAT_INT8_8))
+    if (*opDesc.precision() == RUBIK_PRECISION_FP16 || (*opDesc.precision() == RUBIK_PRECISION_INT8))
     {
         half *out_unpacked_half = new half[Co * Ho * Wo];
 
@@ -2654,6 +2656,22 @@ NvDlaError Emulator::executeRubik
             // }
             // // NvDlaDebugPrintf("\n");
             // NvDlaDebugPrintf("=== EOF Rubik RESULT ===\n");
+
+            // print rubik result
+            if (debugResults()) {
+                if (*opDesc.precision() == RUBIK_PRECISION_INT8) {
+                    NvDlaDebugPrintf("=== Rubik RESULT ===\n");
+                    for (int c0 = 0; c0 < Co; c0++) {
+                        for (int y0 = 0; y0 < Ho; y0++) {
+                            for (int x0 = 0; x0 < Wo; x0++) {
+                                NvDlaDebugPrintf("%d ", (int8_t) out_bytes[(c0 * Ho + y0) * Wo + x0]);
+                            }
+                            NvDlaDebugPrintf("\n");
+                        }
+                    }
+                    NvDlaDebugPrintf("=== EOF Rubik RESULT ===\n");
+                }
+            }
         }
 
     }
