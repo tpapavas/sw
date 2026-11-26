@@ -2238,8 +2238,21 @@ NvDlaError Emulator::executeSdp
                     }
                 }
                 delete[] x1_unpacked;
+            } else if ((*opDesc.x1_op()).mode == SDP_OP_PER_LAYER) {
+                NvDlaDebugPrintf("\t op: per-layer add\n");
+                float const_operand = (float) (*opDesc.x1_op()).alu_operand;
+
+                for (int c = 0; c < Ci; c++) {
+                    for (int ih = 0; ih < Hi; ih++) {
+                        for (int iw = 0; iw < Wi; iw++) {
+                            float in_c_h_w = float(in[((c * Hi + ih) * Wi) + iw]);
+
+                            out_unpacked_half[((c * Hi + ih) * Wi) + iw] = in_c_h_w + const_operand;
+                        }
+                    }
+                }
             }
-        } else if ((*opDesc.x1_op()).type == SDP_OP_NONE & (*opDesc.x1_op()).act == ACTIVATION_RELU) {
+        } else if ((*opDesc.x1_op()).type == SDP_OP_NONE && (*opDesc.x1_op()).act == ACTIVATION_RELU) {
             // relu
             NvDlaDebugPrintf("Executing relu...\n");
             for (int c0 = 0; c0 < Co; c0++) {
