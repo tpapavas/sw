@@ -457,6 +457,7 @@ NvDlaError run(const TestAppArgs* appArgs, TestInfo* i)
     /* Create runtime instance */
     NvDlaDebugPrintf("creating new runtime context...\n");
     i->runtime = nvdla::createRuntime();
+    PROPAGATE_ERROR_FAIL(i->runtime->setDlaArch(appArgs->dlaArch));
     if (i->runtime == NULL)
         ORIGINATE_ERROR_FAIL(NvDlaError_BadParameter, "createRuntime() failed");
 

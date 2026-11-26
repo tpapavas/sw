@@ -103,6 +103,7 @@ public: // externally facing
     virtual NvDlaError setNumDLAs(NvU8);
     virtual NvU8 getNumDLAs();
     virtual NvDlaError setNumBatches(NvU8);
+    virtual NvDlaError setDlaArch(std::string);
 
     virtual bool submit();
 
@@ -149,6 +150,7 @@ protected:
     // [gem5-plus]
     NvU8 num_dlas;
     NvU8 num_batches;
+    std::string dla_arch;
 
     class Task  {
     public:

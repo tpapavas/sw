@@ -159,6 +159,7 @@ public:
     virtual NvDlaError setNumDLAs(NvU8) = 0;
     virtual NvU8 getNumDLAs() = 0;
     virtual NvDlaError setNumBatches(NvU8) = 0;
+    virtual NvDlaError setDlaArch(std::string) = 0;
 
     virtual bool submit() = 0;
 
