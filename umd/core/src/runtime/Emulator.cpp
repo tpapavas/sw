@@ -1454,16 +1454,18 @@ if (*opDesc.in_precision() == EMU_FORMAT_FF16) {
     // }
 
     // print Conv + ReLU result
-    NvDlaDebugPrintf("=== Conv RESULT ===\n");
-    for (int c0 = 0; c0 < Co; c0++) {
-        for (int y0 = 0; y0 < Ho; y0++) {
-            for (int x0 = 0; x0 < Wo; x0++) {
-                NvDlaDebugPrintf("%d ", out_unpacked_int8[(c0 * Ho + y0) * Wo + x0]);
+    if (debugResults()) {
+        NvDlaDebugPrintf("=== Conv RESULT ===\n");
+        for (int c0 = 0; c0 < Co; c0++) {
+            for (int y0 = 0; y0 < Ho; y0++) {
+                for (int x0 = 0; x0 < Wo; x0++) {
+                    NvDlaDebugPrintf("%d ", out_unpacked_int8[(c0 * Ho + y0) * Wo + x0]);
+                }
+                NvDlaDebugPrintf("\n");
             }
-            NvDlaDebugPrintf("\n");
         }
+        NvDlaDebugPrintf("=== EOF Conv RESULT ===\n");
     }
-    NvDlaDebugPrintf("=== EOF Conv RESULT ===\n");
 
     for (int sss = 0; sss < *dst.size()/ELEMENT_SIZE; sss++) {
         out[sss] = 0;
@@ -2082,16 +2084,18 @@ NvDlaError Emulator::executePool
         }
 
         // print Pool result
-        NvDlaDebugPrintf("=== Pool RESULT ===\n");
-        for (int c0 = 0; c0 < Co; c0++) {
-            for (int y0 = 0; y0 < Ho; y0++) {
-                for (int x0 = 0; x0 < Wo; x0++) {
-                    NvDlaDebugPrintf("%d ", int(out_unpacked_int8[(c0 * Ho + y0) * Wo + x0]));
+        if (debugResults()) {
+            NvDlaDebugPrintf("=== Pool RESULT ===\n");
+            for (int c0 = 0; c0 < Co; c0++) {
+                for (int y0 = 0; y0 < Ho; y0++) {
+                    for (int x0 = 0; x0 < Wo; x0++) {
+                        NvDlaDebugPrintf("%d ", int(out_unpacked_int8[(c0 * Ho + y0) * Wo + x0]));
+                    }
+                    NvDlaDebugPrintf("\n");
                 }
-                NvDlaDebugPrintf("\n");
             }
+            NvDlaDebugPrintf("=== EOF Pool RESULT ===\n");
         }
-        NvDlaDebugPrintf("=== EOF Pool RESULT ===\n");
 
         uint8_t *dst_bytes = reinterpret_cast<uint8_t*>( addressList[*dst.addressIndex()] + *dst.addressIndexOffset());
         uint8_t *out_unpacked_bytes = reinterpret_cast<uint8_t*>(out_unpacked_int8);
@@ -2270,17 +2274,17 @@ NvDlaError Emulator::executeSdp
         pack_nvdla_feature_map(out_unpacked_bytes, dst_bytes, Co, Ho, Wo, Wo, Wo, 32, ELEMENT_SIZE);
 
         // print sdp result
-        NvDlaDebugPrintf("=== Sdp RESULT ===\n");
-        for (int c0 = 0; c0 < Co; c0++) {
-            for (int y0 = 0; y0 < Ho; y0++) {
-                for (int x0 = 0; x0 < Wo; x0++) {
-                    NvDlaDebugPrintf("%02x %02x ", dst_bytes[((c0 * Ho + y0) * Wo + x0)*2], dst_bytes[((c0 * Ho + y0) * Wo + x0)*2+1]);
-                }
-                NvDlaDebugPrintf("\n");
-            }
-            break;
-        }
-        NvDlaDebugPrintf("=== EOF Sdp RESULT ===\n");
+        // NvDlaDebugPrintf("=== Sdp RESULT ===\n");
+        // for (int c0 = 0; c0 < Co; c0++) {
+        //     for (int y0 = 0; y0 < Ho; y0++) {
+        //         for (int x0 = 0; x0 < Wo; x0++) {
+        //             NvDlaDebugPrintf("%02x %02x ", dst_bytes[((c0 * Ho + y0) * Wo + x0)*2], dst_bytes[((c0 * Ho + y0) * Wo + x0)*2+1]);
+        //         }
+        //         NvDlaDebugPrintf("\n");
+        //     }
+        //     break;
+        // }
+        // NvDlaDebugPrintf("=== EOF Sdp RESULT ===\n");
 
         delete[] in_unpacked;
         delete[] out_unpacked_half;
@@ -2442,17 +2446,19 @@ NvDlaError Emulator::executeSdp
             }
         }
 
-        // print Pool result
-        NvDlaDebugPrintf("=== Sdp RESULT ===\n");
-        for (int c0 = 0; c0 < Co; c0++) {
-            for (int y0 = 0; y0 < Ho; y0++) {
-                for (int x0 = 0; x0 < Wo; x0++) {
-                    NvDlaDebugPrintf("%d ", out_unpacked_int8[(c0 * Ho + y0) * Wo + x0]);
+        // print Sdp result
+        if (debugResults()) {
+            NvDlaDebugPrintf("=== Sdp RESULT ===\n");
+            for (int c0 = 0; c0 < Co; c0++) {
+                for (int y0 = 0; y0 < Ho; y0++) {
+                    for (int x0 = 0; x0 < Wo; x0++) {
+                        NvDlaDebugPrintf("%d ", out_unpacked_int8[(c0 * Ho + y0) * Wo + x0]);
+                    }
+                    NvDlaDebugPrintf("\n");
                 }
-                NvDlaDebugPrintf("\n");
             }
+            NvDlaDebugPrintf("=== EOF Sdp RESULT ===\n");
         }
-        NvDlaDebugPrintf("=== EOF Sdp RESULT ===\n");
 
         uint8_t *dst_bytes = reinterpret_cast<uint8_t*>( addressList[*dst.addressIndex()] + *dst.addressIndexOffset());
         uint8_t *out_unpacked_bytes = reinterpret_cast<uint8_t*>(out_unpacked_int8);
@@ -2599,6 +2605,22 @@ NvDlaError Emulator::executeRubik
             // }
             // // NvDlaDebugPrintf("\n");
             // NvDlaDebugPrintf("=== EOF Rubik RESULT ===\n");
+
+            // print rubik result
+            if (debugResults()) {
+                if ((*opDesc.precision() == EMU_FORMAT_INT8) || (*opDesc.precision() == EMU_FORMAT_INT8_8)) {
+                    NvDlaDebugPrintf("=== Rubik RESULT ===\n");
+                    for (int c0 = 0; c0 < Co; c0++) {
+                        for (int y0 = 0; y0 < Ho; y0++) {
+                            for (int x0 = 0; x0 < Wo; x0++) {
+                                NvDlaDebugPrintf("%d ", (int8_t) out_bytes[(c0 * Ho + y0) * Wo + x0]);
+                            }
+                            NvDlaDebugPrintf("\n");
+                        }
+                    }
+                    NvDlaDebugPrintf("=== EOF Rubik RESULT ===\n");
+                }
+            }
         }
 
     }
