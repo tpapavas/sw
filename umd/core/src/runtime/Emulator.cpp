@@ -63,10 +63,10 @@ namespace priv
 #define SDP_OP_PER_KERNEL	1
 #define SDP_OP_PER_POINT	2
 
-#define ACTIVATION_NONE		0
-#define ACTIVATION_RELU		1
-#define ACTIVATION_LUT		2
-#define ACTIVATION_PRELU	3
+#define ACTIVATION_NONE     0
+#define ACTIVATION_RELU     1
+#define ACTIVATION_LUT      2
+#define ACTIVATION_PRELU    3
 
 /* rubik mode */
 #define RUBIK_MODE_CONTRACT	0
@@ -592,6 +592,7 @@ NvDlaError Emulator::executeSoftmax
         }
 
         NvDlaDebugPrintf("[GEM5 LOG] NET OUTPUT\n");
+
         // rescale output to write out in INT8 land
         for (NvU32 ii = 0; ii < *dst.channel(); ii++)
         {
@@ -929,7 +930,7 @@ if (ELEMENT_SIZE == 2) {
                             W * n_size * cube_size;
 
                         int src_ofs = (n * w_stride_kgrp) + (surf_ofs * w_stride_surf) +
-                            (h * w_stride_line) + 
+                            (h * w_stride_line) +
                             (w * n_size * cube_size) +
                             (n_ofs * cube_size) +
                             ch_ofs;
@@ -985,7 +986,7 @@ if (ELEMENT_SIZE == 2) {
                             W * n_size * cube_size;
 
                         int src_ofs = (n * w_stride_kgrp) + (surf_ofs * w_stride_surf) +
-                            (h * w_stride_line) + 
+                            (h * w_stride_line) +
                             (w * n_size * cube_size) +
                             (n_ofs * cube_size) +
                             ch_ofs;
@@ -1041,7 +1042,7 @@ NvDlaError Emulator::executeConvolutionNaive
         NvDlaDebugPrintf("\taddress[%u][%u] 0x%llx (%ux%ux%u) %uB\n", *dst.addressIndex(),  *dst.addressIndexOffset(),
                 addressList[*dst.addressIndex()], *dst.width(), *dst.height(), *dst.channel(), *dst.size());
         NvDlaDebugPrintf("\tline_stride %uB surface_stride %uB\n", *dst.lineStride(), *dst.surfStride());
-        
+
         NvDlaDebugPrintf("weights format %u\n", *weights.format());
         NvDlaDebugPrintf("\taddress[%u][%u] 0x%llx (%ux%ux%u) %uB\n", *weights.addressIndex(),  *weights.addressIndexOffset(),
                 addressList[*weights.addressIndex()], *weights.width(), *weights.height(), *weights.channel(), *weights.size());
@@ -1100,7 +1101,7 @@ if (*opDesc.in_precision() == EMU_FORMAT_FF16) {
     fp16_t *w_hwim = reinterpret_cast<half*>( addressList[*weights.addressIndex()] + *weights.addressIndexOffset());
     fp16_t *bias = reinterpret_cast<half*>( addressList[*biases.addressIndex()] + *biases.addressIndexOffset());
     fp16_t *out = reinterpret_cast<half*>( addressList[*dst.addressIndex()] + *dst.addressIndexOffset());
-    
+
     // for (int sss = 0; sss < *src.size()/2; sss++) {
     //     NvDlaDebugPrintf("0x%08x (%f) ", in[sss], float(in[sss]));
     //     if (!((sss+1) % *src.width())) {
@@ -1150,7 +1151,7 @@ if (*opDesc.in_precision() == EMU_FORMAT_FF16) {
     half *in_unpacked_half = reinterpret_cast<half*>(in_unpacked);
     // return e;
     uint32_t in_ind;
-    
+
     // for (int c0 = 0; c0 < Ci; c0++) {
     //     for (int y0 = 0; y0 < Hi; y0++) {
     //         for (int x0 = 0; x0 < Wi; x0++) {
@@ -1204,19 +1205,19 @@ if (*opDesc.in_precision() == EMU_FORMAT_FF16) {
 
     //                         int in_y = y0 * S + fh - pad_top;
     //                         int in_x = x0 * S + fw - pad_left;
-                            
+
     //                         float input_val = 0.0f;
     //                         if (in_y >= 0 && in_y < Hi && in_x >= 0 && in_x < Wi) {
     //                             input_val = in[(ci * Hi + in_y) * Wi + in_x]*255.0;
     //                         }
-                        
+
     //                         NvDlaDebugPrintf("% 4.0f ", (float)input_val);
     //                     }
     //                     NvDlaDebugPrintf("  ");
-                        
+
     //                     for (int fw = 0; fw < Fw; fw++) {
     //                         uint32_t w_ind = ((c0 * Ci + ci) * Fh + fh) * Fw + fw;
-                            
+
     //                         NvDlaDebugPrintf("% 2.4f ", (float)w_hwim[((c0 * Ci + ci) * Fh + fh) * Fw + fw]);
     //                     }
     //                     NvDlaDebugPrintf("\n");
@@ -1246,7 +1247,7 @@ if (*opDesc.in_precision() == EMU_FORMAT_FF16) {
 
                             int in_y = y0 * Sy + fh - pad_top;
                             int in_x = x0 * Sx + fw - pad_left;
-                            
+
                             float input_val = 0.0f;
                             if (in_y >= 0 && in_y < Hi && in_x >= 0 && in_x < Wi) {
                                 input_val = in[(ci * Hi + in_y) * Wi + in_x];
@@ -1314,7 +1315,7 @@ if (*opDesc.in_precision() == EMU_FORMAT_FF16) {
     int16_t *bias = reinterpret_cast<int16_t*>( addressList[*biases.addressIndex()] + *biases.addressIndexOffset());
     int16_t *requant = reinterpret_cast<int16_t*>( addressList[*requants.addressIndex()] + *requants.addressIndexOffset());
     int8_t *out = reinterpret_cast<int8_t*>( addressList[*dst.addressIndex()] + *dst.addressIndexOffset());
-    
+
     // for (int sss = 0; sss < *src.size()/2; sss++) {
     //     NvDlaDebugPrintf("0x%08x (%f) ", in[sss], float(in[sss]));
     //     if (!((sss+1) % *src.width())) {
@@ -1337,7 +1338,7 @@ if (*opDesc.in_precision() == EMU_FORMAT_FF16) {
     int8_t *in_unpacked_int8 = reinterpret_cast<int8_t*>(in_unpacked);
     // return e;
     uint32_t in_ind;
-    
+
     // for (int c0 = 0; c0 < Ci; c0++) {
     //     for (int y0 = 0; y0 < Hi; y0++) {
     //         for (int x0 = 0; x0 < Wi; x0++) {
@@ -1387,7 +1388,7 @@ if (*opDesc.in_precision() == EMU_FORMAT_FF16) {
 
                             int in_y = y0 * Sy + fh - pad_top;
                             int in_x = x0 * Sx + fw - pad_left;
-                            
+
                             int64_t input_val = 0;
                             if (in_y >= 0 && in_y < Hi && in_x >= 0 && in_x < Wi) {
                                 input_val = static_cast<int64_t>(in[(ci * Hi + in_y) * Wi + in_x]);
@@ -1433,7 +1434,7 @@ if (*opDesc.in_precision() == EMU_FORMAT_FF16) {
      * TODO: ReLU in INT8 may have scale and truncate params.
      * There is no straightforward way to pass these values to
      * convolution operation description in ONNC.
-     * 
+     *
      * We leave this for future work.
      */
     // ReLU
@@ -1530,7 +1531,7 @@ NvDlaError Emulator::executeConvolution
         NvDlaDebugPrintf("\taddress[%u][%u] 0x%llx (%ux%ux%u) %uB\n", *dst.addressIndex(),  *dst.addressIndexOffset(),
                 addressList[*dst.addressIndex()], *dst.width(), *dst.height(), *dst.channel(), *dst.size());
         NvDlaDebugPrintf("\tline_stride %uB surface_stride %uB\n", *dst.lineStride(), *dst.surfStride());
-        
+
         NvDlaDebugPrintf("weights format %u\n", *weights.format());
         NvDlaDebugPrintf("\taddress[%u][%u] 0x%llx (%ux%ux%u) %uB\n", *weights.addressIndex(),  *weights.addressIndexOffset(),
                 addressList[*weights.addressIndex()], *weights.width(), *weights.height(), *weights.channel(), *weights.size());
@@ -1544,8 +1545,8 @@ NvDlaError Emulator::executeConvolution
     fp16_t *bias = reinterpret_cast<half*>( addressList[*biases.addressIndex()] + *biases.addressIndexOffset());
     // ShapeNHWC so,
     int kh = *weights.height();
-    int kw = *weights.width(); 
-    int sh = 1; int sw = 1; 
+    int kw = *weights.width();
+    int sh = 1; int sw = 1;
     int pad = 0; int dm = 1;
     fp16_t *out = reinterpret_cast<half*>( addressList[*dst.addressIndex()] + *dst.addressIndexOffset());
 
@@ -1555,7 +1556,7 @@ NvDlaError Emulator::executeConvolution
     //         NvDlaDebugPrintf("\n");
     //     }
     // }
-    // 
+    //
     // return e;
 
     for (int sss = 0; sss < *weights.size(); sss++) {
@@ -1802,7 +1803,7 @@ NvDlaError Emulator::executePool
                 addressList[*dst.addressIndex()], *dst.width(), *dst.height(), *dst.channel(), *dst.size());
         NvDlaDebugPrintf("\tline_stride %uB surface_stride %uB\n", *dst.lineStride(), *dst.surfStride());
     }
-    
+
     // general
     // int S = 1;
     // int pad = 0;
@@ -1835,7 +1836,7 @@ NvDlaError Emulator::executePool
     unpack_nvdla_feature_map(in_bytes, in_unpacked, Ci, Hi, Wi, Wi, Wi, 32, ELEMENT_SIZE);
     // return e;
     uint32_t in_ind;
-    
+
     // for (int c0 = 0; c0 < Ci; c0++) {
     //     for (int y0 = 0; y0 < Hi; y0++) {
     //         for (int x0 = 0; x0 < Wi; x0++) {
@@ -1865,7 +1866,7 @@ NvDlaError Emulator::executePool
     {
         fp16_t *in = reinterpret_cast<half*>( addressList[*src.addressIndex()] + *src.addressIndexOffset());
         fp16_t *out = reinterpret_cast<half*>( addressList[*dst.addressIndex()] + *dst.addressIndexOffset());
-        
+
         half *in_unpacked_half = reinterpret_cast<half*>(in_unpacked);
         in = in_unpacked_half;
 
@@ -2030,7 +2031,7 @@ NvDlaError Emulator::executePool
 
                         // out[((oh * Wo + ow) * Ci) + c] = (cnt > 0) ? (sum / (float)cnt) : 0.f;
                         // out_unpacked_int8[(c * Ho + oh) * Wo + ow] = (cnt > 0) ? (sum / cnt) : 0;
-                        out_unpacked_int8[(c * Ho + oh) * Wo + ow] = (cnt > 0) ? int8_t(tmp_int) : 0;              
+                        out_unpacked_int8[(c * Ho + oh) * Wo + ow] = (cnt > 0) ? int8_t(tmp_int) : 0;
                     }
                 }
             }
@@ -2178,7 +2179,7 @@ NvDlaError Emulator::executeSdp
         fp16_t *in = reinterpret_cast<half*>( addressList[*src.addressIndex()] + *src.addressIndexOffset());
         fp16_t *x1 = reinterpret_cast<half*>( addressList[*x1_data.addressIndex()] + *x1_data.addressIndexOffset());
         fp16_t *out = reinterpret_cast<half*>( addressList[*dst.addressIndex()] + *dst.addressIndexOffset());
-        
+
         half *in_unpacked_half = reinterpret_cast<half*>(in_unpacked);
         in = in_unpacked_half;
         half *out_unpacked_half = new half[Co * Ho * Wo];
@@ -2246,7 +2247,7 @@ NvDlaError Emulator::executeSdp
                         }
                         else {
                             out_unpacked_half[ind] = in_unpacked_half[ind];
-                        } 
+                        }
                     }
                 }
             }
@@ -2267,7 +2268,7 @@ NvDlaError Emulator::executeSdp
         uint8_t *dst_bytes = reinterpret_cast<uint8_t*>( addressList[*dst.addressIndex()] + *dst.addressIndexOffset());
         uint8_t *out_unpacked_bytes = reinterpret_cast<uint8_t*>(out_unpacked_half);
         pack_nvdla_feature_map(out_unpacked_bytes, dst_bytes, Co, Ho, Wo, Wo, Wo, 32, ELEMENT_SIZE);
-        
+
         // print sdp result
         NvDlaDebugPrintf("=== Sdp RESULT ===\n");
         for (int c0 = 0; c0 < Co; c0++) {
@@ -2435,7 +2436,7 @@ NvDlaError Emulator::executeSdp
                             int64_t upper = 127;
 
                             out_unpacked_int8[ind] = std::max(lower, std::min(in_i64, upper));
-                        } 
+                        }
                     }
                 }
             }
@@ -2456,7 +2457,7 @@ NvDlaError Emulator::executeSdp
         uint8_t *dst_bytes = reinterpret_cast<uint8_t*>( addressList[*dst.addressIndex()] + *dst.addressIndexOffset());
         uint8_t *out_unpacked_bytes = reinterpret_cast<uint8_t*>(out_unpacked_int8);
         pack_nvdla_feature_map(out_unpacked_bytes, dst_bytes, Co, Ho, Wo, Wo, Wo, 32, ELEMENT_SIZE);
-        
+
         // print sdp result
         // NvDlaDebugPrintf("=== Sdp RESULT ===\n");
         // for (int c0 = 0; c0 < Co; c0++) {
