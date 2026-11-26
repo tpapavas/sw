@@ -2499,7 +2499,16 @@ NvDlaError Emulator::executeRubik
     fp16_t *in = reinterpret_cast<half*>( addressList[*src.addressIndex()] + *src.addressIndexOffset());
     fp16_t *out = reinterpret_cast<half*>( addressList[*dst.addressIndex()] + *dst.addressIndexOffset());
 
-    uint32_t ELEMENT_SIZE = *opDesc.precision() == EMU_FORMAT_FF16 ? 2 : 1;
+    // uint32_t ELEMENT_SIZE = *opDesc.precision() == EMU_FORMAT_FF16 ? 2 : 1;
+    /**
+     * rubik precision is defined in a different way than other ops
+     * in genmem::Register
+     *
+     * if (elementSize == 1) in_precison = 0;
+     * else if (elementSize == 2) in_precison = 1;
+     * else in_precison = -1;
+     */
+    uint32_t ELEMENT_SIZE = *opDesc.precision() == 1 ? 2 : 1;
 
     if ( debugOps() )
     {
