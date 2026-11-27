@@ -117,6 +117,12 @@ public:
 #define MAX_NUM_DLAS 2U /* max gem5 dla instances */
 #define MAX_NUM_BATCHES 4U /* max gem5 net batches */
 
+/* batch-stage scheduler types (must match BS_SCHED_* in dla_interface.h) */
+#define NVDLA_BS_SCHED_NAIVE        0U
+#define NVDLA_BS_SCHED_WHOLE_BATCH  1U
+#define NVDLA_BS_SCHED_WHOLE_STAGE  2U
+#define NVDLA_BS_SCHED_MAX          NVDLA_BS_SCHED_WHOLE_STAGE
+
     struct NvDlaTensor
     {
         char name[NVDLA_RUNTIME_TENSOR_DESC_NAME_MAX_LEN + 1];
@@ -159,6 +165,7 @@ public:
     virtual NvDlaError setNumDLAs(NvU8) = 0;
     virtual NvU8 getNumDLAs() = 0;
     virtual NvDlaError setNumBatches(NvU8) = 0;
+    virtual NvDlaError setBsSchedType(NvU8) = 0;
     virtual NvDlaError setDlaArch(std::string) = 0;
 
     virtual bool submit() = 0;

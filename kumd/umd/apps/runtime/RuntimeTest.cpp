@@ -406,6 +406,7 @@ NvDlaError runTest(const TestAppArgs* appArgs, TestInfo* i)
 
     nvdla::IRuntime* runtime = i->runtime;
     PROPAGATE_ERROR_FAIL(runtime->setNumDLAs(appArgs->numDlas));
+    PROPAGATE_ERROR_FAIL(runtime->setBsSchedType(appArgs->bsSchedType));
     if (!runtime)
         ORIGINATE_ERROR_FAIL(NvDlaError_BadParameter, "getRuntime() failed");
 

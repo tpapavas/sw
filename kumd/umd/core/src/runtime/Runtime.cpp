@@ -900,7 +900,7 @@ NvDlaError Runtime::submitInternal()
                     std::cout << "[Runtime::submitInternal]   fillTaskAddressList() done\n";
 
                     std::cout << "[Runtime::submitInternal]   Calling NvDlaSubmit(DLA1)\n";
-                    PROPAGATE_ERROR_FAIL( NvDlaSubmit(NULL, dev, &dla_task, 1, net, deps, ops, surfs, luts, num_dlas, num_batches) );
+                    PROPAGATE_ERROR_FAIL( NvDlaSubmit(NULL, dev, &dla_task, 1, net, deps, ops, surfs, luts, num_dlas, num_batches, bs_sched_type) );
                     std::cout << "[Runtime::submitInternal]   NvDlaSubmit(DLA1) OK\n";
                 }
                 break;
@@ -2387,6 +2387,21 @@ NvDlaError Runtime::setNumBatches(NvU8 batches)
             batches, MAX_NUM_BATCHES);
     }
     num_batches = batches;
+
+fail:
+    return e;
+}
+
+NvDlaError Runtime::setBsSchedType(NvU8 type)
+{
+    NvDlaError e = NvDlaSuccess;
+
+    if (type > NVDLA_BS_SCHED_MAX) {
+        ORIGINATE_ERROR_FAIL(NvDlaError_BadParameter,
+            "batch-stage scheduler type %d is not supported (max: %d)",
+            type, NVDLA_BS_SCHED_MAX);
+    }
+    bs_sched_type = type;
 
 fail:
     return e;

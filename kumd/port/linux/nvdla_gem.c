@@ -163,13 +163,8 @@ int32_t u__nvdla_submit(/* struct drm_device *drm, */void *arg /*, struct drm_fi
 	// engine->num_stages = 2;
 	// engine->stage_limits[0] = 3; // for lenet (after CONV1-SDP1-PDP1)
 
-	/**
-	 * TODO: add argument for bs scheduler type
-	 */
-	// switch (args->batch_stage_scheduler_type) {
-	uint8_t bs_sched_type = BS_SCHED_NAIVE;
-	// uint8_t bs_sched_type = BS_SCHED_WHOLE_STAGE;
-	switch (bs_sched_type) {
+	/* batch-stage scheduler type, passed from the runtime app (--sched) */
+	switch (args->bs_sched_type) {
 		case BS_SCHED_NAIVE:
 			engine->can_schedule_op_on_dev = can_schedule_op_on_dev_anyware;
 			break;

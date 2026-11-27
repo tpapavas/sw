@@ -103,6 +103,7 @@ struct nvdla_submit_args {
     __u32 version;
     __u8 num_dlas;
     __u8 num_batches;
+    __u8 bs_sched_type;
 };
 
 /**

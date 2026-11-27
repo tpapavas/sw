@@ -51,6 +51,7 @@ struct TestAppArgs
     NvU8 numDlas;
     NvU8 numBatches;
     std::string dlaArch;
+    NvU8 bsSchedType;
 
     TestAppArgs() :
         inputPath("./"),
@@ -62,7 +63,8 @@ struct TestAppArgs
         rawOutputDump(false),
         numDlas(1),
         numBatches(1),
-        dlaArch("nv_full")
+        dlaArch("nv_full"),
+        bsSchedType(NVDLA_BS_SCHED_WHOLE_BATCH)
     {}
 };
 

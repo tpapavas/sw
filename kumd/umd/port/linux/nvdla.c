@@ -181,7 +181,8 @@ NvDlaError
 NvDlaSubmit(void *session_handle, void *device_handle, NvDlaTask *pTasks, NvU32 num_tasks,
         struct dla_network_desc *network, struct dla_common_op_desc *deps,
         union dla_operation_container *ops, union dla_surface_container *surfs,
-        struct dla_lut_param *luts, NvU8 num_dlas, NvU8 num_batches)
+        struct dla_lut_param *luts, NvU8 num_dlas, NvU8 num_batches,
+        NvU8 bs_sched_type)
 {
     NvDlaDeviceHandle dla_device = (NvDlaDeviceHandle)device_handle;
     struct nvdla_mem_handle address_list[num_tasks][NVDLA_MAX_BUFFERS_PER_TASK];
@@ -194,6 +195,7 @@ NvDlaSubmit(void *session_handle, void *device_handle, NvDlaTask *pTasks, NvU32 
     args.num_tasks = num_tasks;
     args.num_dlas = num_dlas;
     args.num_batches = num_batches;
+    args.bs_sched_type = bs_sched_type;
 
     for (i = 0; i < num_tasks; i++) {
         uint32_t num_addresses = tasks[i].num_addresses =

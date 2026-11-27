@@ -215,6 +215,28 @@ int main(int argc, char* argv[])
 
             testAppArgs.numBatches = atoi(argv[++ii]);
         }
+        else if (std::strcmp(arg, "--sched") == 0)
+        {
+            if (ii+1 >= argc)
+            {
+                // Expecting another parameter
+                showHelp = true;
+                break;
+            }
+
+            std::string sched(argv[++ii]);
+            if (sched == "naive" || sched == "0")
+                testAppArgs.bsSchedType = NVDLA_BS_SCHED_NAIVE;
+            else if (sched == "batch" || sched == "1")
+                testAppArgs.bsSchedType = NVDLA_BS_SCHED_WHOLE_BATCH;
+            else if (sched == "stage" || sched == "2")
+                testAppArgs.bsSchedType = NVDLA_BS_SCHED_WHOLE_STAGE;
+            else {
+                NvDlaDebugPrintf("Value of 'sched' should be naive, batch or stage\n");
+                showHelp = true;
+                break;
+            }
+        }
         else if (std::strcmp(arg, "--arch") == 0)
         {
             if (ii+1 >= argc)
@@ -261,6 +283,7 @@ int main(int argc, char* argv[])
         NvDlaDebugPrintf("    --rawdump             dump raw dimg data\n");
         NvDlaDebugPrintf("    --dlas                number of dla devices\n");
         NvDlaDebugPrintf("    --batches             number of model batches (inputs)\n");
+        NvDlaDebugPrintf("    --sched               multi-dla batch-stage scheduler (naive/batch/stage, default: batch)\n");
         NvDlaDebugPrintf("    --arch                dla architecture (nv_full/nv_small)\n");
 
         if (unknownArg || missingArg)
