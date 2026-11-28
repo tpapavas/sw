@@ -58,11 +58,11 @@ get_op_batch_id(struct dla_common_op_desc* op_desc) {
 /**
  * TODO: implement some logic
  */
-static inline uint8_t
+static inline uint16_t
 get_op_stage_id(struct dla_common_op_desc* op_desc) {
-	uint8_t single_batch_op_index = op_desc->index / dla_get_engine()->num_batches;
-	uint8_t num_stages = dla_get_engine()->num_stages;
-	uint8_t* stage_limits = &dla_get_engine()->stage_limits;
+	int16_t single_batch_op_index = op_desc->index / dla_get_engine()->num_batches;
+	uint16_t num_stages = dla_get_engine()->num_stages;
+	uint16_t* stage_limits = &dla_get_engine()->stage_limits;
 
 	for (int i = 0; i < num_stages-1; i++) {
 		if (single_batch_op_index < stage_limits[i]) {
@@ -78,7 +78,7 @@ static void
 update_job_map(struct dla_common_op_desc* op_desc, struct dla_processor* processor)
 {
 	uint8_t batch_id;
-	uint8_t stage_id;
+	uint16_t stage_id;
 	struct dla_engine* engine;
 	int8_t* current_job_dev;
 
@@ -104,7 +104,7 @@ static bool
 check_custom_deps(struct dla_common_op_desc* op_desc, struct dla_processor* processor)
 {
 	uint8_t batch_id;
-	uint8_t stage_id;
+	uint16_t stage_id;
 	struct dla_engine* engine;
 	int8_t* current_job_dev;
 	bool custom_deps_met;
@@ -1270,6 +1270,7 @@ dla_initiate_processors(struct dla_engine *engine)
 	struct dla_common_op_desc *consumer;
 	struct dla_network_desc *nw;
 	struct nvdla_device *nvdla_dev = (struct nvdla_device *)engine->driver_context;
+	int32_t ii;
 
 	dla_debug("Enter: %s\n", __func__);
 
@@ -1309,7 +1310,12 @@ dla_initiate_processors(struct dla_engine *engine)
 			goto exit;
 		}
 
+        for (ii = 0; ii < engine->num_dlas; ii++) {
 		processor = &engine->processors[0][consumer->op_type];
+        processor = &engine->processors[ii][consumer->op_type];
+            dla_debug("Check custom dependencies");
+            if (check_custom_deps(consumer, processor)) {
+                dla_debug("custom dependencies solved");
 
 		ret = dla_submit_operation(processor, consumer, 0);
 		dla_put_op_desc(consumer);
@@ -1318,6 +1324,10 @@ dla_initiate_processors(struct dla_engine *engine)
 						processor->name, index);
 			goto exit;
 		}
+
+                break; // if custom deps solved
+            } // custom deps
+        } // num dlas
 
 		ret = dla_dequeue_operation(engine, processor);
 		if (ret) {

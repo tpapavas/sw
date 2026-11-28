@@ -347,11 +347,11 @@ dla_rubik_rdma_check(struct dla_processor_group *group);
  * Multi-batch/Multi-pipeline operations
  */
 bool
-can_schedule_op_on_dev_anyware(struct dla_common_op_desc *op_desc, uint8_t batch_id, uint8_t stage_id, uint8_t dev_id);
+can_schedule_op_on_dev_anyware(struct dla_common_op_desc *op_desc, uint8_t batch_id, uint16_t stage_id, uint8_t dev_id);
 bool
-can_schedule_op_on_dev_all_batch_ops_on_corr_dev(struct dla_common_op_desc *op_desc, uint8_t batch_id, uint8_t stage_id, uint8_t dev_id);
+can_schedule_op_on_dev_all_batch_ops_on_corr_dev(struct dla_common_op_desc *op_desc, uint8_t batch_id, uint16_t stage_id, uint8_t dev_id);
 bool
-can_schedule_op_on_dev_same_stage_id_on_same_dev(struct dla_common_op_desc *op_desc, uint8_t batch_id, uint8_t stage_id, uint8_t dev_id);
+can_schedule_op_on_dev_same_stage_id_on_same_dev(struct dla_common_op_desc *op_desc, uint8_t batch_id, uint16_t stage_id, uint8_t dev_id);
 
 
 void start_bdma_0();

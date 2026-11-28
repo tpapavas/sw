@@ -93,13 +93,13 @@ struct dla_engine {
 
 	uint8_t num_dlas;
 	uint8_t num_batches;
-	uint8_t num_stages;
+	uint16_t num_stages;
 	int8_t job_map[MAX_BATCH_NUM][MAX_STAGE_NUM];
-	uint8_t stage_limits[MAX_STAGE_NUM-1];
+	uint16_t stage_limits[MAX_STAGE_NUM-1];
 
 	void *driver_context;
 
-	bool (*can_schedule_op_on_dev)(struct dla_common_op_desc *op_desc, uint8_t batch_id, uint8_t stage_id, uint8_t dev_id);
+	bool (*can_schedule_op_on_dev)(struct dla_common_op_desc *op_desc, uint8_t batch_id, uint16_t stage_id, uint8_t dev_id);
 };
 
 struct dla_engine *dla_get_engine(void);

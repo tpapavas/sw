@@ -211,6 +211,86 @@ int32_t u__nvdla_submit(/* struct drm_device *drm, */void *arg /*, struct drm_fi
 	task->luts = u__task->luts;
 	// task->file = file;
 
+    /**
+     * In BS_SCHED_WHOLE_STAGE,
+     * we need to mark the limits of each stage.
+     * stage-division policy: move to
+     * the next stage on a new conv op
+     */
+    if (args->bs_sched_type == BS_SCHED_WHOLE_STAGE) {
+        int16_t last_stage_id = -2;
+        for (uint16_t i = 0; i < u__task->network->num_operations; ++i) {
+            if (i % args->num_batches > 0) {
+                continue;
+            }
+
+            const struct dla_common_op_desc *d = &u__task->deps[i];
+            uint8_t op_type = d->op_type;
+
+            const union dla_operation_container *oc = &u__task->ops[i];
+            const union dla_surface_container   *sc = &u__task->surfs[i];
+
+            switch (op_type) {
+            case DLA_OP_BDMA: {
+                const struct dla_bdma_op_desc     *bdma = &oc->bdma_op;
+                const struct dla_bdma_surface_desc *bs  = &sc->bdma_surface;
+                break;
+            }
+            case DLA_OP_CONV: {
+                const struct dla_conv_op_desc     *conv = &oc->conv_op;
+                const struct dla_conv_surface_desc *cs  = &sc->conv_surface;
+
+                last_stage_id++;
+                if (last_stage_id >= MAX_STAGE_NUM-1) return -EINVAL;
+                if (last_stage_id >= 0) {
+                    engine->stage_limits[last_stage_id] = i / args->num_batches;
+                }
+                break;
+            }
+            case DLA_OP_SDP: {
+                const struct dla_sdp_op_desc     *sdp = &oc->sdp_op;
+                const struct dla_sdp_surface_desc *ss = &sc->sdp_surface;
+                break;
+            }
+            case DLA_OP_PDP: {
+                const struct dla_pdp_op_desc     *pdp = &oc->pdp_op;
+                const struct dla_pdp_surface_desc *ps = &sc->pdp_surface;
+                break;
+            }
+            case DLA_OP_CDP: {
+                const struct dla_cdp_op_desc      *cdp = &oc->cdp_op;
+                const struct dla_cdp_surface_desc *csd = &sc->cdp_surface;
+                break;
+            }
+            case DLA_OP_RUBIK: {
+                const struct dla_rubik_op_desc     *rb = &oc->rubik_op;
+                const struct dla_rubik_surface_desc *rs = &sc->rubik_surface;
+                break;
+            }
+            default:
+                fprintf(stderr, "    [info] unknown op_type=%d (no detailed dump implemented)\n", (int)op_type);
+                break;
+            }
+        }
+        engine->num_stages = (last_stage_id + 1) + 1;
+        if (engine->num_stages == 0) {
+            fprintf(stderr, "[BS_WHOLE_STAGE] no stages (because no CONVs); set num_stages to 1\n");
+            engine->num_stages = 1;
+        }
+
+        for (int i = 0; i < engine->num_stages-1; i++) {
+            fprintf(stderr, "[BS_WHOLE_STAGE] stage #%d limit: op #%d\n", i, engine->stage_limits[i]);
+        }
+
+        // initialize map of jobs (batch-stage pair) to -1
+        // (-1 means job has not been scheduled to any dev yet)
+        for (uint8_t i = 0; i < engine->num_batches; i++) {
+            for (uint16_t j = 0; j < engine->num_stages; j++) {
+                engine->job_map[i][j] = -1;
+            }
+        }
+    }
+
 	/* update task desc fields */
 	err = nvdla_fill_task_desc(&local_task, task);
 	// if (err)

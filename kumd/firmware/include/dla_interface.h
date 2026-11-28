@@ -83,7 +83,7 @@
  * @brief ...
  * @{
  */
-#define MAX_STAGE_NUM		2
+#define MAX_STAGE_NUM		1000
 /** @} */
 
 /**

@@ -281,7 +281,7 @@ exit:
 }
 
 bool
-can_schedule_op_on_dev_anyware(struct dla_common_op_desc *op_desc, uint8_t batch_id, uint8_t stage_id, uint8_t dev_id)
+can_schedule_op_on_dev_anyware(struct dla_common_op_desc *op_desc, uint8_t batch_id, uint16_t stage_id, uint8_t dev_id)
 {
 	return true;
 }
@@ -296,7 +296,7 @@ can_schedule_op_on_dev_anyware(struct dla_common_op_desc *op_desc, uint8_t batch
  * dla3 || b3-s0 | b3-s1 | b3-s2 | b3-s3
  */
 bool
-can_schedule_op_on_dev_all_batch_ops_on_corr_dev(struct dla_common_op_desc *op_desc, uint8_t batch_id, uint8_t stage_id, uint8_t dev_id)
+can_schedule_op_on_dev_all_batch_ops_on_corr_dev(struct dla_common_op_desc *op_desc, uint8_t batch_id, uint16_t stage_id, uint8_t dev_id)
 {
 	struct dla_engine* engine;
 	int8_t num_dlas;
@@ -318,7 +318,7 @@ can_schedule_op_on_dev_all_batch_ops_on_corr_dev(struct dla_common_op_desc *op_d
  * dla3 ||       |       |       | b0-s3 | b1-s3 | b2-s3 |
  */
 bool
-can_schedule_op_on_dev_same_stage_id_on_same_dev(struct dla_common_op_desc *op_desc, uint8_t batch_id, uint8_t stage_id, uint8_t dev_id)
+can_schedule_op_on_dev_same_stage_id_on_same_dev(struct dla_common_op_desc *op_desc, uint8_t batch_id, uint16_t stage_id, uint8_t dev_id)
 {
 	struct dla_engine* engine;
 	int8_t num_dlas;
